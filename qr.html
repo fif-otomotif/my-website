@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Generator & Scanner</title>
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --bg: #f8f9fa;
+      --text: #333;
+      --card: #ffffff;
+      --border: #ddd;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    input, select, button, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: box-shadow 0.3s ease, transform 0.2s;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transform: scale(1);
+    }
+
+    button:hover {
+      background-color: #3e9f45;
+      transform: scale(1.03);
+    }
+
+    #qrcode, #result {
+      margin-top: 20px;
+      text-align: center;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    canvas {
+      margin-top: 15px;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 60px 0 30px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .clock-container {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .clock-qr {
+      position: relative;
+      display: inline-block;
+    }
+
+    .clock-time {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      font-weight: bold;
+      color: rgba(0,0,0,0.9);
+      background-color: rgba(208,208,208,0.638);
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      input, select, button, textarea {
+        font-size: 14px;
+        padding: 10px;
+      }
+      
+      .clock-time {
+        font-size: 20px;
+      }
+    }
+    
+    .deksripsi {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    
+    .feature-card {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .tech-used {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Preview QR Code Otomatis</h2>
+    <input type="text" id="inputText" placeholder="Masukkan teks atau URL" oninput="previewQRCode()">
+    <button id="downloadBtn" onclick="downloadQRCode()" style="display:none;">Unduh QR</button>
+    <button id="uploadBtn" onclick="uploadToCatbox()" style="display:none; margin-top: 10px;">Upload ke Catbox</button>
+    <div id="catboxUrlContainer" style="margin-top: 15px; display: none;">
+      <strong>URL Catbox:</strong>
+      <textarea id="catboxUrl" readonly style="margin-top:10px;"></textarea>
+      <button onclick="copyCatboxUrl()">Salin URL</button>
+    </div>
+    <div id="qrcode"></div>
+  </div>
+
+  <hr>
+
+  <div class="card">
+    <h2>Pemindai QR Code</h2>
+    <label for="scanMethod">Pilih metode input:</label>
+    <select id="scanMethod" onchange="switchScanMethod()">
+      <option value="file">Unggah Gambar</option>
+      <option value="url">Dari URL Gambar</option>
+    </select>
+    <div id="scanArea">
+      <input type="file" id="fileInput" accept="image/*" onchange="scanQRFromFile(this)">
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <div class="clock-container">
+    <div class="clock-qr">
+      <canvas id="clockQR"></canvas>
+      <div class="clock-time" id="clockTime"></div>
+    </div>
+  </div>
+  
+<div class="deksripsi">
+  <h2>Tentang Generator QR Code Ini</h2>
+  <p>
+    Generator QR Code modern dengan fitur lengkap! Ubah teks, link, atau informasi apapun menjadi QR code dalam sekejap. 
+    Cocok untuk:
+  </p>
+  <ul>
+    <li>🔹 Berbagi link website/media sosial</li>
+    <li>🔹 Menyimpan kontak penting</li>
+    <li>🔹 Pembayaran digital</li>
+    <li>🔹 Atau sekedar iseng bikin QR code wajah kamu!</li>
+  </ul>
+
+  <h3>Fitur Unggulan</h3>
+  <div class="features">
+    <div class="feature-card">
+      <h4>⚡ Generate Instan</h4>
+      <p>QR code langsung muncul saat kamu mengetik</p>
+    </div>
+    <div class="feature-card">
+      <h4>🔄 Scan dari File/URL</h4>
+      <p>Bisa scan QR code dari gambar atau link</p>
+    </div>
+    <div class="feature-card">
+      <h4>⏱️ QR Code Waktu Real-time</h4>
+      <p>Fitur eksklusif jam digital dalam QR code</p>
+    </div>
+  </div>
+
+  <h3>Cara Menggunakan</h3>
+  <ol>
+    <li>Ketik teks atau URL di kolom input</li>
+    <li>QR code akan otomatis ter-generate</li>
+    <li>Download atau upload ke Catbox</li>
+    <li>Scan QR code dari file atau URL</li>
+  </ol>
+
+  <div class="tech-used">
+    <h3>Teknologi Yang Digunakan</h3>
+    <p>
+      Dibangun dengan HTML, CSS, dan JavaScript murni. Menggunakan library:
+    </p>
+    <ul>
+      <li>QRCode.js untuk generate QR</li>
+      <li>jsQR untuk scanning</li>
+    </ul>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script>
+    let qrCanvas;
+
+    function previewQRCode() {
+      const text = document.getElementById("inputText").value;
+      const container = document.getElementById("qrcode");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const uploadBtn = document.getElementById("uploadBtn");
+      const catboxContainer = document.getElementById("catboxUrlContainer");
+
+      container.innerHTML = "";
+      downloadBtn.style.display = "none";
+      uploadBtn.style.display = "none";
+      catboxContainer.style.display = "none";
+
+      if (!text.trim()) return;
+
+      qrCanvas = document.createElement('canvas');
+      qrCanvas.style.animation = "fadeIn 0.6s ease";
+
+      QRCode.toCanvas(qrCanvas, text, error => {
+        if (!error) {
+          container.appendChild(qrCanvas);
+          downloadBtn.style.display = "block";
+          uploadBtn.style.display = "block";
+        }
+      });
+    }
+
+    function generateUniqueId() {
+      return Math.random().toString(36).substr(2, 9);
+    }
+
+    function downloadQRCode() {
+      if (!qrCanvas) return alert("QR belum dibuat.");
+      const uniqueId = generateUniqueId();
+      const link = document.createElement('a');
+      link.download = `qrcode-${uniqueId}.png`;
+      link.href = qrCanvas.toDataURL();
+      link.click();
+    }
+
+    function uploadToCatbox() {
+      if (!qrCanvas) return alert("QR belum dibuat.");
+
+      qrCanvas.toBlob(async function(blob) {
+        const formData = new FormData();
+        formData.append('qrImage', blob, 'qrcode.png');
+
+        try {
+          const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          const url = await response.text();
+          const container = document.getElementById('catboxUrlContainer');
+          const textarea = document.getElementById('catboxUrl');
+
+          textarea.value = url;
+          container.style.display = 'block';
+        } catch (error) {
+          alert("Gagal upload ke Catbox.");
+          console.error(error);
+        }
+      });
+    }
+
+    function copyCatboxUrl() {
+      const textarea = document.getElementById("catboxUrl");
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("URL Catbox disalin.");
+    }
+
+    function switchScanMethod() {
+      const method = document.getElementById("scanMethod").value;
+      const scanArea = document.getElementById("scanArea");
+      const result = document.getElementById("result");
+      result.innerHTML = "";
+      scanArea.innerHTML = "";
+
+      if (method === "file") {
+        scanArea.innerHTML = `<input type="file" accept="image/*" onchange="scanQRFromFile(this)">`;
+      } else {
+        scanArea.innerHTML = `
+          <input type="text" id="qrImageUrl" placeholder="URL gambar QR">
+          <button onclick="scanQRFromURL()">Pindai</button>
+        `;
+      }
+    }
+
+    function scanQRFromFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function () {
+        const img = new Image();
+        img.onload = () => processImage(img);
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function scanQRFromURL() {
+      const url = document.getElementById("qrImageUrl").value;
+      if (!url) return alert("Masukkan URL gambar.");
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => processImage(img);
+      img.onerror = () => alert("Gagal memuat gambar.");
+      img.src = url;
+    }
+
+    function processImage(img) {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, canvas.width, canvas.height);
+      const result = document.getElementById("result");
+
+      if (code) {
+        result.innerHTML = `
+          <strong>Hasil QR:</strong>
+          <textarea readonly id="qrText">${code.data}</textarea>
+          <button onclick="copyResult()">Salin ke Clipboard</button>
+        `;
+      } else {
+        result.textContent = "QR tidak dapat dikenali.";
+      }
+    }
+
+    function copyResult() {
+      const textArea = document.getElementById("qrText");
+      textArea.select();
+      textArea.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Hasil QR disalin.");
+    }
+
+    // Digital Clock QR Code
+    function updateClockQR() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timeString = `${hours}:${minutes}:${seconds}`;
+      
+      // Update the visible clock
+      document.getElementById('clockTime').textContent = timeString;
+      
+      // Update the QR code with the current time
+      const canvas = document.getElementById('clockQR');
+      QRCode.toCanvas(canvas, timeString, { width: 200 }, (error) => {
+        if (error) console.error(error);
+      });
+    }
+
+    // Update the clock every second
+    updateClockQR();
+    setInterval(updateClockQR, 1000);
+  </script>
+</body>
+</html>

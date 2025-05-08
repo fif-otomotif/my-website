@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>img</title>
+<link rel="icon" href="https://files.catbox.moe/77t7o0.png" sizes="16x16" type="image/png">
+    <style>
+        body {
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-image: url('https://files.catbox.moe/f0qur6.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+        }
+        #tanggal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #E0E0E0;
+            background-color: rgba(150, 150, 150, 0.7);;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 10px;
+        }
+        #button1 {
+          position: absolute;
+          color: white;
+          font-size: 12px;
+          top: 40px;
+          left: 10px;
+          width: 70px;
+          height: 20px;
+          background-color: gray;
+        }
+        #playButton {
+          position: absolute;
+          color: white;
+          background-color: gray;
+          font-size: 8px;
+          top: 10px;
+          left: 90px;
+          width: 50px;
+          height: 20px;
+        }
+        #changePromptBtn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 70px;
+            height: 20px;
+            font-size: 8px;
+            color: white;
+            background-color: gray;
+           
+        }
+        
+        #changePromptBtn:hover {
+            background-color: gray;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #E0E0E0;
+            overflow: hidden;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .animate-text {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #clockCanvas {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: transparent;
+        }
+
+        .img-wrapper {
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: gray;
+        }
+
+        .loading-text {
+            position: absolute;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        p {
+            color: #E0E0E0;
+        }
+        #new {
+          color: #E0E0E0;
+          font-size: 10px;
+        }
+
+        #bawah {
+            color: #E0E0E0;
+            font-size: 12px;
+            position: absolute;
+            top: 100%;
+            left: 28%;
+        }
+        #view {
+          color: #E0E0E0;
+          font-size: 11px;
+          position: absolute;
+          top: 50%;
+          left: 20%;
+        }
+        #playson {
+          color: #E0E0E0;
+          font-size: 11px;
+          position: absolute;
+          top: 53%;
+          left: 23%;
+        }
+
+        /* Bunga Jatuh */
+        .flower {
+            position: absolute;
+            top: -50px;
+            font-size: 24px;
+            color: pink;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        /* Container untuk gambar kalender */
+        #calendar-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        /* Image */
+        .calendar-image {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #333;
+        }
+
+        /* Close Button */
+        .close-button {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .close-button:hover {
+            background-color: darkred;
+        }
+
+        /* Animasi saat muncul */
+        .show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translate(-50%, -50%) scale(1) !important;
+        }
+            /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        max-width: 80%;
+        max-height: 80%;
+        text-align: center;
+    }
+
+    .modal-content img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .close {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    #showImageBtn {
+        position: absolute;
+            top: 40px;
+            left: 90px;
+            width: 50px;
+            height: 20px;
+            font-size: 9px;
+            color: white;
+            background-color: gray;
+    }
+
+    #showImageBtn:hover {
+        background-color: darkgray;
+    }
+    #api {
+      position: absolute;
+      top: 800px;
+      left: 152px;
+    }
+    </style>
+</head>
+<button id="showImageBtn">view</button>
+
+<!-- Modal untuk menampilkan gambar -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="fullImage" src="" alt="Full Image">
+    </div>
+</div>
+
+<script>
+    document.getElementById("showImageBtn").addEventListener("click", function() {
+        const modal = document.getElementById("imageModal");
+        const fullImage = document.getElementById("fullImage");
+        const imgSrc = document.getElementById("dynamic-img").src;
+
+        fullImage.src = imgSrc;
+        modal.style.display = "flex";
+    });
+
+    document.querySelector(".close").addEventListener("click", function() {
+        document.getElementById("imageModal").style.display = "none";
+    });
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("imageModal");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+</script>
+<!-- JAM ANALOG DI TENGAH ATAS -->
+<canvas id="clockCanvas" width="200" height="200"></canvas>
+
+<script>
+    const canvas = document.getElementById("clockCanvas");
+    const ctx = canvas.getContext("2d");
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 40;
+
+    function drawClock() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Lingkaran luar
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        // Ambil waktu WIB (UTC+7)
+        const now = new Date();
+        const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+        const wibTime = new Date(utc + 7 * 3600000);
+        const hours = wibTime.getHours() % 12;
+        const minutes = wibTime.getMinutes();
+
+        function drawHand(angle, length, lineWidth) {
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + length * Math.cos(angle), centerY + length * Math.sin(angle));
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = "#FFFFFF";
+        drawHand(((hours + minutes / 60) * 30 - 90) * (Math.PI / 180), 20, 2);
+        drawHand((minutes * 6 - 90) * (Math.PI / 180), 30, 1);
+    }
+
+    setInterval(drawClock, 1000);
+
+    // Bunga jatuh
+    function createFlower() {
+        const flower = document.createElement("span");
+        flower.innerHTML = "🌸";
+        flower.classList.add("flower");
+
+        flower.style.left = Math.random() * window.innerWidth + "px";
+        const size = Math.random() * 15 + 15;
+        flower.style.fontSize = size + "px";
+        const duration = Math.random() * 3 + 3;
+        flower.style.animationDuration = duration + "s";
+
+        document.body.appendChild(flower);
+        setTimeout(() => {
+            flower.remove();
+        }, duration * 1000);
+    }
+
+    setInterval(createFlower, 500);
+</script>
+
+<h1 id="animated-text"></h1>
+
+<script>
+    const text = "image maker!";
+    const animatedText = document.getElementById("animated-text");
+
+    text.split("").forEach((char, index) => {
+        let span = document.createElement("span");
+        span.innerHTML = char === " " ? "&nbsp;" : char;
+        span.classList.add("animate-text");
+        span.style.animationDelay = `${index * 0.1}s`;
+        animatedText.appendChild(span);
+    });
+</script>
+
+<div class="img-wrapper">
+    <span class="loading-text">Loading image...</span>
+    <img id="dynamic-img" src="https://fastrestapis.fasturl.cloud/aiimage/gemini?prompt=make%20me%20a%20picture%20of%20a%20beautiful%20forest%20view%20in%20anime%20and%20pixel%20style%2C%20with%20size%201%3A1">
+</div>
+
+<script>
+    const img = document.getElementById("dynamic-img");
+    const loadingText = document.querySelector(".loading-text");
+
+    img.onload = function () {
+        loadingText.classList.add("hidden");
+        img.style.display = "block";
+    };
+</script>
+
+<p>your picture is below</p>
+<button id="button1" type="button" onclick="resetPage()">Reset</button>
+
+<script>
+    function resetPage() {
+        localStorage.setItem("cooldown", "3"); 
+        location.reload();
+    }
+
+    window.onload = function() {
+        let btn = document.querySelector("button1");
+        let count = localStorage.getItem("cooldown");
+
+        if (count) {
+            btn.disabled = true;
+            btn.textContent = count;
+
+            let interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    btn.textContent = count;
+                    localStorage.setItem("cooldown", count);
+                } else {
+                    clearInterval(interval);
+                    btn.textContent = "Reset";
+                    btn.disabled = false;
+                    localStorage.removeItem("cooldown");
+                }
+            }, 1000);
+        }
+    };
+</script>
+
+<p id="tutor">press "reset" to recreate the image </p>
+<p id="new">press the "ganti prompt" button to change the image prompt</p>
+<p id="view">press the "view" button to see the original image</p>
+<p id="playson">press the "play" button to turn on the music</p>
+<h1 id="bawah">wait 3 seconds for next image</h1>
+<a id="api" href="https://fastrestapis.fasturl.cloud">Rest api</a>
+
+<!-- Fitur Prompt -->
+<script>
+    function getUserPrompt() {
+        let savedPrompt = localStorage.getItem("userPrompt");
+
+        if (!savedPrompt) {
+            let userInput = prompt("Masukkan prompt gambar (atau biarkan kosong untuk default):");
+            if (!userInput) {
+                userInput = "make me a picture of a beautiful forest view in anime and pixel style, with size 1:1"; 
+            }
+            localStorage.setItem("userPrompt", userInput);
+            return userInput;
+        }
+
+        return savedPrompt;
+    }
+
+    function updateImage() {
+        let userPrompt = getUserPrompt();
+        let imageUrl = `https://fastrestapis.fasturl.cloud/aiimage/gemini?prompt=${encodeURIComponent(userPrompt)}`;
+
+        const img = document.getElementById("dynamic-img");
+        img.src = imageUrl;
+    }
+
+    function changePrompt() {
+        localStorage.removeItem("userPrompt");
+        location.reload();
+    }
+
+    // Panggil saat halaman dimuat
+    updateImage();
+</script>
+
+<!-- Tombol Ganti Prompt -->
+<button id="changePromptBtn" onclick="changePrompt()">Ganti Prompt</button>
+ <button id="tanggal">calendar</button>
+  
+    <!-- Container untuk gambar kalender -->
+    <div id="calendar-container">
+        <button class="close-button" id="close-btn">X</button>
+        <img id="calendar-image" class="calendar-image" src="" alt="Kalender 2025">
+    </div>
+
+    <script>
+        document.getElementById("tanggal").addEventListener("click", async () => {
+            const bulan = new Date().getMonth() + 1;
+            const tahun = 2025;
+            const url = `https://fastrestapis.fasturl.cloud/maker/calendar/simple?month=${bulan}&year=${tahun}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Gagal mengambil gambar");
+
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+
+                const calendarContainer = document.getElementById("calendar-container");
+                document.getElementById("calendar-image").src = imageUrl;
+
+                // Menampilkan modal dengan animasi
+                calendarContainer.classList.add("show");
+            } catch (error) {
+                alert("Terjadi kesalahan: " + error.message);
+            }
+        });
+
+        document.getElementById("close-btn").addEventListener("click", () => {
+            const calendarContainer = document.getElementById("calendar-container");
+
+            // Menghilangkan modal dengan animasi
+            calendarContainer.classList.remove("show");
+        });
+    </script>
+<audio id="backsound" loop>
+  <source src="https://files.catbox.moe/8z83t5.mp3" type="audio/mpeg">
+</audio>
+
+<button id="playButton" onclick="toggleAudio()">Play</button>
+
+<script>
+  const audio = document.getElementById("backsound");
+  const button = document.getElementById("playButton");
+
+  // Cek status dari Local Storage saat halaman dimuat
+  if (localStorage.getItem("musicPlaying") === "true") {
+    audio.play();
+    button.textContent = "Pause";
+  }
+
+  function toggleAudio() {
+    if (audio.paused) {
+      audio.play();
+      button.textContent = "Pause";
+      localStorage.setItem("musicPlaying", "true"); // Simpan status
+    } else {
+      audio.pause();
+      button.textContent = "Play";
+      localStorage.setItem("musicPlaying", "false"); // Simpan status
+    }
+  }
+</script>
+</body>
+</html>

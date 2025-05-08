@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labirin 3D</title>
+    <style>
+        body { text-align: center; background: black; color: white; font-family: sans-serif; }
+        .container { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        .monitor { border: 10px solid gray; width: 620px; height: 420px; background: #111; display: flex; justify-content: center; align-items: center; }
+        canvas { background: black; }
+        .controller { margin-top: 10px; display: flex; flex-direction: column; align-items: center; }
+        .row { display: flex; gap: 10px; margin: 5px; }
+        button {
+            width: 60px; height: 60px; font-size: 18px; font-weight: bold;
+            background: gray; border: none; color: white; cursor: pointer; border-radius: 10px;
+        }
+        button:active { background: lightgray; }
+    </style>
+</head>
+<body>
+
+<h2>Labirin 3D</h2>
+
+<div class="container">
+    <div class="monitor">
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+    </div>
+
+    <div class="controller">
+        <div class="row">
+            <button onclick="lookUp()">👆</button>
+            <button onclick="lookDown()">👇</button>
+        </div>
+        <div class="row">
+            <button onclick="turnLeft()">↶</button>
+            <button onclick="moveForward()">↑</button>
+            <button onclick="turnRight()">↷</button>
+        </div>
+        <div class="row">
+            <button onclick="moveLeft()">←</button>
+            <button onclick="moveBackward()">↓</button>
+            <button onclick="moveRight()">→</button>
+        </div>
+        <div class="row">
+            <button onclick="interact()">🔓</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let map = [
+    "#########################",
+    "#     #   #   D       # #",
+    "# ### # # # ### ##### # #",
+    "# #   # # # T #     # # #",
+    "# # ##### ### # ### # # #",
+    "# #     #     #   #   # #",
+    "# ### ####### ### ##### #",
+    "#   #       # #       # #",
+    "### ##### # # # ####### #",
+    "#   #     #   #       # #",
+    "# ### ######### ##### # #",
+    "#     #       #       # #",
+    "##### # ##### ####### # #",
+    "#     #     #       # # #",
+    "# ######### ####### # # #",
+    "# #       #   #     # # #",
+    "# # ##### ### ##### # # #",
+    "# # #   #   #     # # # #",
+    "# # # # ##### ### # # # #",
+    "# #   #       #   #     #",
+    "# ##################### #",
+    "#            T          #",
+    "#########################"
+];
+
+const tileSize = 64;
+let player = { x: 100, y: 100, angle: 0, lookAngle: 0 };
+
+function castRays() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < canvas.width; i++) {
+        let rayAngle = player.angle - Math.PI / 8 + (i / canvas.width) * Math.PI / 4;
+        let distanceToWall = 0, hitWall = false;
+        
+        while (!hitWall && distanceToWall < 1000) {
+            distanceToWall += 5;
+            let rayX = player.x + Math.cos(rayAngle) * distanceToWall;
+            let rayY = player.y + Math.sin(rayAngle) * distanceToWall;
+
+            let mapX = Math.floor(rayX / tileSize);
+            let mapY = Math.floor(rayY / tileSize);
+
+            if (map[mapY] && map[mapY][mapX] === "#") hitWall = true;
+        }
+
+        let wallHeight = (tileSize * 1000) / (distanceToWall + 0.1);
+        ctx.fillStyle = `rgb(${255 - distanceToWall / 4}, ${255 - distanceToWall / 4}, 255)`;
+        ctx.fillRect(i, (canvas.height / 2) - wallHeight / 2 + player.lookAngle, 1, wallHeight);
+    }
+}
+
+function movePlayer(dir) {
+    let moveStep = dir * 10;
+    let newX = player.x + Math.cos(player.angle) * moveStep;
+    let newY = player.y + Math.sin(player.angle) * moveStep;
+
+    let mapX = Math.floor(newX / tileSize);
+    let mapY = Math.floor(newY / tileSize);
+
+    if (map[mapY] && map[mapY][mapX] !== "#") {
+        player.x = newX;
+        player.y = newY;
+    }
+}
+
+function strafePlayer(dir) {
+    let moveStep = dir * 10;
+    let newX = player.x + Math.cos(player.angle + Math.PI / 2) * moveStep;
+    let newY = player.y + Math.sin(player.angle + Math.PI / 2) * moveStep;
+
+    let mapX = Math.floor(newX / tileSize);
+    let mapY = Math.floor(newY / tileSize);
+
+    if (map[mapY] && map[mapY][mapX] !== "#") {
+        player.x = newX;
+        player.y = newY;
+    }
+}
+
+function interact() {
+    let checkX = Math.floor(player.x / tileSize);
+    let checkY = Math.floor(player.y / tileSize);
+
+    for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+            let targetX = checkX + dx;
+            let targetY = checkY + dy;
+            
+            if (map[targetY] && map[targetY][targetX] === "T") {
+                teleportPlayer();
+                return;
+            }
+            
+            if (map[targetY] && map[targetY][targetX] === "D") {
+                map[targetY] = map[targetY].substring(0, targetX) + " " + map[targetY].substring(targetX + 1);
+            }
+        }
+    }
+}
+
+function teleportPlayer() {
+    let teleportLocations = [
+        { x: 2, y: 10 },  // Lokasi pertama
+        { x: 18, y: 4 }   // Lokasi kedua
+    ];
+
+    let randomIndex = Math.floor(Math.random() * teleportLocations.length);
+    let newLoc = teleportLocations[randomIndex];
+
+    player.x = newLoc.x * tileSize + tileSize / 2;
+    player.y = newLoc.y * tileSize + tileSize / 2;
+    
+    alert("Teleport berhasil!");
+}
+
+function moveForward() { movePlayer(1); }
+function moveBackward() { movePlayer(-1); }
+function moveLeft() { strafePlayer(-1); }
+function moveRight() { strafePlayer(1); }
+function turnLeft() { player.angle -= 0.1; }
+function turnRight() { player.angle += 0.1; }
+function lookUp() { player.lookAngle -= 5; }
+function lookDown() { player.lookAngle += 5; }
+
+function gameLoop() {
+    castRays();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Situs Sedang Dalam Perbaikan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Maintenance">
+  <meta property="og:image" content="https://files.catbox.moe/kc0zw9.jpg">
+  <meta property="og:type" content="website">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://files.catbox.moe/3kw7gi.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Share Tech Mono', monospace;
+      color: #fuchsia;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 0;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: #ff69b4;
+      text-shadow: 0 0 10px #f0f, 0 0 20px #0ff;
+      z-index: 1;
+      animation: flicker 2.5s infinite;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #00ffff;
+      text-align: center;
+      margin-top: 15px;
+      z-index: 1;
+      max-width: 600px;
+    }
+
+    a {
+      margin-top: 25px;
+      padding: 0;
+      background: none;
+      border: none;
+      border-radius: 0;
+      text-decoration: none;
+      color: #00ffff;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+      backdrop-filter: none;
+      box-shadow: none;
+      z-index: 1;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 10px #f0f, 0 0 20px #0ff;
+      }
+      20%, 24%, 55% {
+        opacity: 0.4;
+        text-shadow: none;
+      }
+      22% {
+        opacity: 0.1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Maintenance</h1>
+  <p><i>Kami mohon maaf atas ketidaknyamanan ini. Situs sedang dalam proses maintenance untuk peningkatan layanan. Silakan kembali beberapa saat lagi.</i></p>
+  <a href="https://wa.me/62881036711862" style="font-size: 15px; color: gray;"> <i>-yanto keuangan-<i></i> </a>
+</body>
+</html>

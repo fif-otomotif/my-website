@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Search Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        input {
+            width: 60%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        li {
+            background: white;
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            text-align: left;
+        }
+        a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>Google Search</h2>
+    <input type="text" id="query" placeholder="Masukkan kata kunci">
+    <button onclick="searchGoogle()">Cari</button>
+
+    <h3>Hasil:</h3>
+    <ul id="results"></ul>
+
+    <script>
+        const API_KEY = "AIzaSyArI0o2K_0pWeccZiiEb9sCpSeYnOKnyyw"; // Ganti dengan API Key
+        const CX = ""; // Ganti dengan Custom Search Engine ID
+
+        async function searchGoogle() {
+            const query = document.getElementById("query").value;
+            const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${API_KEY}&cx=${CX}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const results = document.getElementById("results");
+                results.innerHTML = "";
+
+                if (data.items) {
+                    data.items.forEach(item => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><br>${item.snippet}`;
+                        results.appendChild(li);
+                    });
+                } else {
+                    results.innerHTML = "<li>Tidak ada hasil</li>";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Galeri Interaktif</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .gallery-container {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery {
+      display: flex;
+      gap: 16px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      width: 100%;
+    }
+
+    .gallery-track {
+      display: flex;
+      gap: 16px;
+      will-change: transform;
+    }
+
+    .gallery img {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 16px;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Galeri Interaktif</h2>
+  
+  <div class="gallery-container">
+    <div class="gallery" id="gallery">
+      <div class="gallery-track" id="galleryTrack">
+        <img src="https://files.catbox.moe/3h030f.jpg" alt="Gambar 1" data-info="Ini adalah deskripsi untuk Gambar 1">
+        <img src="https://files.catbox.moe/2azj3k.jpg" alt="Gambar 2" data-info="Ini adalah deskripsi untuk Gambar 2">
+        <img src="https://files.catbox.moe/4gtvct.jpg" alt="Gambar 3" data-info="Ini adalah deskripsi untuk Gambar 3">
+        <img src="https://files.catbox.moe/ud9qq3.jpg" alt="Gambar 4" data-info="Ini adalah deskripsi untuk Gambar 4">
+        <img src="https://files.catbox.moe/jphsfu.jpg" alt="Gambar 5" data-info="Ini adalah deskripsi untuk Gambar 5">
+        <img src="https://files.catbox.moe/kmed8b.jpg" alt="Gambar 6" data-info="Ini adalah deskripsi untuk Gambar 6">
+        <!-- Duplikat gambar untuk efek loop tanpa jeda -->
+        <img src="https://files.catbox.moe/3h030f.jpg" alt="Gambar 1" data-info="Ini adalah deskripsi untuk Gambar 1">
+        <img src="https://files.catbox.moe/2azj3k.jpg" alt="Gambar 2" data-info="Ini adalah deskripsi untuk Gambar 2">
+        <img src="https://files.catbox.moe/4gtvct.jpg" alt="Gambar 3" data-info="Ini adalah deskripsi untuk Gambar 3">
+        <img src="https://files.catbox.moe/ud9qq3.jpg" alt="Gambar 4" data-info="Ini adalah deskripsi untuk Gambar 4">
+        <img src="https://files.catbox.moe/jphsfu.jpg" alt="Gambar 5" data-info="Ini adalah deskripsi untuk Gambar 5">
+        <img src="https://files.catbox.moe/kmed8b.jpg" alt="Gambar 6" data-info="Ini adalah deskripsi untuk Gambar 6">
+      </div>
+    </div>
+  </div>
+
+  <div class="info" id="info">Klik gambar untuk melihat informasi lebih detail.</div>
+
+  <script>
+    const gallery = document.getElementById('gallery');
+    const galleryTrack = document.getElementById('galleryTrack');
+    const infoElement = document.getElementById('info');
+    let scrollPosition = 0;
+    let animationId;
+    let isPaused = false;
+    const scrollSpeed = 1;
+
+    // Fungsi untuk menampilkan info gambar
+    function showInfo(element) {
+      const imageName = element.alt;
+      const imageInfo = element.dataset.info;
+      infoElement.innerHTML = `<strong>${imageName}</strong><br>${imageInfo}`;
+    }
+
+    // Fungsi animasi scroll
+    function animateScroll() {
+      if (!isPaused) {
+        scrollPosition += scrollSpeed;
+        
+        // Jika mencapai setengah dari track (dimana kita menduplikasi gambar)
+        if (scrollPosition >= galleryTrack.scrollWidth / 2) {
+          scrollPosition = 0;
+        }
+        
+        galleryTrack.style.transform = `translateX(-${scrollPosition}px)`;
+      }
+      
+      animationId = requestAnimationFrame(animateScroll);
+    }
+
+    // Event listeners untuk interaksi pengguna
+    gallery.addEventListener('mouseenter', () => {
+      isPaused = true;
+    });
+    
+    gallery.addEventListener('mouseleave', () => {
+      isPaused = false;
+    });
+    
+    gallery.addEventListener('touchstart', () => {
+      isPaused = true;
+    });
+    
+    gallery.addEventListener('touchend', () => {
+      isPaused = false;
+    });
+
+    // Klik gambar
+    document.querySelectorAll('.gallery img').forEach(img => {
+      img.addEventListener('click', () => showInfo(img));
+    });
+
+    // Inisialisasi
+    animateScroll();
+
+    // Bersihkan animasi saat halaman ditutup
+    window.addEventListener('beforeunload', () => {
+      cancelAnimationFrame(animationId);
+    });
+  </script>
+
+</body>
+</html>

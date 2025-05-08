@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Music Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1DB954;
+            margin-bottom: 30px;
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #searchInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #1DB954;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        #searchButton {
+            padding: 12px 20px;
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        #searchButton:hover {
+            background-color: #1ed760;
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .track-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .track-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .track-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .track-info {
+            padding: 15px;
+        }
+        
+        .track-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .track-artist {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .track-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .download-btn:hover {
+            background-color: #1ed760;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .error {
+            color: #ff3333;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            display: none;
+        }
+        
+        .total-results {
+            text-align: right;
+            margin-bottom: 15px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Spotify Music Search</h1>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for songs, artists, or albums...">
+        <button id="searchButton">Search</button>
+    </div>
+    
+    <div class="loading" id="loadingIndicator">
+        Loading results...
+    </div>
+    
+    <div class="error" id="errorMessage">
+        An error occurred while fetching results. Please try again.
+    </div>
+    
+    <div class="no-results" id="noResultsMessage">
+        No results found. Try a different search term.
+    </div>
+    
+    <div class="total-results" id="totalResults"></div>
+    
+    <div class="results-container" id="resultsContainer"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const totalResults = document.getElementById('totalResults');
+            
+            // Search when button is clicked
+            searchButton.addEventListener('click', searchMusic);
+            
+            // Also search when Enter key is pressed
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchMusic();
+                }
+            });
+            
+            async function searchMusic() {
+                const query = searchInput.value.trim();
+                
+                if (!query) {
+                    alert('Please enter a search term');
+                    return;
+                }
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                errorMessage.style.display = 'none';
+                noResultsMessage.style.display = 'none';
+                resultsContainer.innerHTML = '';
+                totalResults.textContent = '';
+                
+                try {
+                    const response = await fetch(`https://api.siputzx.my.id/api/s/spotify?query=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    if (data.status && data.data && data.data.length > 0) {
+                        // Show total results
+                        totalResults.textContent = `${data.total_results} results found`;
+                        
+                        // Display results
+                        data.data.forEach(track => {
+                            const trackCard = createTrackCard(track);
+                            resultsContainer.appendChild(trackCard);
+                        });
+                    } else {
+                        noResultsMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    loadingIndicator.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                }
+            }
+            
+            function createTrackCard(track) {
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                
+                // Track image
+                const img = document.createElement('img');
+                img.className = 'track-image';
+                img.src = track.thumbnail || 'https://via.placeholder.com/300';
+                img.alt = track.title;
+                
+                // Track info container
+                const info = document.createElement('div');
+                info.className = 'track-info';
+                
+                // Track title
+                const title = document.createElement('div');
+                title.className = 'track-title';
+                title.textContent = track.title;
+                
+                // Track artist
+                const artist = document.createElement('div');
+                artist.className = 'track-artist';
+                artist.textContent = track.artist;
+                
+                // Track meta (duration, album, release date)
+                const meta = document.createElement('div');
+                meta.className = 'track-meta';
+                
+                const duration = document.createElement('span');
+                duration.textContent = track.duration;
+                
+                const album = document.createElement('span');
+                album.textContent = track.album;
+                
+                meta.appendChild(duration);
+                meta.appendChild(album);
+                
+                // Download button
+                const downloadBtn = document.createElement('a');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = 'Download';
+                downloadBtn.href = '#';
+                downloadBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await downloadTrack(track.track_url, track.title, track.artist);
+                });
+                
+                // Assemble the card
+                info.appendChild(title);
+                info.appendChild(artist);
+                info.appendChild(meta);
+                info.appendChild(downloadBtn);
+                
+                card.appendChild(img);
+                card.appendChild(info);
+                
+                return card;
+            }
+            
+            async function downloadTrack(trackUrl, title, artist) {
+                try {
+                    // Show loading for download
+                    const originalText = event.target.textContent;
+                    event.target.textContent = 'Downloading...';
+                    event.target.disabled = true;
+                    
+                    const response = await fetch(`https://fastrestapis.fasturl.cloud/downup/spotifydown?url=${encodeURIComponent(trackUrl)}`);
+                    const data = await response.json();
+                    
+                    if (data.status === 200 && data.result.success) {
+                        // Create a temporary link to download the file
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = data.result.link;
+                        downloadLink.download = `${artist} - ${title}.mp3`;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        
+                        alert('Download started!');
+                    } else {
+                        alert('Failed to prepare download. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Download error:', error);
+                    alert('An error occurred during download.');
+                } finally {
+                    // Restore button state
+                    event.target.textContent = originalText;
+                    event.target.disabled = false;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

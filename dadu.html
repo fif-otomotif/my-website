@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dadu Acak</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            overflow: hidden;
+        }
+        .kotak {
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 70px;
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .shake {
+            animation: shake 0.5s infinite;
+        }
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            20% { transform: rotate(10deg); }
+            40% { transform: rotate(-10deg); }
+            60% { transform: rotate(10deg); }
+            80% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .confetti {
+            position: fixed;
+            top: -20px;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            opacity: 0.7;
+            border-radius: 50%;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="kotak" id="dadu">🎲</div>
+    <button onclick="rollDice()">Kocok Dadu</button>
+
+    <script>
+        function rollDice() {
+            const daduEmojis = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+            const dadu = document.getElementById('dadu');
+
+            // Hapus confetti sebelumnya
+            document.querySelectorAll('.confetti').forEach(el => el.remove());
+
+            // Tambahkan animasi getaran
+            dadu.classList.add('shake');
+
+            // Acak angka sementara sebelum hasil final
+            let counter = 0;
+            let interval = setInterval(() => {
+                dadu.textContent = daduEmojis[Math.floor(Math.random() * 6)];
+                counter++;
+                if (counter > 10) {
+                    clearInterval(interval);
+                    dadu.classList.remove('shake');
+                    let hasilAkhir = daduEmojis[Math.floor(Math.random() * 6)];
+                    dadu.textContent = hasilAkhir;
+                    showConfetti();
+                }
+            }, 100);
+        }
+
+        function showConfetti() {
+            for (let i = 0; i < 50; i++) {
+                let confetti = document.createElement("div");
+                confetti.classList.add("confetti");
+                confetti.style.left = Math.random() * 100 + "vw";
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+    </script>
+
+</body>
+</html>

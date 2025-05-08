@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tebak Gambar</title>
+  <meta property="og:title" content="tebak-gambar">
+  <meta property="og:image" content="https://cdn.xtermai.xyz/kMs1M.jpg">
+  <meta property="og:type" content="website">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 30px;
+      color: #333;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, 100px); /* Menambahkan lebih banyak kolom */
+      gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .tile {
+      width: 100px;
+      height: 100px;
+      background: rgb(244,244,244);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .tile:hover {
+      transform: scale(1.10);
+    }
+    .matched {
+      background-color: #b1f7be;
+    }
+    .disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .scoreboard {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #444;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #222;
+      transition: opacity 1s ease;
+    }
+    .animating {
+      animation: shake 0s infinite;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-3px); }
+      100% { transform: translateX(0); }
+    }
+    #playAgainBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 24px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+    #playAgainBtn:hover {
+      background-color: #45a049;
+    }
+    
+    #deksripsi {
+      max-width: 700px;
+      margin: 50px auto 0 auto;
+      font-size: 16px;
+      color: #2f2f2f;
+      text-align: justify;
+      line-height: 1.8;
+      font-family: 'Segoe UI', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tebak Gambar</h1>
+  <div class="scoreboard">
+    Skor Kamu: <span id="userScore">0</span> | Skor AI: <span id="aiScore">0</span>
+  </div>
+  <div class="result" id="resultText"></div>
+  <div class="board" id="board"></div>
+  <button id="playAgainBtn" onclick="initGame()">Main Lagi</button>
+<div id="deksripsi">
+  <h2 style="font-family: 'Noto Serif', serif; color: #2c3e50; text-align: center;">Tentang Web Ini</h2>
+  <p>
+    Selamat datang di permainan <strong>Tebak Gambar</strong>—sebuah game memori berbasis web yang dirancang untuk menguji daya ingat, kecepatan berpikir, dan strategi kamu saat menghadapi AI cerdas. Game ini menampilkan antarmuka bersih, animasi ringan, dan gameplay yang seru untuk semua kalangan.
+  </p>
+  
+  <h3 style="color: #34495e;">Cara Mainnya Gimana?</h3>
+  <p>
+    Di permainan ini, kamu dan AI akan bergiliran membuka dua kotak dari papan berisi gambar acak. Kalau keduanya cocok, poin akan diberikan, dan pemain yang cocok berhak melanjutkan giliran. Kalau nggak cocok, giliran berpindah. Siapa yang paling banyak mencocokkan gambar sampai akhir, dialah pemenangnya!
+  </p>
+  <p>
+    Berikut langkah-langkahnya:
+    <ol>
+      <li>Game akan mulai secara otomatis dengan giliran acak antara kamu atau AI.</li>
+      <li>Klik dua kotak untuk membuka gambar dan lihat apakah mereka cocok.</li>
+      <li>Kalau cocok, kamu dapat poin dan lanjut bermain.</li>
+      <li>Kalau nggak cocok, giliran AI untuk mencoba!</li>
+      <li>Papan akan terus diisi hingga semua gambar ditemukan.</li>
+      <li>Setelah selesai, akan muncul siapa yang menang dan tombol <strong>“Main Lagi”</strong>.</li>
+    </ol>
+  </p>
+
+  <h3 style="color: #34495e;">Web Ini Kerja Gimana Sih?</h3>
+  <p>
+    Game ini sepenuhnya dibangun menggunakan <strong>HTML, CSS, dan JavaScript</strong>—tidak memerlukan server, akun, atau koneksi database. Semua logika berjalan langsung di browser kamu secara real-time.
+  </p>
+  <ul>
+    <li>Papan akan diisi gambar secara acak dan digandakan untuk menciptakan pasangan.</li>
+    <li>Setiap langkah pemain atau AI dicatat dan diperiksa apakah cocok.</li>
+    <li>AI menggunakan sistem memori untuk mengingat posisi gambar yang pernah dibuka dan membuat keputusan yang lebih cerdas dari waktu ke waktu.</li>
+    <li>Skor ditampilkan secara langsung, dan efek visual membantu menandai gambar yang sudah cocok.</li>
+    <li>Ketika seluruh pasangan telah ditemukan, sistem akan otomatis menilai siapa pemenangnya.</li>
+  </ul>
+
+  <h3 style="color: #34495e;">Kenapa Web Ini Dibuat?</h3>
+  <p>
+    Proyek ini dibuat sebagai latihan dalam pengembangan game sederhana berbasis web, dengan tujuan mengasah keterampilan logika pemrograman, manipulasi DOM, dan pengalaman interaktif menggunakan JavaScript. Selain itu, game ini juga menjadi contoh penerapan AI ringan berbasis memori tanpa algoritma kompleks.
+  </p>
+  <p>
+    Cocok buat kamu yang ingin bersantai, melatih otak, atau sekadar nostalgia dengan permainan klasik mencocokkan gambar!
+  </p>
+  <p style="text-align: center; font-weight: bold; font-size: 14px;">Selamat bermain dan kalahkan AI-nya ya!</p>
+  <p style="text-align: center; font-size: 12px; color: gray;">
+    -text dibuat oleh ChatGPT-
+  </p>
+  <footer style="text-align: center; font-size: 12px; color: gray;">
+    &copy; 2025 dibuat oleh Yanto Kemakmuran
+  </footer>
+</div>
+
+  <script>
+    const images = ['🍎','🍌','🍇','🍓','🍒','🍍','🥝','🍉','🍑','🍊']; /* Menambahkan lebih banyak gambar */
+    let board = [], matched = [], selected = [], memory = {};
+    let userTurn = true;
+    let userScore = 0, aiScore = 0;
+
+    const boardDiv = document.getElementById("board");
+    const userScoreSpan = document.getElementById("userScore");
+    const aiScoreSpan = document.getElementById("aiScore");
+    const resultDiv = document.getElementById("resultText");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function initGame() {
+      playAgainBtn.style.display = "none";
+      const pairImages = shuffle([...images, ...images]); /* Menggandakan gambar untuk pasangan */
+      board = shuffle(pairImages);
+      matched = [];
+      selected = [];
+      memory = {};
+      userScore = 0;
+      aiScore = 0;
+      updateScore();
+      resultDiv.textContent = "Mengacak giliran...";
+      resultDiv.style.opacity = "1";
+      resultDiv.classList.add("animating");
+      drawBoard();
+
+      let dots = 0;
+      const interval = setInterval(() => {
+        resultDiv.textContent = "Mengacak giliran" + ".".repeat(dots % 4);
+        dots++;
+      }, 400);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        userTurn = Math.random() < 0.5;
+        resultDiv.classList.remove("animating");
+        resultDiv.textContent = userTurn ? "Kamu mulai duluan!" : "AI mulai duluan!";
+        setTimeout(() => {
+          resultDiv.style.opacity = "0";
+        }, 3000);
+
+        drawBoard();
+        if (!userTurn) setTimeout(aiTurn, 800);
+      }, 2000);
+    }
+
+    function updateScore() {
+      userScoreSpan.textContent = userScore;
+      aiScoreSpan.textContent = aiScore;
+    }
+
+    function drawBoard() {
+      boardDiv.innerHTML = '';
+      board.forEach((img, i) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        if (matched.includes(i)) {
+          tile.classList.add("matched");
+          tile.textContent = img;
+        } else if (selected.includes(i)) {
+          tile.textContent = img;
+        }
+        if (!userTurn || matched.includes(i) || selected.includes(i)) {
+          tile.classList.add("disabled");
+        } else {
+          tile.addEventListener("click", () => playerSelect(i));
+        }
+        boardDiv.appendChild(tile);
+      });
+    }
+
+    function playerSelect(index) {
+      if (selected.includes(index)) return;
+      selected.push(index);
+      memory[index] = board[index];
+      drawBoard();
+
+      if (selected.length === 2) {
+        setTimeout(() => {
+          const [a, b] = selected;
+          if (board[a] === board[b]) {
+            matched.push(a, b);
+            userScore++;
+            updateScore();
+          }
+          selected = [];
+          drawBoard();
+          if (matched.length === board.length) return endGame();
+          userTurn = false;
+          setTimeout(aiTurn, 800);
+        }, 800);
+      }
+    }
+
+    function aiTurn() {
+      let memoryByImage = {};
+      for (const [index, img] of Object.entries(memory)) {
+        const i = parseInt(index);
+        if (matched.includes(i)) continue;
+        if (!memoryByImage[img]) memoryByImage[img] = [];
+        memoryByImage[img].push(i);
+      }
+
+      for (const img in memoryByImage) {
+        const indices = memoryByImage[img];
+        if (indices.length >= 2) {
+          selected = [indices[0], indices[1]];
+          drawBoard();
+          setTimeout(() => {
+            matched.push(...selected);
+            aiScore++;
+            updateScore();
+            selected = [];
+            drawBoard();
+            if (matched.length === board.length) return endGame();
+            userTurn = true;
+            drawBoard();
+          }, 800);
+          return;
+        }
+      }
+
+      const available = board.map((_, i) => i).filter(i => !matched.includes(i) && !selected.includes(i));
+      const i1 = available[Math.floor(Math.random() * available.length)];
+      selected = [i1];
+      memory[i1] = board[i1];
+      drawBoard();
+
+      setTimeout(() => {
+        let i2 = null;
+        const match = Object.entries(memory).find(([idx, val]) =>
+          parseInt(idx) !== i1 && val === board[i1] && !matched.includes(parseInt(idx))
+        );
+        if (match) {
+          i2 = parseInt(match[0]);
+        } else {
+          const other = available.filter(i => i !== i1);
+          i2 = other[Math.floor(Math.random() * other.length)];
+        }
+
+        selected.push(i2);
+        memory[i2] = board[i2];
+        drawBoard();
+
+        setTimeout(() => {
+          const [a, b] = selected;
+          if (board[a] === board[b]) {
+            matched.push(a, b);
+            aiScore++;
+          }
+          selected = [];
+          updateScore();
+          drawBoard();
+          if (matched.length === board.length) return endGame();
+          userTurn = true;
+          drawBoard();
+        }, 800);
+      }, 800);
+    }
+
+    function endGame() {
+      let message = '';
+      if (userScore > aiScore) {
+        message = 'Kamu menang!';
+      } else if (aiScore > userScore) {
+        message = 'AI menang!';
+      } else {
+        message = 'Seri!';
+      }
+      resultDiv.textContent = message;
+      resultDiv.style.opacity = "1";
+      playAgainBtn.style.display = "inline-block";
+    }
+
+    initGame();
+  </script>
+</body>
+</html>

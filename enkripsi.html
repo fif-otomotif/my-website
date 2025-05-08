@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enkripsi, Encoding, dan Hashing</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f72585;
+      --gray: #6c757d;
+      --border-radius: 12px;
+      --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: var(--border-radius);
+      max-width: 800px;
+      margin: 30px auto;
+      box-shadow: var(--box-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--success));
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 3px;
+    }
+
+    h3 {
+      color: var(--secondary);
+      margin: 20px 0 10px;
+      font-weight: 500;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    textarea, select, input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      transition: var(--transition);
+      background-color: var(--light);
+    }
+
+    textarea:focus, select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .btn-copy {
+      background-color: var(--success);
+      color: white;
+      margin-top: 10px;
+    }
+
+    .btn-copy:hover {
+      background-color: #3db5d8;
+    }
+
+    .method-info {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-top: 15px;
+      border-left: 4px solid var(--accent);
+      display: none;
+    }
+
+    .method-info.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .badge-encrypt {
+      background-color: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+    }
+
+    .badge-encode {
+      background-color: rgba(72, 149, 239, 0.1);
+      color: var(--accent);
+    }
+
+    .badge-hash {
+      background-color: rgba(76, 201, 240, 0.1);
+      color: var(--success);
+    }
+
+    .key-input-container {
+      display: none;
+      margin-top: 15px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .key-input-container.show {
+      display: block;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: var(--gray);
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--gray);
+      transition: var(--transition);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><i class="fas fa-lock"></i> Tools Enkripsi, Encoding & Hashing</h2>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="converter">Konverter</div>
+      <div class="tab" data-tab="info">Informasi Metode</div>
+    </div>
+    
+    <div class="tab-content active" id="converter-tab">
+      <div class="input-group">
+        <label for="inputText">Masukkan Teks:</label>
+        <textarea id="inputText" placeholder="Ketik atau tempel teks Anda di sini..."></textarea>
+      </div>
+      
+      <div class="input-group">
+        <label for="method">Pilih Metode:</label>
+        <select id="method">
+          <option value="caesar">Caesar Cipher</option>
+          <option value="base64">Base64</option>
+          <option value="rot13">ROT13</option>
+          <option value="morse">Kode Morse</option>
+          <option value="reverse">Balik Teks</option>
+          <option value="hex">Hexadecimal</option>
+          <option value="binary">Binary</option>
+          <option value="atbash">Atbash Cipher</option>
+          <option value="vigenere">Vigenère Cipher</option>
+          <option value="md5">MD5</option>
+          <option value="sha256">SHA-256</option>
+          <option value="aes">AES</option>
+          <option value="xor">XOR Cipher</option>
+        </select>
+      </div>
+      
+      <div class="key-input-container" id="keyInputContainer">
+        <label for="keyInput">Masukkan Kunci:</label>
+        <input type="text" id="keyInput" placeholder="Masukkan kunci enkripsi/dekripsi">
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn-primary" onclick="processText('encrypt')">
+          <i class="fas fa-lock"></i> Enkripsi/Encode/Hash
+        </button>
+        <button class="btn-secondary" onclick="processText('decrypt')">
+          <i class="fas fa-lock-open"></i> Dekripsi/Decode
+        </button>
+      </div>
+      
+      <div class="method-info" id="methodInfo"></div>
+      
+      <div class="input-group">
+        <label for="outputText">Hasil:</label>
+        <textarea id="outputText" readonly placeholder="Hasil akan muncul di sini..."></textarea>
+        <button class="btn-copy" onclick="copyToClipboard()">
+          <i class="far fa-copy"></i> Salin Hasil
+        </button>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="info-tab">
+      <h3>Informasi Metode</h3>
+      <div class="method-descriptions">
+        <div class="method-info active">
+          <h4><span class="badge badge-encrypt">Enkripsi</span> Caesar Cipher</h4>
+          <p>Metode enkripsi substitusi sederhana yang mengganti setiap huruf dengan huruf lain yang berada beberapa posisi setelahnya dalam alfabet.</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encode">Encoding</span> Base64</h4>
+          <p>Skema pengkodean biner-ke-teks yang merepresentasikan data biner dalam format string ASCII.</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encrypt">Enkripsi</span> ROT13</h4>
+          <p>Jenis khusus dari Caesar cipher di mana setiap huruf diganti dengan huruf 13 posisi setelahnya dalam alfabet.</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encode">Encoding</span> Kode Morse</h4>
+          <p>Sistem representasi huruf, angka, dan tanda baca menggunakan sinyal pendek (dot) dan panjang (dash).</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encode">Encoding</span> Balik Teks</h4>
+          <p>Membalik urutan karakter dalam teks (huruf pertama menjadi terakhir, dan sebaliknya).</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encode">Encoding</span> Hexadecimal</h4>
+          <p>Merepresentasikan setiap karakter sebagai nilai heksadesimalnya dalam sistem bilangan basis-16.</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encode">Encoding</span> Binary</h4>
+          <p>Merepresentasikan setiap karakter sebagai nilai biner 8-bit (sistem bilangan basis-2).</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encrypt">Enkripsi</span> Atbash Cipher</h4>
+          <p>Metode enkripsi substitusi di mana huruf pertama alfabet dipetakan ke huruf terakhir, yang kedua ke kedua terakhir, dan seterusnya.</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encrypt">Enkripsi</span> Vigenère Cipher</h4>
+          <p>Metode enkripsi yang menggunakan serangkaian Caesar cipher berbeda berdasarkan huruf-huruf dari sebuah kata kunci.</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-hash">Hashing</span> MD5</h4>
+          <p>Fungsi hash kriptografik yang menghasilkan nilai hash 128-bit (32 karakter heksadesimal).</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-hash">Hashing</span> SHA-256</h4>
+          <p>Fungsi hash kriptografik yang menghasilkan nilai hash 256-bit (64 karakter heksadesimal).</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encrypt">Enkripsi</span> AES</h4>
+          <p>Standar enkripsi simetris yang kuat dan banyak digunakan (Advanced Encryption Standard).</p>
+        </div>
+        
+        <div class="method-info">
+          <h4><span class="badge badge-encrypt">Enkripsi</span> XOR Cipher</h4>
+          <p>Metode enkripsi sederhana yang menggunakan operasi XOR bitwise antara teks dan kunci.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>Tools Enkripsi, Encoding & Hashing &copy; 2023 | Dibuat dengan saat berak</p>
+    </div>
+  </div>
+
+  <script>
+    // Morse code table
+    const morseTable = {
+      'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+      'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+      'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+      'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+      'Y': '-.--', 'Z': '--..', ' ': '/', '1': '.----', '2': '..---', '3': '...--',
+      '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+      '9': '----.', '0': '-----'
+    };
+
+    // Method information
+    const methodDescriptions = {
+      caesar: {
+        type: 'encrypt',
+        description: 'Metode enkripsi substitusi sederhana yang mengganti setiap huruf dengan huruf lain yang berada beberapa posisi setelahnya dalam alfabet.'
+      },
+      base64: {
+        type: 'encode',
+        description: 'Skema pengkodean biner-ke-teks yang merepresentasikan data biner dalam format string ASCII.'
+      },
+      rot13: {
+        type: 'encrypt',
+        description: 'Jenis khusus dari Caesar cipher di mana setiap huruf diganti dengan huruf 13 posisi setelahnya dalam alfabet.'
+      },
+      morse: {
+        type: 'encode',
+        description: 'Sistem representasi huruf, angka, dan tanda baca menggunakan sinyal pendek (dot) dan panjang (dash).'
+      },
+      reverse: {
+        type: 'encode',
+        description: 'Membalik urutan karakter dalam teks (huruf pertama menjadi terakhir, dan sebaliknya).'
+      },
+      hex: {
+        type: 'encode',
+        description: 'Merepresentasikan setiap karakter sebagai nilai heksadesimalnya dalam sistem bilangan basis-16.'
+      },
+      binary: {
+        type: 'encode',
+        description: 'Merepresentasikan setiap karakter sebagai nilai biner 8-bit (sistem bilangan basis-2).'
+      },
+      atbash: {
+        type: 'encrypt',
+        description: 'Metode enkripsi substitusi di mana huruf pertama alfabet dipetakan ke huruf terakhir, yang kedua ke kedua terakhir, dan seterusnya.'
+      },
+      vigenere: {
+        type: 'encrypt',
+        description: 'Metode enkripsi yang menggunakan serangkaian Caesar cipher berbeda berdasarkan huruf-huruf dari sebuah kata kunci.'
+      },
+      md5: {
+        type: 'hash',
+        description: 'Fungsi hash kriptografik yang menghasilkan nilai hash 128-bit (32 karakter heksadesimal).'
+      },
+      sha256: {
+        type: 'hash',
+        description: 'Fungsi hash kriptografik yang menghasilkan nilai hash 256-bit (64 karakter heksadesimal).'
+      },
+      aes: {
+        type: 'encrypt',
+        description: 'Standar enkripsi simetris yang kuat dan banyak digunakan (Advanced Encryption Standard).'
+      },
+      xor: {
+        type: 'encrypt',
+        description: 'Metode enkripsi sederhana yang menggunakan operasi XOR bitwise antara teks dan kunci.'
+      }
+    };
+
+    // DOM elements
+    const methodSelect = document.getElementById('method');
+    const keyInputContainer = document.getElementById('keyInputContainer');
+    const methodInfo = document.getElementById('methodInfo');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const methodInfos = document.querySelectorAll('.method-descriptions .method-info');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updateMethodInfo();
+      checkForKeyInput();
+      
+      // Tab switching
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          this.classList.add('active');
+          document.getElementById(`${this.dataset.tab}-tab`).classList.add('active');
+        });
+      });
+    });
+
+    // Method select change
+    methodSelect.addEventListener('change', function() {
+      updateMethodInfo();
+      checkForKeyInput();
+    });
+
+    function checkForKeyInput() {
+      const method = methodSelect.value;
+      if (['vigenere', 'aes', 'xor'].includes(method)) {
+        keyInputContainer.classList.add('show');
+      } else {
+        keyInputContainer.classList.remove('show');
+      }
+    }
+
+    function updateMethodInfo() {
+      const method = methodSelect.value;
+      const info = methodDescriptions[method];
+      
+      let badgeClass = '';
+      if (info.type === 'encrypt') badgeClass = 'badge-encrypt';
+      else if (info.type === 'encode') badgeClass = 'badge-encode';
+      else if (info.type === 'hash') badgeClass = 'badge-hash';
+      
+      methodInfo.innerHTML = `
+        <h4><span class="badge ${badgeClass}">${info.type === 'encrypt' ? 'Enkripsi' : info.type === 'encode' ? 'Encoding' : 'Hashing'}</span> ${methodSelect.options[methodSelect.selectedIndex].text}</h4>
+        <p>${info.description}</p>
+      `;
+      methodInfo.classList.add('active');
+    }
+
+    function processText(action) {
+      const text = document.getElementById("inputText").value;
+      const method = document.getElementById("method").value;
+      const key = document.getElementById("keyInput")?.value;
+      let output = "";
+
+      if (!text) {
+        alert("Masukkan teks terlebih dahulu!");
+        return;
+      }
+
+      try {
+        if (action === 'encrypt') {
+          output = encryptText(text, method, key);
+        } else {
+          output = decryptText(text, method, key);
+        }
+      } catch (error) {
+        output = `[Error: ${error.message}]`;
+      }
+
+      document.getElementById("outputText").value = output;
+    }
+
+    function encryptText(text, method, key) {
+      switch (method) {
+        case "caesar":
+          return caesarEncrypt(text);
+        case "base64":
+          return btoa(unescape(encodeURIComponent(text)));
+        case "rot13":
+          return rot13(text);
+        case "morse":
+          return text.toUpperCase().split('').map(c => morseTable[c] || c).join(' ');
+        case "reverse":
+          return text.split('').reverse().join('');
+        case "hex":
+          return Array.from(text).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+        case "binary":
+          return Array.from(text).map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+        case "atbash":
+          return atbash(text);
+        case "vigenere":
+          return vigenereEncrypt(text, key || "KEY");
+        case "md5":
+          return CryptoJS.MD5(text).toString();
+        case "sha256":
+          return CryptoJS.SHA256(text).toString();
+        case "aes":
+          return CryptoJS.AES.encrypt(text, key || "defaultkey").toString();
+        case "xor":
+          return xorCipher(text, key || "X");
+        default:
+          return "[Metode tidak valid]";
+      }
+    }
+
+    function decryptText(text, method, key) {
+      switch (method) {
+        case "caesar":
+          return caesarEncrypt(text, -3);
+        case "base64":
+          try { return decodeURIComponent(escape(atob(text))); } catch { return "[Format salah]"; }
+        case "rot13":
+          return rot13(text);
+        case "morse":
+          return text.split(' ').map(code => {
+            return Object.entries(morseTable).find(([k, v]) => v === code)?.[0] || code;
+          }).join('');
+        case "reverse":
+          return text.split('').reverse().join('');
+        case "hex":
+          return text.split(' ').map(h => String.fromCharCode(parseInt(h, 16))).join('');
+        case "binary":
+          return text.split(' ').map(b => String.fromCharCode(parseInt(b, 2))).join('');
+        case "atbash":
+          return atbash(text);
+        case "vigenere":
+          return vigenereDecrypt(text, key || "KEY");
+        case "aes":
+          try {
+            const bytes = CryptoJS.AES.decrypt(text, key || "defaultkey");
+            return bytes.toString(CryptoJS.enc.Utf8);
+          } catch {
+            return "[Kunci salah atau format tidak valid]";
+          }
+        case "xor":
+          return xorCipher(text, key || "X");
+        default:
+          return "[Metode ini tidak bisa didekripsi]";
+      }
+    }
+
+    function caesarEncrypt(text, shift = 3) {
+      return text.replace(/[a-zA-Z]/g, c => {
+        const base = c <= 'Z' ? 65 : 97;
+        return String.fromCharCode((c.charCodeAt(0) - base + shift + 26) % 26 + base);
+      });
+    }
+
+    function rot13(text) {
+      return text.replace(/[a-zA-Z]/g, c => {
+        const base = c <= 'Z' ? 65 : 97;
+        return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+      });
+    }
+
+    function atbash(text) {
+      return text.replace(/[a-zA-Z]/g, c => {
+        const base = c <= 'Z' ? 65 : 97;
+        return String.fromCharCode(base + 25 - (c.charCodeAt(0) - base));
+      });
+    }
+
+    function vigenereEncrypt(text, key) {
+      key = key.toUpperCase();
+      let output = "", j = 0;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (/[a-zA-Z]/.test(c)) {
+          const isUpper = c === c.toUpperCase();
+          const base = isUpper ? 65 : 97;
+          const k = key[j % key.length].charCodeAt(0) - 65;
+          output += String.fromCharCode((c.charCodeAt(0) - base + k) % 26 + base);
+          j++;
+        } else {
+          output += c;
+        }
+      }
+      return output;
+    }
+
+    function vigenereDecrypt(text, key) {
+      key = key.toUpperCase();
+      let output = "", j = 0;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (/[a-zA-Z]/.test(c)) {
+          const isUpper = c === c.toUpperCase();
+          const base = isUpper ? 65 : 97;
+          const k = key[j % key.length].charCodeAt(0) - 65;
+          output += String.fromCharCode((c.charCodeAt(0) - base - k + 26) % 26 + base);
+          j++;
+        } else {
+          output += c;
+        }
+      }
+      return output;
+    }
+
+    function xorCipher(text, key) {
+      return Array.from(text).map((c, i) =>
+        String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length))
+      ).join('');
+    }
+
+    function copyToClipboard() {
+      const outputText = document.getElementById("outputText");
+      outputText.select();
+      document.execCommand("copy");
+      
+      // Show feedback
+      const copyBtn = document.querySelector(".btn-copy");
+      const originalText = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+      setTimeout(() => {
+        copyBtn.innerHTML = originalText;
+      }, 2000);
+    }
+
+    // Show method info when switching to info tab
+    document.querySelector('.tab[data-tab="info"]').addEventListener('click', function() {
+      methodInfos.forEach(info => info.classList.remove('active'));
+      methodInfos[methodSelect.selectedIndex].classList.add('active');
+    });
+  </script>
+</body>
+</html>

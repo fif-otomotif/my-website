@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profil Ariza Rifqi Rizqullah</title>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --secondary: #ede9fe;
+      --text: #1f2937;
+      --background: #f9f9fb;
+      --card: #ffffff;
+      --accent: #a78bfa;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: auto;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      padding: 24px;
+    }
+
+    .photo {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-color: var(--secondary);
+      border-radius: 100%;
+      overflow: hidden;
+      margin-bottom: 16px;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .info p, .contact a {
+      font-size: 14px;
+      margin: 4px 0;
+    }
+
+    .contact a {
+      color: gray;
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    .section h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--primary);
+      cursor: pointer;
+      background-color: rgba(255,255,255,0.8);
+      padding: 5px 5px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-top: 0;
+    }
+
+    .card {
+      background: var(--secondary);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 14px;
+      transition: opacity 0.4s ease, max-height 0.4s ease;
+      overflow: hidden;
+      max-height: 1000px;
+      opacity: 1;
+    }
+
+    .card.hidden {
+      opacity: 0;
+      max-height: 0;
+      pointer-events: none;
+    }
+
+    .stars {
+      color: #facc15;
+    }
+
+    .contact {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .check {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeInUp 1s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="container fade-in" style="animation-delay: 0.2s;">
+    <div class="photo">
+      <img src="https://files.catbox.moe/8ku82p.jpg" alt="Foto Profil Ariza">
+    </div>
+    <h2>Ariza Rifqi Rizqullah</h2>
+
+    <div class="info">
+      <p><strong>Tanggal Lahir:</strong> 10 oktober 1945</p>
+      <p><strong>Tempat Tinggal:</strong> Surabaya</p>
+      <p><strong>Agama:</strong> Islam</p>
+      <p><strong>Gender:</strong> Laki-Laki</p>
+      <p><strong>Tinggi Badan:</strong> 200 cm</p>
+      <p><strong>Berat Badan:</strong> 40 kg</p>
+    </div>
+
+    <div class="section">
+      <h3 class="toggle">Profil</h3>
+      <div class="card content">
+        bla bla bla ble ble ble hap blu blu blu
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="toggle">Keahlian</h3>
+      <div class="card content">
+        <p>PENGETAHUAN: <span class="stars">★★★★☆</span></p>
+        <p>PROFESIONAL: <span class="stars">★★★★★</span></p>
+        <p>KERJA TIM: <span class="stars">★★★☆☆</span></p>
+        <p>DISIPLIN: <span class="stars">★★★★☆</span></p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="toggle">Penghargaan</h3>
+      <div class="card content">
+        <p>1. mie ayam<span class="check">✔</span></p>
+        <p>2. masgor goreng<span class="check">✔</span></p>
+        <p>3. mabar = mabar bareng<span class="check">✔</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cube-container fade-in" style="animation-delay: 0.8s;">
+    <div class="cube">
+      <div class="face front"></div>
+      <div class="face back"></div>
+      <div class="face right"></div>
+      <div class="face left"></div>
+      <div class="face top"></div>
+      <div class="face bottom"></div>
+    </div>
+  </div>
+  
+      <div class="contact">
+      <a href="https://wa.me/qr/NUYGWFGY23H7D1">Whatsapp</a>
+      <p> - </p>
+      <a href="https://www.instagram.com/not_full_speed?igsh=MWtocmcxZ21yZXhxbg==">Instagram</a>
+    </div>
+    
+  <footer style="text-align:center; font-size:7px; margin-top:10px; color:gray;">
+  &copy; 2025 Yanto back-end. Semua hak dilindungi.
+</footer>
+
+  <script>
+    document.querySelectorAll('.toggle').forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.nextElementSibling;
+        content.classList.toggle('hidden');
+      });
+    });
+
+    const hour = new Date().getHours();
+    const body = document.body;
+
+    if (hour >= 5 && hour < 11) {
+      body.style.backgroundColor = "#fef9c3";
+    } else if (hour >= 11 && hour < 16) {
+      body.style.backgroundColor = "#e0f2fe";
+    } else if (hour >= 16 && hour < 19) {
+      body.style.backgroundColor = "#fde68a";
+    } else {
+      body.style.backgroundColor = "#1e293b";
+    }
+  </script>
+</body>
+</html>

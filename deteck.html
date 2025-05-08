@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Inpo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+    }
+    .info {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .info p {
+      margin: 8px 0;
+    }
+    .alert {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .alert.red {
+      border: 2px dashed red;
+      background-color: #ffeaea;
+      color: #b30000;
+    }
+    .alert.green {
+      border: 2px dashed green;
+      background-color: #eaffea;
+      color: #006600;
+    }
+  </style>
+</head>
+<body>
+  <div class="info" id="userInfo">
+    <p>Mendeteksi data...</p>
+  </div>
+
+  <script>
+    async function detectUserInfo() {
+      const infoDiv = document.getElementById('userInfo');
+      const userAgent = navigator.userAgent.toLowerCase();
+      const language = navigator.language;
+      const platform = navigator.platform;
+      const screenRes = `${window.screen.width} x ${window.screen.height}`;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      function isDeviceLemah() {
+        return userAgent.includes("android 6") || window.screen.width < 720;
+      }
+
+      function getLocation() {
+        return new Promise((resolve) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              position => {
+                const lat = position.coords.latitude;
+                const long = position.coords.longitude;
+                resolve({ lat, long });
+              },
+              () => resolve(null)
+            );
+          } else {
+            resolve(null);
+          }
+        });
+      }
+
+      async function getIPandRegion() {
+        try {
+          const res = await fetch('https://ipapi.co/json/');
+          const data = await res.json();
+          return {
+            ip: data.ip,
+            region: data.region,
+            country: data.country_name,
+          };
+        } catch {
+          return { ip: 'Tidak bisa ambil IP', region: 'Unknown', country: 'Unknown' };
+        }
+      }
+
+      const lokasi = await getLocation();
+      const ipInfo = await getIPandRegion();
+      const deviceLemah = isDeviceLemah();
+
+      let diPulauJawa = false;
+      if (lokasi) {
+        const { lat, long } = lokasi;
+        if (lat >= -9.0 && lat <= -5.5 && long >= 105 && long <= 115) {
+          diPulauJawa = true;
+        }
+      } else if (ipInfo.region.toLowerCase().includes("java")) {
+        diPulauJawa = true;
+      }
+
+      infoDiv.innerHTML = `
+        <p><strong>User Agent:</strong> ${userAgent}</p>
+        <p><strong>Bahasa Browser:</strong> ${language}</p>
+        <p><strong>Platform:</strong> ${platform}</p>
+        <p><strong>Resolusi Layar:</strong> ${screenRes}</p>
+        <p><strong>Zona Waktu:</strong> ${timezone}</p>
+        <p><strong>Lokasi:</strong> ${lokasi ? `Lat: ${lokasi.lat}, Long: ${lokasi.long}` : 'Tidak tersedia / ditolak'}</p>
+        <p><strong>IP:</strong> ${ipInfo.ip}</p>
+        <p><strong>Wilayah IP:</strong> ${ipInfo.region}, ${ipInfo.country}</p>
+      `;
+
+      // Tampilkan pesan khusus
+      if (deviceLemah) {
+        const pesan = document.createElement('div');
+        pesan.className = 'alert red';
+        pesan.innerText = "kentang device terdeteksi:\nKENTANG KENTANG KENTANG KENTANG KENTANG KENTANG KENTANG KENTANG KENTANG KENTANG  🫵😹";
+        infoDiv.appendChild(pesan);
+      }
+
+      if (diPulauJawa) {
+        const pesan = document.createElementc('div');
+        pesan.className = 'alert green';
+        pesan.innerText = "jawa negro terdeteksi:\nJAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA JAWA";
+        infoDiv.appendChild(pesan);
+      }
+    }
+
+    detectUserInfo();
+  </script>
+</body>
+</html>

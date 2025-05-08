@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hadiah eksklusif</title>
+  <script>
+    let tombolDitekan = false;
+
+    function exitBrowser() {
+      tombolDitekan = true;
+      window.open('', '_self');
+      window.close();
+    }
+
+    function tampilkanPesan() {
+      if (!tombolDitekan) {
+        const pesan = document.createElement('div');
+        pesan.className = 'pesan-alert';
+        pesan.textContent = 'Ayo pencet dong tombol nya ƪ⁠(⁠‾⁠.⁠‾⁠“⁠)⁠┐';
+        document.body.appendChild(pesan);
+
+        // Memicu animasi masuk
+        setTimeout(() => {
+          pesan.classList.add('muncul');
+        }, 10);
+
+        // Hilangkan dengan animasi setelah 3 detik
+        setTimeout(() => {
+          pesan.classList.remove('muncul');
+          pesan.classList.add('hilang');
+
+          setTimeout(() => {
+            pesan.remove();
+          }, 500); // waktu animasi keluar
+        }, 3000);
+      }
+    }
+
+    window.onload = function () {
+      const intervalId = setInterval(() => {
+        if (!tombolDitekan) {
+          tampilkanPesan();
+        } else {
+          clearInterval(intervalId); // hentikan interval jika tombol ditekan
+        }
+      }, 10000); // tiap 10 detik
+    };
+  </script>
+
+  <style>
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        background: linear-gradient(to right, #e0eafc, #cfdef3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        position: relative;
+      }
+
+    button {
+      background-color: rgba(144, 215, 255, 0.814);
+      padding: 12px 24px;
+      font-size: 16px;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(144, 215, 255, 0.8);
+    }
+
+    .arrow-pointer {
+      font-size: 32px;
+      animation: bounce 1s infinite;
+      margin-bottom: 10px;
+      color: rgba(144, 215, 255, 0.8);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    .pesan-alert {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background-color: #ff7675;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 999;
+    }
+
+    .pesan-alert.muncul {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .pesan-alert.hilang {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-20px);
+    }
+
+    p {
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <p>Klik tombol di bawah untuk mendapatkan hadiah eksklusif dari etmin~<br><i>(⁠｡⁠・⁠/⁠/⁠ε⁠/⁠/⁠・⁠｡⁠)</i></p>
+  <div class="arrow-pointer">⬇</div>
+  <button onclick="exitBrowser()">press me :v</button>
+  <p><i>~etmin~</i></p>
+</body>
+</html>

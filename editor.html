@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editor Status Web</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #dfe9f3, #ffffff);
+      color: #2c3e50;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    #loginBox {
+      background: white;
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+      justify-items: center;
+    }
+
+    .keypad button {
+      font-size: 20px;
+      padding: 15px 0;
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .keypad button:hover {
+      background-color: #2980b9;
+    }
+
+    #pinInput {
+      font-size: 24px;
+      letter-spacing: 10px;
+      padding: 10px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      width: 80%;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 90%;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+
+    #editorContent {
+      display: none;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    #addForm {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    input[type="text"], select {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #errorMsg {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loginBox">
+    <h2>Masukkan PIN untuk akses</h2>
+    <input type="password" id="pinInput" readonly />
+    <div class="keypad">
+      <button onclick="appendDigit('1')">1</button>
+      <button onclick="appendDigit('2')">2</button>
+      <button onclick="appendDigit('3')">3</button>
+      <button onclick="appendDigit('4')">4</button>
+      <button onclick="appendDigit('5')">5</button>
+      <button onclick="appendDigit('6')">6</button>
+      <button onclick="appendDigit('7')">7</button>
+      <button onclick="appendDigit('8')">8</button>
+      <button onclick="appendDigit('9')">9</button>
+      <button onclick="clearPIN()">C</button>
+      <button onclick="appendDigit('0')">0</button>
+      <button onclick="checkPIN()">OK</button>
+    </div>
+    <p id="errorMsg"></p>
+  </div>
+
+  <div id="editorContent">
+    <h1>Editor Status</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Fitur</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="statusTable"></tbody>
+    </table>
+
+    <h2>Tambah Indikator Baru</h2>
+    <form id="addForm">
+      <input type="text" id="newKey" placeholder="Nama fitur" required />
+      <select id="newValue">
+        <option value="true">Aktif</option>
+        <option value="false">Nonaktif</option>
+      </select>
+      <button type="submit">Tambah</button>
+    </form>
+  </div>
+
+  <script>
+    const PIN = "147258";
+    let enteredPIN = "";
+
+    function appendDigit(digit) {
+      if (enteredPIN.length < 6) {
+        enteredPIN += digit;
+        document.getElementById('pinInput').value = '*'.repeat(enteredPIN.length);
+      }
+    }
+
+    function clearPIN() {
+      enteredPIN = "";
+      document.getElementById('pinInput').value = "";
+      document.getElementById('errorMsg').textContent = "";
+    }
+
+    function checkPIN() {
+      const errorMsg = document.getElementById('errorMsg');
+      if (enteredPIN === PIN) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('editorContent').style.display = 'block';
+        loadStatus();
+      } else {
+        errorMsg.textContent = 'PIN salah, coba lagi.';
+        clearPIN();
+      }
+    }
+
+    let statusData = {};
+
+    async function loadStatus() {
+      const res = await fetch('/status');
+      const data = await res.json();
+      statusData = {};
+      for (const key in data) {
+        statusData[key] = data[key] === true;
+      }
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('statusTable');
+      tbody.innerHTML = '';
+      for (const key in statusData) {
+        const row = document.createElement('tr');
+        const nameTd = document.createElement('td');
+        nameTd.textContent = key;
+
+        const statusTd = document.createElement('td');
+        const select = document.createElement('select');
+        select.innerHTML = `
+          <option value="true" ${statusData[key] ? 'selected' : ''}>Aktif</option>
+          <option value="false" ${!statusData[key] ? 'selected' : ''}>Nonaktif</option>
+        `;
+        select.onchange = () => {
+          statusData[key] = select.value === 'true';
+          saveStatus();
+        };
+        statusTd.appendChild(select);
+
+        const actionsTd = document.createElement('td');
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Hapus';
+        delBtn.style.backgroundColor = '#e74c3c';
+        delBtn.onclick = () => {
+          delete statusData[key];
+          saveStatus();
+        };
+        actionsTd.appendChild(delBtn);
+
+        row.appendChild(nameTd);
+        row.appendChild(statusTd);
+        row.appendChild(actionsTd);
+        tbody.appendChild(row);
+      }
+    }
+
+    async function saveStatus() {
+      const dataToSend = {};
+      for (const key in statusData) {
+        dataToSend[key] = statusData[key] ? 'on' : 'off';
+      }
+
+      await fetch('/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSend)
+      });
+      renderTable();
+    }
+
+    document.getElementById('addForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const key = document.getElementById('newKey').value.trim();
+      const value = document.getElementById('newValue').value === 'true';
+      if (!key || key in statusData) return alert('Nama fitur kosong atau sudah ada.');
+      statusData[key] = value;
+      document.getElementById('newKey').value = '';
+      saveStatus();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatbot Fullstack</title>
+  <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #333;
+      --bot-bg: #e1f5e1;
+      --user-bg: #e3f2fd;
+      --input-bg: #fff;
+      --border-color: #ccc;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+    }
+
+    #style-input {
+      width: 100%;
+      max-width: 600px;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      margin-bottom: 1rem;
+    }
+
+    #chat-box {
+      width: 100%;
+      max-width: 600px;
+      height: 400px;
+      padding: 1rem;
+      background-color: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+    }
+
+    .message {
+      margin: 0.5rem 0;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      max-width: 80%;
+      word-wrap: break-word;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .user {
+      background-color: var(--user-bg);
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .bot {
+      background-color: var(--bot-bg);
+      align-self: flex-start;
+      margin-right: auto;
+    }
+
+    #input {
+      flex-grow: 1;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      outline: none;
+    }
+
+    .input-container {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    button.send-btn {
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: var(--radius);
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button.send-btn:hover {
+      background-color: #45a049;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h2>Chatbot</h2>
+  <textarea id="style-input" rows="2" placeholder="Tulis gaya jawaban bot..."></textarea>
+  <div id="chat-box"></div>
+  <div class="input-container">
+    <input type="text" id="input" placeholder="Tulis pertanyaan..." onkeypress="if(event.key === 'Enter') sendMessage()">
+    <button class="send-btn" onclick="sendMessage()">Kirim</button>
+  </div>
+
+  <script>
+    const sessionId = getSessionId();
+
+    function getSessionId() {
+      let id = localStorage.getItem('sessionId');
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem('sessionId', id);
+        // Di sisi backend, Anda bisa simpan id ini di folder "object" sebagai file JSON
+        // dengan format: { "sessionId": "...", "createdAt": "..." }
+      }
+      return id;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('input');
+      const styleInput = document.getElementById('style-input');
+      const message = input.value.trim();
+      const style = styleInput.value.trim() || "jawab seperti fullstack dev, pakai bahasa Indonesia";
+
+      if (!message) return;
+
+      appendMessage('user', message);
+      input.value = '';
+
+      const typingMsg = appendMessage('bot', 'Bot sedang mengetik...');
+
+      const apiUrl = `https://fastrestapis.fasturl.cloud/aillm/gpt-4o?ask=${encodeURIComponent(message)}&style=${encodeURIComponent(style)}&sessionId=${sessionId}`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        typingMsg.remove();
+        appendMessage('bot', formatResponse(data?.result || "Maaf, tidak bisa menjawab saat ini."));
+      } catch (error) {
+        typingMsg.remove();
+        appendMessage('bot', "Terjadi kesalahan saat menghubungi API.");
+        console.error(error);
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const chatBox = document.getElementById('chat-box');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+      messageDiv.innerHTML = text;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return messageDiv;
+    }
+
+    function formatResponse(text) {
+      return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+  </script>
+</body>
+</html>

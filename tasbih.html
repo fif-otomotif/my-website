@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flip Counter / Clock</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #111;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      transition: background 0.3s ease;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    #click-btn, #clock-btn {
+      margin-top: 40px;
+      padding: 12px 25px;
+      font-size: 18px;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #click-btn {
+      background-color: #00adb5;
+    }
+
+    #click-btn:hover {
+      background-color: #007f85;
+      box-shadow: 0 0 10px #56f8ff;
+      transform: scale(1.05);
+    }
+
+    #clock-btn {
+      background-color: #ff5722;
+      margin-left: 10px;
+    }
+
+    #clock-btn:hover {
+      background-color: #c43e10;
+      box-shadow: 0 0 10px #ff7043;
+      transform: scale(1.05);
+    }
+
+    #restart-btn {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    #restart-btn.show {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #restart-btn:hover {
+      background-color: #388e3c;
+      box-shadow: 0 0 10px #63ce67;
+      transform: scale(1.05);
+    }
+
+    .flip-clock {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .digit {
+      perspective: 1000px;
+      width: 40px;
+      height: 60px;
+      position: relative;
+    }
+
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      color: white;
+      background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 32px;
+      line-height: 60px;
+      font-weight: bold;
+      overflow: hidden;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      border: 2px solid #00adb5;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .card.top, .card.bottom {
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      transform-origin: bottom;
+    }
+
+    .card.top {
+      z-index: 2;
+      transform: rotateX(0deg);
+    }
+
+    .card.bottom {
+      top: 50%;
+      transform-origin: top;
+      transform: rotateX(90deg);
+    }
+
+    .card.flip-top {
+      animation: flipTop 0.5s forwards;
+    }
+
+    .card.flip-bottom {
+      animation: flipBottom 0.5s forwards;
+    }
+
+    @keyframes flipTop {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(-90deg); }
+    }
+
+    @keyframes flipBottom {
+      0% { transform: rotateX(90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+
+    .clock-mode .card {
+      background: #001f1f;
+      box-shadow: 0 0 15px #00ffcc, inset 0 0 10px #00ffcc;
+      border-color: #00ffcc;
+      color: #00ffcc;
+    }
+
+    .separator {
+      font-size: 36px;
+      color: #00ffcc;
+      line-height: 60px;
+      padding: 0 5px;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="flip-clock" id="flip-clock"></div>
+    <div>
+      <button id="click-btn">Klik Aku!</button>
+      <button id="clock-btn">Jam!</button>
+    </div>
+    <button id="restart-btn">Restart</button>
+  </div>
+
+  <script>
+    let count = 0;
+    let lastClickTime = Date.now();
+    let clockMode = false;
+    let clockInterval = null;
+
+    const flipClock = document.getElementById("flip-clock");
+    const button = document.getElementById("click-btn");
+    const clockButton = document.getElementById("clock-btn");
+    const restartBtn = document.getElementById("restart-btn");
+
+    function createDigit(value) {
+      const digit = document.createElement("div");
+      digit.className = "digit";
+
+      const top = document.createElement("div");
+      top.className = "card top";
+      top.textContent = value;
+
+      const bottom = document.createElement("div");
+      bottom.className = "card bottom";
+      bottom.textContent = value;
+
+      digit.appendChild(top);
+      digit.appendChild(bottom);
+
+      return digit;
+    }
+
+    function flipDigit(digitEl, newVal) {
+      const top = digitEl.querySelector(".top");
+      const bottom = digitEl.querySelector(".bottom");
+
+      const newTop = top.cloneNode(true);
+      const newBottom = bottom.cloneNode(true);
+
+      newTop.textContent = newVal;
+      newBottom.textContent = newVal;
+
+      newTop.classList.add("flip-top");
+      newBottom.classList.add("flip-bottom");
+
+      digitEl.appendChild(newTop);
+      digitEl.appendChild(newBottom);
+
+      setTimeout(() => {
+        top.textContent = newVal;
+        bottom.textContent = newVal;
+        digitEl.removeChild(newTop);
+        digitEl.removeChild(newBottom);
+      }, 500);
+    }
+
+    function updateCounter(count) {
+      const digits = String(count).padStart(4, '0').split('');
+      updateDisplay(digits);
+    }
+
+    function updateDisplay(values, withSeparators = false) {
+      flipClock.innerHTML = '';
+      values.forEach((val, i) => {
+        if (withSeparators && (i === 2 || i === 4)) {
+          const sep = document.createElement("div");
+          sep.className = "separator";
+          sep.textContent = ":";
+          flipClock.appendChild(sep);
+        }
+        flipClock.appendChild(createDigit(val));
+      });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      const timeStr = (hh + mm + ss).split('');
+      updateDisplay(timeStr, true);
+    }
+
+    function startClock() {
+      document.body.classList.add("clock-mode");
+      updateClock();
+      clockInterval = setInterval(updateClock, 1000);
+    }
+
+    function stopClock() {
+      document.body.classList.remove("clock-mode");
+      clearInterval(clockInterval);
+      clockInterval = null;
+    }
+
+    function checkIdle() {
+      const now = Date.now();
+      if (!clockMode && now - lastClickTime >= 3000) {
+        restartBtn.classList.add("show");
+      } else {
+        restartBtn.classList.remove("show");
+      }
+    }
+
+    button.addEventListener("click", () => {
+      count++;
+      updateCounter(count);
+      lastClickTime = Date.now();
+      restartBtn.classList.remove("show");
+    });
+
+    clockButton.addEventListener("click", () => {
+      clockMode = !clockMode;
+      if (clockMode) {
+        startClock();
+        clockButton.textContent = "Stop Jam";
+        button.disabled = true;
+        restartBtn.classList.remove("show");
+      } else {
+        stopClock();
+        clockButton.textContent = "Jam!";
+        button.disabled = false;
+        updateCounter(count);
+        lastClickTime = Date.now();
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      count = 0;
+      updateCounter(count);
+      lastClickTime = Date.now();
+      restartBtn.classList.remove("show");
+    });
+
+    setInterval(checkIdle, 200);
+
+    window.onload = () => {
+      updateCounter(count);
+    };
+  </script>
+</body>
+</html>

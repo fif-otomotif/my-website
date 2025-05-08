@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portofolio Saya</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .left-screen {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: opacity 1.5s ease;
+      z-index: 0;
+    }
+
+    .bg1 {
+      background: linear-gradient(to bottom right, #e3f2fd, #bbdefb);
+      opacity: 1;
+    }
+
+    .bg2 {
+      background: linear-gradient(to bottom right, #d1c4e9, #b39ddb);
+      opacity: 0;
+    }
+
+    .bg2.active {
+      opacity: 1;
+    }
+
+    .bg1.fade {
+      opacity: 0;
+    }
+
+    .profile-photo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid white;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 1s linear, opacity 1s ease;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .rotate {
+      animation: rotate 5s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .dokumen1, .dokumen2 {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border: 3px solid white;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .dokumen1 {
+      top: 120px;
+      left: 20px;
+    }
+
+    .dokumen2 {
+      top: 260px;
+      left: 20px;
+    }
+
+    .deskripsi1, .deskripsi2 {
+      position: absolute;
+      font-size: 13px;
+      color: #455a64;
+      background-color: rgba(255,255,255,0.8);
+      padding: 5px 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+
+    .deskripsi1 {
+      top: 210px;
+      left: 20px;
+    }
+
+    .deskripsi2 {
+      top: 350px;
+      left: 20px;
+    }
+
+    .right-screen {
+      flex: 1;
+      background-color: #ffffff;
+      padding: 40px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    h1, h2 {
+      font-size: 1rem;
+      color: #1976d2;
+      background-color: rgba(255,255,255,0.8);
+      padding: 5px 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-top: 0;
+    }
+    
+   #profilepop {
+      display: inline-block;
+      font-size: 1rem;
+      color: #1976d2;
+      background-color: rgba(255,255,255,0.8);
+      padding: 5px 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-top: 0;
+    }
+
+    #deks-profile {
+      font-size: 10px;
+      line-height: 1.6;
+      color: #424242;
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #424242;
+    }
+
+    .skills {
+      margin-top: 20px;
+    }
+
+    .skills ul {
+      padding-left: 20px;
+    }
+
+    .skills li {
+      font-size: 9px;
+      margin-bottom: 8px;
+    }
+
+    #music-info {
+      position: absolute;
+      top: 110px;
+      left: 20px;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      font-size: 12px;
+      z-index: 2;
+    }
+
+    #music-info.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .contact h5 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin: 16px 0;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
+    .contact h5 img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 6px;
+    }
+
+    #ig, #git, #imel {
+      font-size: 10px;
+    }
+    
+    .button {
+      position: fixed;
+      top: 570px;
+      right: 65px;
+      background: linear-gradient(135deg, #357ABD, #7b68ee);
+      color: white;
+      border: none;
+      padding: 10px 26px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .button:hover {
+      background: linear-gradient(135deg, #7b68ee, #357ABD);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(106, 90, 205, 0.4);
+    }
+    
+    .alert-box {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      background: linear-gradient(135deg, #7b68ee, rgba(123, 104, 238, 0.6));
+      color: #fff;
+      padding: 22px 28px 56px 28px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      min-width: 280px;
+      max-width: 320px;
+      transform: translateY(-200%);
+      opacity: 0;
+      transition: transform 0.8s ease, opacity 0.8s ease;
+      pointer-events: none;
+      font-size: 14px;
+      z-index: 10;
+    }
+    
+    .alert-box.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .alert-ok {
+      position: absolute;
+      bottom: 16px;
+      right: 20px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 16px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: background-color 0.3s ease;
+    }
+    
+    .alert-ok:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="left-screen">
+    <div class="background-layer bg1" id="bg1"></div>
+    <div class="background-layer bg2" id="bg2"></div>
+
+    <img id="profilePhoto" src="https://files.catbox.moe/syng8v.jpg" alt="Foto Profil" class="profile-photo" />
+    <div id="music-info">Lantas - <span style="color: rgba(200, 200, 200, 0.7);">Juicy Luicy</span></div>
+    <img src="https://files.catbox.moe/77t7o0.png" alt="Dokumen" class="dokumen1" />
+    <div class="deskripsi1">sebuah bintang</div>
+    <img src="https://files.catbox.moe/yc8qz7.jpg" alt="Dokumen" class="dokumen2" />
+    <div class="deskripsi2">kucing lusyu</div>
+  </div>
+
+  <div class="right-screen">
+    
+    <button class="button" onclick="showAlert()">profile</button>
+
+  <div id="alertBox" class="alert-box">
+    <li id="profilepop">my profile</li>
+    <li>nama: dwi fitra jayanto</li>
+    <li>hobi: mangan</li>
+    <li>cita-cita: back-end developer</li>
+    <button class="alert-ok" onclick="hideAlert()">ok</button>
+  </div>
+
+  <script>
+    function showAlert() {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.classList.add('show');
+    }
+
+    function hideAlert() {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.classList.remove('show');
+    }
+  </script>
+  
+    <h1>yanto kemalasan</h1>
+    <p id="deks-profile">Halo, saya seorang pelajar kelas 8 yang bercita-cita menjadi seorang back-end developer. Saya memiliki ketertarikan yang tinggi terhadap pemrograman, khususnya dalam pengembangan server dan API.</p>
+
+    <div class="skills">
+      <h2>Keahlian</h2>
+      <ul>
+        <li>JavaScript</li>
+        <li>Node.js (Express)</li>
+        <li>MongoDB / MySQL</li>
+        <li>REST API Development</li>
+        <li>Git & GitHub</li>
+      </ul>
+    </div>
+
+    <div class="contact" style="margin-top: 30px;">
+      <h2>Kontak</h2>
+      <h5 id="imel">
+        <img src="object/gmail.svg" alt="Gmail">
+        <span style="color: rgb(100, 100, 100, 0.8);">emailanda@example.com</span>
+      </h5>
+      <h5 id="git">
+        <img src="object/github.svg" alt="GitHub">
+        <span style="color: rgb(100, 100, 100, 0.8);">github.com/fif-otomotif</span>
+      </h5>
+      <h5 id="ig">
+        <img src="object/instagram.svg" alt="Instagram">
+        <span style="color: rgb(100, 100, 100, 0.8);">instagram.com/not_full_speed</span>
+      </h5>
+    </div>
+  </div>
+
+  <audio id="bgMusic" src="https://files.catbox.moe/47ig39.mp3"></audio>
+
+  <script>
+    const profilePhoto = document.getElementById("profilePhoto");
+    const bgMusic = document.getElementById("bgMusic");
+    const musicInfo = document.getElementById("music-info");
+    const bg1 = document.getElementById("bg1");
+    const bg2 = document.getElementById("bg2");
+
+    let isPlaying = false;
+
+    profilePhoto.addEventListener("click", () => {
+      if (!isPlaying) {
+        bgMusic.play();
+        profilePhoto.classList.add("rotate");
+        showMusicInfo();
+        bg2.classList.add("active");
+        bg1.classList.add("fade");
+      } else {
+        bgMusic.pause();
+        profilePhoto.classList.remove("rotate");
+        bg2.classList.remove("active");
+        bg1.classList.remove("fade");
+
+        profilePhoto.style.opacity = '0';
+        setTimeout(() => {
+          profilePhoto.src = 'https://files.catbox.moe/syng8v.jpg';
+          profilePhoto.style.opacity = '1';
+        }, 1000);
+      }
+      isPlaying = !isPlaying;
+    });
+
+    function showMusicInfo() {
+      musicInfo.classList.add("show");
+
+      setTimeout(() => {
+        musicInfo.classList.remove("show");
+
+        profilePhoto.style.opacity = '0';
+        setTimeout(() => {
+          profilePhoto.src = 'https://files.catbox.moe/iqitdi.jpg';
+          profilePhoto.style.opacity = '1';
+        }, 1000);
+      }, 2000);
+    }
+      bgMusic.addEventListener("ended", () => {
+      profilePhoto.classList.remove("rotate");
+      bg2.classList.remove("active");
+      bg1.classList.remove("fade");
+    
+      profilePhoto.style.opacity = '0';
+      setTimeout(() => {
+        profilePhoto.src = 'https://files.catbox.moe/syng8v.jpg'; // kembali ke awal
+        profilePhoto.style.opacity = '1';
+      }, 1000);
+    
+      isPlaying = false;
+    });
+  </script>
+</body>
+</html>

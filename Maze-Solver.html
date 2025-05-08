@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta property="og:title" content="Maze-Solver">
+  <meta property="og:image" content="https://cdn.xtermai.xyz/DsAdy.jpg">
+  <meta property="og:type" content="website">
+  <title>Maze-Solver</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e3f2fd;
+      color: #03396c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .notice {
+      background: #bbdefb;
+      color: #0d47a1;
+      padding: 10px 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 14px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .notice {
+        display: block;
+      }
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 26px;
+      text-align: center;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(20, 20px);
+      grid-template-rows: repeat(20, 20px);
+      gap: 1px;
+      background: #b0bec5;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .cell {
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .wall { background: #455a64; }
+    .start { background: #67ff85; }
+    .end { background: #0288d1; }
+    .visited { background: #b3e5fc; }
+    .path { background: #ffeb3b; }
+
+    .toolbar, .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #90caf9;
+      color: #0d47a1;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #64b5f6;
+    }
+    
+    .custom-notice {
+      background: #ffcdd2;
+      color: #b71c1c;
+      padding: 10px 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+      text-align: center;
+      font-size: 14px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="notice">
+    Website ini dirancang untuk tampilan desktop. Silakan buka di laptop atau ubah ke mode desktop.
+  </div>
+
+  <h1>Maze Solver</h1>
+
+  <div class="toolbar">
+    <button onclick="setMode('wall')">Tembok</button>
+    <button onclick="setMode('start')">Start</button>
+    <button onclick="setMode('end')">Finish</button>
+  </div>
+
+  <div id="grid"></div>
+
+  <div class="controls">
+    <button onclick="play()">Play</button>
+    <button onclick="reply()">Reply</button>
+    <button onclick="reset()">Restart</button>
+  </div>
+  
+    <div id="custom-notice" class="custom-notice">Notifikasi akan tampil di sini.</div>
+  
+<div id="deksripsi" style="max-width: 800px; margin-top: 60px; padding: 25px 30px; background: #f5faff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 16px; color: #2f2f2f; text-align: justify; line-height: 1.8; font-family: 'Segoe UI', sans-serif;">
+  <h2 style="font-family: 'Noto Serif', serif; color: #0d47a1; text-align: center; font-size: 24px; margin-bottom: 20px;">Tentang Web Ini</h2>
+
+  <p>
+    Selamat datang di <strong>Maze Solver (Minimax)</strong>, sebuah aplikasi edukatif berbasis web yang memungkinkan kamu menyusun labirin dan menyaksikan bagaimana algoritma sederhana mencari jalan dari titik awal ke tujuan. Web ini dirancang dengan tampilan bersih dan antarmuka interaktif yang bisa digunakan langsung dari browser—tanpa perlu install apapun.
+  </p>
+
+  <h3 style="color: #1565c0; margin-top: 25px;">Cara Menggunakannya</h3>
+  <p>
+    Kamu dapat menentukan sendiri struktur labirin dengan membuat tembok, memilih titik mulai (Start), dan titik akhir (Finish). Setelah semuanya ditentukan, kamu cukup tekan tombol <strong>Play</strong> untuk melihat jalur yang ditemukan oleh algoritma secara visual.
+  </p>
+  <ol style="margin-left: 20px; padding-left: 10px;">
+    <li>Klik tombol <strong>Tembok</strong>, lalu klik sel di grid untuk membuat dinding penghalang.</li>
+    <li>Klik tombol <strong>Start</strong> dan pilih posisi awal.</li>
+    <li>Klik tombol <strong>Finish</strong> dan pilih titik tujuan.</li>
+    <li>Tekan <strong>Play</strong> untuk menjalankan proses pencarian jalur.</li>
+    <li>Gunakan <strong>Reply</strong> untuk menghapus jalur tanpa menghapus struktur tembok.</li>
+    <li>Tekan <strong>Restart</strong> untuk mereset semuanya dan mulai dari awal.</li>
+  </ol>
+
+  <h3 style="color: #1565c0; margin-top: 25px;">Bagaimana Web Ini Bekerja?</h3>
+  <p>
+    Web ini dibangun sepenuhnya dengan <strong>HTML, CSS, dan JavaScript</strong>. Grid disusun dalam bentuk array dua dimensi yang memuat informasi setiap sel—apakah kosong, tembok, titik awal, titik akhir, atau bagian dari jalur.
+  </p>
+  <ul style="margin-left: 20px; padding-left: 10px; list-style-type: disc;">
+    <li>Saat kamu mengklik sel, JavaScript mengubah tipenya dan memperbarui tampilannya.</li>
+    <li>Algoritma <em>depth-first search</em> sederhana digunakan untuk mencari jalur dari titik awal ke titik akhir.</li>
+    <li>Setiap langkah pencarian divisualisasikan dengan warna: biru muda untuk sel yang dikunjungi, dan kuning untuk jalur final.</li>
+    <li>Proses animasi dijalankan perlahan agar kamu bisa memahami alurnya dengan jelas.</li>
+  </ul>
+
+  <h3 style="color: #1565c0; margin-top: 25px;">Tujuan dan Manfaat</h3>
+  <p>
+    Aplikasi ini dibuat sebagai proyek pembelajaran untuk memahami bagaimana algoritma pencarian bekerja. Dengan menyaksikan visualisasi langsung, pengguna dapat lebih mudah memahami konsep pemrograman seperti rekursi, manipulasi DOM, dan logika pencarian jalur.
+  </p>
+  <p>
+    Web ini cocok untuk pelajar, pengajar, atau siapa saja yang ingin mengenal dasar-dasar pemrograman logika dan algoritma visual.
+  </p>
+
+  <p style="text-align: center; font-weight: bold; font-size: 14px; margin-top: 40px;">
+    Selamat bereksperimen dan semoga kamu bisa menemukan jalur terbaik di labirin yang kamu buat!
+  </p>
+
+  <footer style="text-align: center; font-size: 12px; color: gray; margin-top: 20px;">
+    &copy; 2025 — Dibuat oleh Yanto Kemakmuran
+  </footer>
+</div>
+
+  <script>
+    const gridSize = 20;
+    let mode = 'wall';
+    let grid = [];
+    let start = null;
+    let end = null;
+    let animating = false;
+
+    const gridEl = document.getElementById('grid');
+
+    function setMode(newMode) {
+      mode = newMode;
+    }
+
+    function createGrid() {
+      gridEl.innerHTML = '';
+      grid = [];
+      for (let row = 0; row < gridSize; row++) {
+        const rowArr = [];
+        for (let col = 0; col < gridSize; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.addEventListener('click', () => handleCellClick(cell));
+          gridEl.appendChild(cell);
+          rowArr.push({ type: 'empty', el: cell });
+        }
+        grid.push(rowArr);
+      }
+    }
+
+    function handleCellClick(cell) {
+      if (animating) return;
+
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+      const current = grid[row][col];
+
+      if (mode === 'wall') {
+        current.type = current.type === 'wall' ? 'empty' : 'wall';
+        updateCellClass(row, col);
+      } else if (mode === 'start') {
+        if (start) {
+          const [sr, sc] = start;
+          grid[sr][sc].type = 'empty';
+          updateCellClass(sr, sc);
+        }
+        start = [row, col];
+        current.type = 'start';
+        updateCellClass(row, col);
+      } else if (mode === 'end') {
+        if (end) {
+          const [er, ec] = end;
+          grid[er][ec].type = 'empty';
+          updateCellClass(er, ec);
+        }
+        end = [row, col];
+        current.type = 'end';
+        updateCellClass(row, col);
+      }
+    }
+
+    function updateCellClass(row, col) {
+      const cell = grid[row][col];
+      const el = cell.el;
+      el.className = 'cell';
+      if (cell.type === 'wall') el.classList.add('wall');
+      if (cell.type === 'start') el.classList.add('start');
+      if (cell.type === 'end') el.classList.add('end');
+      if (cell.type === 'path') el.classList.add('path');
+      if (cell.type === 'visited') el.classList.add('visited');
+    }
+
+    function reset() {
+      start = null;
+      end = null;
+      createGrid();
+    }
+
+    function reply() {
+      for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+          const cell = grid[row][col];
+          if (cell.type === 'visited' || cell.type === 'path') {
+            cell.type = 'empty';
+            updateCellClass(row, col);
+          }
+        }
+      }
+      if (start) updateCellClass(...start);
+      if (end) updateCellClass(...end);
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function play() {
+  if (!start || !end) {
+    showNotice('Tentukan titik Start dan Finish terlebih dahulu.');
+    return;
+  }
+  animating = true;
+  const found = await minimax(start[0], start[1], []);
+  animating = false;
+
+  if (!found) {
+    showNotice('minimax: gak bisa lewat, ada kondangan (⁠╥⁠﹏⁠╥⁠)');
+  }
+}
+
+    async function minimax(r, c, path) {
+      if (r < 0 || c < 0 || r >= gridSize || c >= gridSize) return false;
+      const cell = grid[r][c];
+      if (cell.type === 'wall' || cell.type === 'visited') return false;
+
+      if (cell.type !== 'start' && cell.type !== 'end') {
+        cell.type = 'visited';
+        updateCellClass(r, c);
+        await sleep(20);
+      }
+
+      if (cell.type === 'end') {
+        for (let [pr, pc] of path) {
+          if (grid[pr][pc].type !== 'start' && grid[pr][pc].type !== 'end') {
+            grid[pr][pc].type = 'path';
+            updateCellClass(pr, pc);
+            await sleep(30);
+          }
+        }
+        return true;
+      }
+
+      const directions = [[0,1],[1,0],[-1,0],[0,-1]];
+
+      for (let [dr, dc] of directions) {
+        if (await minimax(r+dr, c+dc, [...path, [r, c]])) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+    
+    function showNotice(message) {
+  const noticeEl = document.getElementById('custom-notice');
+  noticeEl.textContent = message;
+  noticeEl.style.display = 'block';
+
+  // Efek fade-in
+  setTimeout(() => {
+    noticeEl.style.opacity = '1';
+  }, 10);
+
+  // Efek fade-out otomatis setelah 5 detik
+  setTimeout(() => {
+    noticeEl.style.opacity = '0';
+    setTimeout(() => {
+      noticeEl.style.display = 'none';
+    }, 500);
+  }, 5000);
+}
+
+    createGrid();
+  </script>
+</body>
+</html>

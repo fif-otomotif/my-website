@@ -1,0 +1,273 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Directory Listing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Directory Listing">
+  <meta property="og:image" content="https://files.catbox.moe/kc0zw9.jpg">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://files.catbox.moe/3kw7gi.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Share Tech Mono', monospace;
+      color: #fuchsia;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    .profile-pic {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+      margin-top: 20px;
+      z-index: 1;
+      filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 20px pink);
+      cursor: pointer;
+    }
+
+    .icon-links {
+      display: flex;
+      flex-wrap: wrap; 
+      gap: 16px;
+      margin: 20px auto;
+      z-index: 1;
+      justify-content: center;
+      max-width: 90%;
+    }
+    
+    .icon-links a {
+      font-size: 28px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 255, 255, 0.1);
+      border-radius: 9px; /* ubah ke 0 jika ingin benar-benar kotak tanpa sudut melengkung */
+      box-shadow: 0 0 10px #f0f;
+      text-shadow: 0 0 6px #0ff;
+      color: #0ff;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .icon-links a:hover {
+      color: #f0f;
+      transform: scale(1.2);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #00ffff;
+      text-shadow: 0 0 8px #f0f, 0 0 16px #0ff;
+      animation: flicker 3s infinite;
+      z-index: 1;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 8px #f0f, 0 0 16px #0ff;
+      }
+      20%, 24%, 55% {
+        opacity: 0.4;
+        text-shadow: none;
+      }
+      22% {
+        opacity: 0.1;
+      }
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      width: 90%;
+      max-width: 500px;
+      z-index: 1;
+    }
+
+    li {
+      margin: 12px 0;
+    }
+
+    a {
+      display: block;
+      padding: 15px 25px;
+      background-color: rgba(255, 0, 255, 0.1);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-left: 4px solid #f0f;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #00ffff;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(3px);
+      box-shadow: 0 0 10px #f0f, inset 0 0 5px #0ff;
+    }
+
+    a:hover {
+      background-color: rgba(0, 255, 255, 0.15);
+      transform: scale(1.03);
+      border-left: 4px solid #0ff;
+      box-shadow: 0 0 20px #0ff, inset 0 0 10px #f0f;
+    }
+
+    hr {
+      border: none;
+      height: 2px;
+      width: 80%;
+      background: linear-gradient(to right, #f0f, #0ff);
+      margin: 20px 0;
+      box-shadow: 0 0 10px #f0f;
+      z-index: 1;
+    }
+
+    .blackout {
+      position: fixed;
+      inset: 0;
+      background: black;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .blackout.show {
+      pointer-events: all;
+    }
+
+    .flash {
+      animation: flashSequence 3s forwards;
+    }
+
+    @keyframes flashSequence {
+      0%, 10%, 20% {
+        opacity: 1;
+      }
+      5%, 15%, 25% {
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    #popup {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 0, 255, 0.9);
+      color: cyan;
+      padding: 20px 30px;
+      font-size: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #0ff;
+      z-index: 2000;
+      transition: top 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="blackout" id="blackout"></div>
+
+  <img src="https://files.catbox.moe/dciu7x.png" alt="Foto Profil" class="profile-pic">
+
+  <!-- Ikon Hadiah & WhatsApp -->
+  <div class="icon-links">
+  <a href="hadiah.html" class="material-symbols-outlined" title="Hadiah">featured_seasonal_and_gifts</a>
+  <a href="editor.html" class="material-symbols-outlined" title="Editor">design_services</a>
+  <a href="https://wa.me/62881036711862" target="_blank" class="material-symbols-outlined" title="WhatsApp">chat</a>
+  <a href="deteck.html" class="material-symbols-outlined" title="detector">device_unknown</a>
+  <a href="wchatbox.html" class="material-symbols-outlined" title="ai">smart_toy</a>
+  <a href="tasbih.html" class="material-symbols-outlined" title="tasbih">Scoreboard</a>
+</div>
+
+  <h1>Directory Listing</h1>
+  <hr>
+  <ul>
+    <li><a href="dashboard.html" data-file="dashboard.html">dashboard</a></li>
+    <li><a href="dadu.html" data-file="dadu.html">dadu</a></li>
+    <li><a href="enkripsi.html" data-file="enkripsi.html">enkripsi</a></li>
+    <li><a href="info.html" data-file="info.html">informasi</a></li>
+    <li><a href="labirin.html" data-file="labirin.html">labirin</a></li>
+    <li><a href="Maze-Solver.html" data-file="Maze-solver.html">Maze-solver</a></li>
+    <li><a href="Spotify.html" data-file="Spotify.html">musik download</a></li>
+    <li><a href="portofolio.html" data-file="portofolio.html">portofolio</a></li>
+    <li><a href="portofolio2.html" data-file="portofolio2.html">portofolio2</a></li>
+    <li><a href="portofolio3.html" data-file="portofolio3.html">portofolio3</a></li>
+    <li><a href="qr.html" data-file="qr.html">QR Code Generator & Scanner</a></li>
+    <li><a href="reflection.html" data-file="reflection.html">reflection</a></li>
+    <li><a href="tebak-gambar.html" data-file="tebak-gambar.html">tebak-gambar</a></li>
+    <li><a href="tic-tac-toe.html" data-file="tic-tac-toe.html">tic-tac-toe</a></li>
+  </ul>
+  <hr>
+
+  <!-- Audio dan Popup -->
+  <audio id="music" src="https://files.catbox.moe/nzsd8m.mp3"></audio>
+  <div id="popup">ladyfingers - Herb Alpert & The Tijuana Brass</div>
+
+  <script>
+    const links = document.querySelectorAll('a');
+    const blackout = document.getElementById('blackout');
+
+    links.forEach(link => {
+      if (!link.href.includes('wa.me')) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          blackout.classList.add('show', 'flash');
+
+          setTimeout(() => {
+            window.location.href = href;
+          }, 3000);
+        });
+      }
+    });
+
+    const profilePic = document.querySelector('.profile-pic');
+    const music = document.getElementById('music');
+    const popup = document.getElementById('popup');
+    let isPlaying = false;
+
+    profilePic.addEventListener('click', () => {
+      if (!isPlaying) {
+        music.play();
+        popup.textContent = "ladyfingers - Herb Alpert & The Tijuana Brass";
+        isPlaying = true;
+      } else {
+        music.pause();
+        music.currentTime = 0;
+        popup.textContent = "stop";
+        isPlaying = false;
+      }
+
+      popup.style.top = '30px';
+      setTimeout(() => {
+        popup.style.top = '-100px';
+      }, 4000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>My Portfolio</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta property="og:title" content="portfolio">
+  <meta property="og:image" content="https://files.catbox.moe/8ku82p.jpg">
+  <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #1e1e2f, #2e2e4d);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 1rem;
+      animation: fadeInDown 1s ease forwards;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #aaa;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+      text-align: center;
+      animation: fadeIn 2s ease forwards;
+    }
+
+    .hero img {
+      width: 180px;
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      background: #ff5e62;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.6s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px white;
+      background: #990000;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    
+    .btn.pulse {
+      animation: pulse 0.5s ease;
+    }
+
+    section {
+      padding: 4rem 2rem;
+    }
+
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      animation: fadeInUp 1.5s ease forwards;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.03);
+    }
+
+    .card h3 {
+      margin-bottom: 0.5rem;
+      color: #ffcb77;
+    }
+
+    .card p {
+      color: #ccc;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #111;
+      color: #777;
+    }
+
+    .decorations span {
+      position: absolute;
+      display: block;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 10s infinite ease-in-out;
+    }
+
+    .decorations span:nth-child(1) {
+      left: 10%;
+      top: 20%;
+      animation-delay: 0s;
+    }
+
+    .decorations span:nth-child(2) {
+      left: 30%;
+      top: 60%;
+      animation-delay: 2s;
+    }
+
+    .decorations span:nth-child(3) {
+      left: 70%;
+      top: 40%;
+      animation-delay: 4s;
+    }
+
+    .decorations span:nth-child(4) {
+      left: 85%;
+      top: 80%;
+      animation-delay: 6s;
+    }
+
+    .decorations span:nth-child(5) {
+      left: 50%;
+      top: 10%;
+      animation-delay: 8s;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="decorations">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <header>
+    <h1>Halo, Saya Yanto</h1>
+    <p>Back-end Developer | Bot Developer | Api Developer</p>
+  </header>
+
+  <section class="hero">
+    <img src="https://i.pravatar.cc/180" alt="Profile Picture" />
+    <h2>Saya suka membangun bot dan api.</h2>
+    <button class="btn" data-aos="flip-up">Hubungi Saya</button>
+  </section>
+
+  <section>
+    <h2 style="text-align:center; margin-bottom:2rem;">Proyek Terbaru</h2>
+    <div class="projects">
+      <div class="card">
+        <h3>Website Portfolio</h3>
+        <p>Portfolio pribadi dengan animasi dan desain elegan.</p>
+      </div>
+      <div class="card">
+        <h3>Bot Telegram</h3>
+        <p>Bot Telegram dengan noll fungsi dan user</p>
+      </div>
+      <div class="card">
+        <h3>Dashboard Admin</h3>
+        <p>UI dashboard responsif untuk manajemen data.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Yanto. Dibuat dengan penuh cinta.
+  </footer>
+  
+<script>
+  const button = document.querySelector('.btn');
+  const redirectUrl = 'https://wa.me/62881036711862'; // Ganti URL sesuai kebutuhan
+
+  button.addEventListener('click', () => {
+    button.classList.add('pulse');
+
+    setTimeout(() => {
+      button.classList.remove('pulse');
+      window.location.href = redirectUrl;
+    }, 500); // Pastikan sama dengan durasi animasi
+  });
+</script>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
+</body>
+</html>

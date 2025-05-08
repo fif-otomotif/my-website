@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Ngrok Dashboard Real-Time</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <meta property="og:title" content="Directory Listing">
+  <meta property="og:image" content="https://files.catbox.moe/xmuzgm.jpg">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --text: #ffffff;
+      --label: #8b949e;
+      --box: #161b22;
+      --highlight: #58a6ff;
+    }
+
+    .light {
+      --bg: #f0f0f0;
+      --text: #111;
+      --label: #555;
+      --box: #ffffff;
+      --highlight: #0077cc;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 2rem;
+      color: var(--highlight);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .theme-toggle img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 2rem auto;
+    }
+
+    .box {
+      background: var(--box);
+      padding: 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(88, 166, 255, 0.15);
+      transition: background 0.3s;
+    }
+
+    .label {
+      font-size: 0.9rem;
+      color: var(--label);
+      margin-bottom: 0.5rem;
+    }
+
+    .value {
+      font-size: 1.4rem;
+      color: var(--highlight);
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <img id="theme-icon" src="object/moon.png" alt="Toggle Theme">
+  </button>
+
+  <h1>Dashboard</h1>
+
+  <div class="grid">
+    <div class="box"><div class="label">Total Request</div><div class="value" id="total">0</div></div>
+    <div class="box"><div class="label">IP Terakhir</div><div class="value" id="ip">-</div></div>
+    <div class="box"><div class="label">Method Terakhir</div><div class="value" id="method">-</div></div>
+    <div class="box"><div class="label">URI Terakhir</div><div class="value" id="uri">-</div></div>
+    <div class="box"><div class="label">Status Code Terakhir</div><div class="value" id="status">-</div></div>
+    <div class="box"><div class="label">Waktu Request Terakhir</div><div class="value" id="time">-</div></div>
+    <div class="box"><div class="label">User Agent Terakhir</div><div class="value" id="agent">-</div></div>
+    <div class="box"><div class="label">Host</div><div class="value" id="host">Yanto</div></div>
+  </div>
+
+  <script>
+    const socket = io();
+    let total = 0;
+
+    socket.on('new-request', (req) => {
+      total++;
+      document.getElementById('total').textContent = total;
+      document.getElementById('ip').textContent = req.remote_addr;
+      document.getElementById('method').textContent = req.method;
+      document.getElementById('uri').textContent = req.uri;
+      document.getElementById('status').textContent = req.status;
+      document.getElementById('time').textContent = req.start;
+      document.getElementById('agent').textContent = req.headers?.['User-Agent'] || '-';
+      document.getElementById('host').textContent = req.headers?.host || '-';
+    });
+
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      const isLight = body.classList.toggle('light');
+
+      icon.src = isLight ? 'object/sun.png' : 'object/moon.png';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    window.onload = () => {
+      const savedTheme = localStorage.getItem('theme');
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+
+      if (savedTheme === 'light') {
+        body.classList.add('light');
+        icon.src = 'object/sun.png';
+      } else {
+        icon.src = 'object/moon.png';
+      }
+    }
+  </script>
+</body>
+</html>

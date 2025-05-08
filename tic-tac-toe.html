@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic Tac Toe</title>
+  <meta property="og:title" content="Tic-Tac-Toe">
+  <meta property="og:image" content="https://files.catbox.moe/3h030f.jpg">
+  <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #judul {
+      margin-top: 30px;
+      color: #333;
+      font-size: 2em;
+      font-family: "Noto Serif", serif;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 10px;
+      margin: 30px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #ffffffdd;
+      font-size: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .cell:hover {
+      background-color: #f1f1f1;
+      transform: scale(1.05);
+    }
+
+    #status {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #357ab7;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .overlay-content {
+      position: relative;
+      background: white;
+      padding: 30px 40px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+
+    .overlay-content h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .overlay-media {
+      width: 200px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto 20px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #d00;
+    }
+
+    #difficulty {
+      margin-top: 15px;
+      font-size: 16px;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="judul">Tic Tac Toe</h1>
+
+  <select id="difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+    <option value="extreme">Extreme</option>
+  </select>
+
+  <div class="board" id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+
+  <p id="status">Menentukan giliran...</p>
+  <button onclick="resetGame()">Reset Permainan</button>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-content">
+      <div class="close-btn" onclick="closeOverlay()">&times;</div>
+      <h2 id="overlay-message"></h2>
+      <div id="overlay-media-container"></div>
+      <button onclick="resetGame()" id="play-again-btn">Main Lagi</button>
+    </div>
+  </div>
+  
+<div id="deksripsi" style="max-width: 700px; margin-top: 50px; font-size: 16px; color: #2f2f2f; text-align: justify; line-height: 1.8; font-family: 'Segoe UI', sans-serif;">
+  <h2 style="font-family: 'Noto Serif', serif; color: #2c3e50; text-align: center;">Tentang Web Ini</h2>
+  <p>
+    Halo dan selamat datang di permainan <strong>Tic Tac Toe</strong> versi modern yang dibuat simpel tapi cerdas! Di web ini, kamu bisa bermain melawan bot yang sudah diprogram untuk berpikir—kadang santai, kadang serius, tergantung tingkat kesulitan yang kamu pilih.
+  </p>
+  
+  <h3 style="color: #34495e;">Cara Mainnya Gimana?</h3>
+  <p>
+    Permainannya masih sama seperti yang kamu kenal: kamu dan bot akan bergiliran mengisi kotak 3x3. Yang berhasil menyusun tiga simbol (X atau O) secara horizontal, vertikal, atau diagonal, menang. Tapi hati-hati, bot di sini nggak bisa diremehkan—terutama kalau kamu pilih level “Extreme”.
+  </p>
+  <p>
+    Berikut langkah-langkahnya:
+    <ol>
+      <li>Pilih tingkat kesulitan di bagian atas (Easy, Medium, Hard, atau Extreme).</li>
+      <li>Tunggu giliran—kadang kamu duluan, kadang bot.</li>
+      <li>Klik kotak kosong untuk menaruh simbolmu.</li>
+      <li>Lihat siapa yang lebih cepat menyusun tiga simbol sebaris!</li>
+      <li>Kalau game selesai, akan muncul notifikasi seru hehehe :v</li>
+      <li>Klik tombol <strong>“Main Lagi”</strong> untuk mengulang permainan.</li>
+    </ol>
+  </p>
+
+  <h3 style="color: #34495e;">Web Ini Kerja Gimana Sih?</h3>
+  <p>
+    Nah, dari balik layar, web ini bekerja sepenuhnya dengan <strong>HTML, CSS, dan JavaScript</strong>. Jadi tidak pakai server atau database—semua berjalan langsung di browser kamu. Berikut alur sederhananya:
+  </p>
+  <ul>
+    <li>Setiap kali kamu klik kotak, JavaScript akan mencatat langkahmu di sebuah array papan permainan.</li>
+    <li>Setelah itu, giliran bot yang bergerak. Kalau kamu pilih level “Easy”, dia asal pilih. Tapi kalau “Hard” atau “Extreme”, dia pakai algoritma <strong>Minimax</strong> untuk cari langkah terbaik.</li>
+    <li>Program akan terus mengecek: ada yang menang belum? Atau seri?</li>
+    <li>Kalau sudah selesai, akan muncul tampilan akhir lewat <strong>overlay</strong> yang menampilkan pesan dan media—entah gambar kemenangan, atau video kekalahan dari bot.</li>
+  </ul>
+
+  <h3 style="color: #34495e;">Kenapa Web Ini Dibuat?</h3>
+  <p>
+    Web ini dibuat sebagai proyek kecil untuk latihan dan seru-seruan. Tujuannya adalah belajar lebih dalam tentang cara kerja game sederhana, mempercantik antarmuka dengan CSS, dan menguji logika serta kecerdasan buatan ringan lewat JavaScript.
+  </p>
+  <p>
+    Cocok buat kamu yang lagi santai, pengen main sebentar, atau pengen tahu cara kerja game kecil berbasis web.
+  </p>
+  <p style="text-align: center; font-weight: bold; font-size: 14px;">Selamat bermain, dan semoga kamu bisa ngalahin bot-nya!</p>
+  <p style="text-align: center; font-size: 12px; color: gray;">
+    -text di buat oleh chatgpt-
+  </p>
+   <footer style="text-align: center; font-size: 12px; color: gray;">
+    &copy; 2025 di buat oleh yanto kemakmuran
+  </footer>
+</div>
+
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const statusText = document.getElementById('status');
+    const overlay = document.getElementById('overlay');
+    const overlayMessage = document.getElementById('overlay-message');
+    const overlayMediaContainer = document.getElementById('overlay-media-container');
+    const playAgainBtn = document.getElementById('play-again-btn');
+    const difficultySelector = document.getElementById('difficulty');
+
+    let board = Array(9).fill("");
+    let gameActive = true;
+    let userSymbol, botSymbol;
+    let currentPlayer;
+    let difficulty = "easy";
+
+    difficultySelector.addEventListener('change', e => {
+      difficulty = e.target.value;
+      resetGame();
+    });
+
+    cells.forEach(cell => cell.addEventListener('click', handleClick));
+
+    function startGame() {
+      board = Array(9).fill("");
+      gameActive = true;
+      cells.forEach(cell => cell.textContent = "");
+      overlay.style.display = "none";
+
+      if (Math.random() < 0.5) {
+        userSymbol = "X";
+        botSymbol = "O";
+        currentPlayer = userSymbol;
+        statusText.textContent = `Giliran Kamu (${userSymbol})`;
+      } else {
+        userSymbol = "O";
+        botSymbol = "X";
+        currentPlayer = botSymbol;
+        statusText.textContent = `Bot memulai dulu...`;
+        showOverlay("Bot menjadi X!", "img", "https://files.catbox.moe/2azj3k.jpg", false);
+        setTimeout(() => {
+          closeOverlay();
+          makeMove(getBestMove(), botSymbol);
+          currentPlayer = userSymbol;
+          statusText.textContent = `Giliran Kamu (${userSymbol})`;
+        }, 4000);
+      }
+    }
+
+    function handleClick(e) {
+      const index = e.target.dataset.index;
+      if (board[index] !== "" || !gameActive || currentPlayer !== userSymbol) return;
+
+      makeMove(index, userSymbol);
+      if (checkGameOver(userSymbol)) return;
+
+      currentPlayer = botSymbol;
+      statusText.textContent = "Giliran Bot...";
+      setTimeout(() => {
+        makeMove(getBestMove(), botSymbol);
+        if (!checkGameOver(botSymbol)) {
+          currentPlayer = userSymbol;
+          statusText.textContent = `Giliran Kamu (${userSymbol})`;
+        }
+      }, 500);
+    }
+
+    function makeMove(index, player) {
+      board[index] = player;
+      cells[index].textContent = player;
+    }
+
+    function checkGameOver(player) {
+      if (checkWin(player)) {
+        const msg = player === userSymbol ? "Selamat! Kamu menang!" : "Bot menang! Coba lagi ya.";
+        const type = player === userSymbol ? "img" : "video";
+        const src = player === userSymbol ? "https://files.catbox.moe/4gtvct.jpg" : "https://files.catbox.moe/jcayhr.mp4";
+        showOverlay(msg, type, src);
+        gameActive = false;
+        return true;
+      } else if (!board.includes("")) {
+        showOverlay("Permainan Seri!", "video", "https://files.catbox.moe/jcayhr.mp4");
+        gameActive = false;
+        return true;
+      }
+      return false;
+    }
+
+    function checkWin(player) {
+      const winCombos = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return winCombos.some(combo => combo.every(i => board[i] === player));
+    }
+
+    function getBestMove() {
+      const available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+      if (difficulty === "easy") {
+        return available[Math.floor(Math.random() * available.length)];
+      }
+      if (difficulty === "medium" && Math.random() < 0.5) {
+        return available[Math.floor(Math.random() * available.length)];
+      }
+      let bestScore = -Infinity, move;
+      for (let i of available) {
+        board[i] = botSymbol;
+        let score = minimax(board, 0, false, difficulty === "hard" ? 2 : Infinity);
+        board[i] = "";
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
+      }
+      return move;
+    }
+
+    function minimax(boardState, depth, isMax, maxDepth = Infinity) {
+      if (checkWin(botSymbol)) return 10 - depth;
+      if (checkWin(userSymbol)) return depth - 10;
+      if (!boardState.includes("") || depth >= maxDepth) return 0;
+
+      let best = isMax ? -Infinity : Infinity;
+      for (let i = 0; i < boardState.length; i++) {
+        if (boardState[i] === "") {
+          boardState[i] = isMax ? botSymbol : userSymbol;
+          let score = minimax(boardState, depth + 1, !isMax, maxDepth);
+          boardState[i] = "";
+          best = isMax ? Math.max(score, best) : Math.min(score, best);
+        }
+      }
+      return best;
+    }
+
+    function showOverlay(message, mediaType = null, mediaSrc = "", showButton = true) {
+      overlayMessage.textContent = message;
+      overlayMediaContainer.innerHTML = "";
+
+      if (mediaType && mediaSrc) {
+        const media = document.createElement(mediaType);
+        media.className = "overlay-media";
+        media.src = mediaSrc;
+        if (mediaType === "video") {
+          media.autoplay = true;
+          media.loop = true;
+          media.muted = false;
+          media.playsInline = true;
+          media.controls = true;
+        }
+        overlayMediaContainer.appendChild(media);
+      }
+
+      playAgainBtn.style.display = showButton ? "inline-block" : "none";
+      overlay.style.display = "flex";
+    }
+
+    function closeOverlay() {
+      overlay.style.display = "none";
+      const video = overlayMediaContainer.querySelector("video");
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    }
+
+    function resetGame() {
+      closeOverlay();
+      startGame();
+    }
+
+    window.onload = startGame;
+  </script>
+</body>
+</html>
