@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lirik</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      font-family: 'Noto Serif', serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      z-index: 0;
+      background: #0f0f1f;
+    }
+
+    .lava-lamp {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      bottom: -100px;
+      background: radial-gradient(circle at 30% 30%, rgba(200, 150, 255, 0.7), rgba(180, 100, 255, 0.2));
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      animation: floatBlob 20s infinite ease-in-out;
+      mix-blend-mode: screen;
+      filter: blur(40px);
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.8;
+      transition: all 1.2s ease-in-out;
+      will-change: transform, opacity;
+    }
+
+    .blob.delay1 { animation-delay: 3s; left: 20%; }
+    .blob.delay2 { animation-delay: 6s; left: 40%; }
+    .blob.delay3 { animation-delay: 9s; left: 60%; }
+    .blob.delay4 { animation-delay: 12s; left: 80%; }
+    .blob.delay5 { animation-delay: 15s; left: 30%; }
+    .blob.delay6 { animation-delay: 18s; left: 70%; }
+
+    @keyframes floatBlob {
+      0% { transform: translateX(-50%) translateY(0) scale(1); }
+      50% { transform: translateX(-50%) translateY(-90vh) scale(1.2); }
+      100% { transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 48px;
+      color: #fefefe;
+      margin-bottom: 20px;
+      text-align: center;
+      z-index: 1;
+    }
+
+    #cover-image {
+      max-width: 300px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform 0.6s ease-in-out, width 0.6s ease-in-out, height 0.6s ease-in-out, border-radius 0.6s ease-in-out;
+      will-change: transform, opacity;
+    }
+
+    #cover-image.playing {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      animation: spin 7s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .audio-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      z-index: 1;
+    }
+
+    .btn-play {
+      background-color: rgba(255, 255, 255, 0.6);
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out;
+      backdrop-filter: blur(6px);
+    }
+
+    .btn-play:hover {
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    #time-indicator {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.3);
+      padding: 4px 12px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    #current-lyric {
+      font-size: 20px;
+      text-align: center;
+      max-width: 700px;
+      margin-top: 30px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+      padding: 10px 20px;
+      border-radius: 12px;
+      background-color: rgba(255,255,255,0.644);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      z-index: 1;
+      will-change: opacity, transform;
+    }
+
+    #current-lyric.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    strong {
+      color: rgba(46,46,46,0.782);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Lava Lamp Blobs -->
+  <div class="lava-lamp">
+    <div class="blob"></div>
+    <div class="blob delay1"></div>
+    <div class="blob delay2"></div>
+    <div class="blob delay3"></div>
+    <div class="blob delay4"></div>
+    <div class="blob delay5"></div>
+    <div class="blob delay6"></div>
+  </div>
+
+  <h1>I Love You So</h1>
+
+  <div class="audio-controls">
+    <button class="btn-play" id="play-button">◀️</button>
+    <div id="time-indicator">00:00</div>
+  </div>
+
+  <audio id="audio-player">
+    <source src="https://files.catbox.moe/bw4ozi.mp3" type="audio/mpeg">
+    Browser Anda tidak mendukung elemen audio.
+  </audio>
+
+  <div id="current-lyric"></div>
+
+  <script>
+    const audio = document.getElementById("audio-player");
+    const playBtn = document.getElementById("play-button");
+    const timeIndicator = document.getElementById("time-indicator");
+    const lyricDisplay = document.getElementById("current-lyric");
+    const coverImage = document.getElementById("cover-image");
+
+    const lyrics = [
+      { time: 0, text: "<b>The Walters</b> - <i>I Love You So</i>" },
+      { time: 3, text: "<span style='font-size: 1.2em;'>♪</span>" },
+      { time: 6, text: "<span style='font-size: 1.4em;'>♪♪</span>" },
+      { time: 9, text: "<span style='font-size: 1.6em;'>♪♪♪</span>" },
+      { time: 13, text: "I just need <i>someone</i> in my life to give it <b>structure</b>" },
+      { time: 18, text: "To handle all the <i>selfish ways</i> I'd spend my time <b>without her</b>" },
+      { time: 24, text: "You're <b>everything</b> I want, but I can't deal with <i>all your lovers</i>" },
+      { time: 31, text: "You're saying I'm the one, but it's your <b>actions</b> that speak louder" },
+      { time: 37, text: "Giving me <i>love</i> when you are down and need another" },
+      { time: 43, text: "I've gotta get away and let you go, <i>I've gotta get over</i>" },
+      { time: 50, text: "<span style='font-size: 1.6em;'>♪♪♪</span>" },
+      { time: 51, text: "<b>But I love you so</b>" },
+      { time: 52, text: "<b>But I love you</b> <i>soo</i>" },
+      { time: 53, text: "<b>But I love you</b> <i>sooo</i>" },
+      { time: 54, text: "<b>But I love you</b> <i>soooo</i>" },
+      { time: 55, text: "<b>But I love you</b> <i>sooooo</i>" },
+      { time: 56, text: "<b>But I love you</b> <i>soooooo</i>" },
+      { time: 57, text: "<span style='font-size: 1.6em;'>♪♪♪</span>" },
+      { time: 58, text: "<i>I love you so</i>" },
+      { time: 59, text: "<i>I love you soo</i>" },
+      { time: 60, text: "<i>I love you sooo</i>" },
+      { time: 61, text: "<i>I love you sooooo</i>" },
+      { time: 62, text: "<span style='font-size: 1.6em;'>♪♪♪</span>" },
+      { time: 63, text: "<i>I love you so</i>" },
+      { time: 64, text: "<i>I love you soo</i>" },
+      { time: 65, text: "<i>I love you sooo</i>" },
+      { time: 66, text: "<i>I love you sooooo</i>" },
+      { time: 67, text: "<i>I love you soooooo</i>" },
+      { time: 68, text: "<span style='font-size: 1.6em;'>♪♪♪</span>" },
+      { time: 70, text: "<i>I love you so</i>" },
+      { time: 71, text: "<i>I love you soo</i>" },
+      { time: 72, text: "<i>I love you sooo</i>" },
+      { time: 73, text: "<i>I love you soooo</i>" },
+      { time: 75, text: "<i>I'm gonna pack my things and leave you behind</i><br>This feeling's old and I know that I've made up my mind" },
+      { time: 87, text: "<i>I hope you feel what I felt</i> when you shattered my <b>soul</b>" },
+      { time: 93, text: "Cause you were <b>cruel</b> and I'm a <i>fool</i>" },
+      { time: 97, text: "<i>So please let me go</i>" },
+      { time: 99, text: "<span style='font-size: 1.6em;'>♪♪♪</span>" },
+      { time: 102, text: "<i>But I love you sooo</i>" },
+      { time: 105, text: "<i><strong><b>*Please let me go*</b></strong></i>" },
+      { time: 108, text: "<i>But I love you sooo</i>" },
+      { time: 111, text: "<i><strong><b>*Please let me go*</b></strong></i>" },
+      { time: 114, text: "<i>But I love you sooo</i>" },
+      { time: 119, text: "<i><strong><b>*Please let me go*</b></strong></i>" },
+      { time: 121, text: "<i>But I love you sooo</i>" },
+      { time: 124, text: "<i>The end~</i>" },
+      { time: 127, text: "by: <i>yanto</i><br>source code: <i>chatgpt - deepseek</i>" },
+      { time: 130, text: "<b>:)</b>" }
+    ];
+
+    let currentIndex = -1;
+
+    function updateLyric() {
+      const currentTime = audio.currentTime;
+      timeIndicator.textContent = formatTime(currentTime);
+
+      let newIndex = -1;
+      for (let i = 0; i < lyrics.length; i++) {
+        if (currentTime >= lyrics[i].time) {
+          newIndex = i;
+        } else {
+          break;
+        }
+      }
+
+      if (newIndex !== currentIndex && newIndex !== -1) {
+        lyricDisplay.classList.remove("show");
+        setTimeout(() => {
+          lyricDisplay.innerHTML = lyrics[newIndex].text;
+          lyricDisplay.classList.add("show");
+        }, 200);
+        currentIndex = newIndex;
+      }
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    playBtn.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play();
+        playBtn.textContent = "⏸";
+        coverImage.classList.add("playing");
+      } else {
+        audio.pause();
+        playBtn.textContent = "◀️";
+        coverImage.classList.remove("playing");
+      }
+    });
+
+    audio.addEventListener("timeupdate", updateLyric);
+    audio.addEventListener("ended", () => {
+      playBtn.textContent = "◀️";
+      coverImage.classList.remove("playing");
+    });
+  </script>
+</body>
+</html>
