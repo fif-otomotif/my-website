@@ -275,6 +275,18 @@
       return `${mins}:${secs}`;
     }
 
+    // Saat audio belum siap diputar
+audio.addEventListener("waiting", () => {
+  playBtn.textContent = "🔁";
+  playBtn.disabled = true;
+});
+
+// Saat audio siap diputar
+audio.addEventListener("canplaythrough", () => {
+  playBtn.textContent = "◀️";
+  playBtn.disabled = false;
+});
+
     playBtn.addEventListener("click", () => {
       if (audio.paused) {
         audio.play();
