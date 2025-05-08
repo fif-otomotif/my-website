@@ -45,14 +45,14 @@
 
     .icon-links {
       display: flex;
-      flex-wrap: wrap; 
+      flex-wrap: wrap;
       gap: 16px;
       margin: 20px auto;
       z-index: 1;
       justify-content: center;
       max-width: 90%;
     }
-    
+
     .icon-links a {
       font-size: 28px;
       width: 40px;
@@ -61,7 +61,7 @@
       align-items: center;
       justify-content: center;
       background-color: rgba(0, 255, 255, 0.1);
-      border-radius: 9px; /* ubah ke 0 jika ingin benar-benar kotak tanpa sudut melengkung */
+      border-radius: 9px;
       box-shadow: 0 0 10px #f0f;
       text-shadow: 0 0 6px #0ff;
       color: #0ff;
@@ -96,12 +96,22 @@
       }
     }
 
+    .list-wrapper {
+      height: 320px;
+      overflow-y: auto;
+      width: 90%;
+      max-width: 500px;
+      padding: 0 10px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(4px);
+      z-index: 1;
+    }
+
     ul {
       list-style-type: none;
       padding: 0;
-      width: 90%;
-      max-width: 500px;
-      z-index: 1;
+      margin: 0;
     }
 
     li {
@@ -134,10 +144,21 @@
       border: none;
       height: 2px;
       width: 80%;
-      background: linear-gradient(to right, #f0f, #0ff);
+      background: linear-gradient(to right, #f0f, #0ff, #f0f);
+      background-size: 200% auto;
+      animation: shimmer 5s linear infinite;
       margin: 20px 0;
       box-shadow: 0 0 10px #f0f;
       z-index: 1;
+    }
+    
+    @keyframes shimmer {
+      0% {
+        background-position: 0% center;
+      }
+      100% {
+        background-position: 200% center;
+      }
     }
 
     .blackout {
@@ -191,58 +212,72 @@
 </head>
 <body>
   <div class="blackout" id="blackout"></div>
-
   <img src="https://files.catbox.moe/dciu7x.png" alt="Foto Profil" class="profile-pic">
 
-  <!-- Ikon Hadiah & WhatsApp -->
   <div class="icon-links">
-  <a href="hadiah.html" class="material-symbols-outlined" title="Hadiah">featured_seasonal_and_gifts</a>
-  <a href="editor.html" class="material-symbols-outlined" title="Editor">design_services</a>
-  <a href="https://wa.me/62881036711862" target="_blank" class="material-symbols-outlined" title="WhatsApp">chat</a>
-  <a href="deteck.html" class="material-symbols-outlined" title="detector">device_unknown</a>
-  <a href="wchatbox.html" class="material-symbols-outlined" title="ai">smart_toy</a>
-  <a href="tasbih.html" class="material-symbols-outlined" title="tasbih">Scoreboard</a>
-</div>
+    <a href="hadiah.html" class="material-symbols-outlined" title="Hadiah">featured_seasonal_and_gifts</a>
+    <a href="editor.html" class="material-symbols-outlined" title="Editor">design_services</a>
+    <a href="https://wa.me/62881036711862" target="_blank" class="material-symbols-outlined" title="WhatsApp">chat</a>
+    <a href="deteck.html" class="material-symbols-outlined" title="detector">device_unknown</a>
+    <a href="wchatbox.html" class="material-symbols-outlined" title="ai">smart_toy</a>
+    <a href="tasbih.html" class="material-symbols-outlined" title="tasbih">Scoreboard</a>
+  </div>
 
   <h1>Directory Listing</h1>
   <hr>
-  <ul>
-    <li><a href="dashboard.html" data-file="dashboard.html">dashboard</a></li>
-    <li><a href="dadu.html" data-file="dadu.html">dadu</a></li>
-    <li><a href="enkripsi.html" data-file="enkripsi.html">enkripsi</a></li>
-    <li><a href="info.html" data-file="info.html">informasi</a></li>
-    <li><a href="labirin.html" data-file="labirin.html">labirin</a></li>
-    <li><a href="Maze-Solver.html" data-file="Maze-solver.html">Maze-solver</a></li>
-    <li><a href="Spotify.html" data-file="Spotify.html">musik download</a></li>
-    <li><a href="portofolio.html" data-file="portofolio.html">portofolio</a></li>
-    <li><a href="portofolio2.html" data-file="portofolio2.html">portofolio2</a></li>
-    <li><a href="portofolio3.html" data-file="portofolio3.html">portofolio3</a></li>
-    <li><a href="qr.html" data-file="qr.html">QR Code Generator & Scanner</a></li>
-    <li><a href="reflection.html" data-file="reflection.html">reflection</a></li>
-    <li><a href="tebak-gambar.html" data-file="tebak-gambar.html">tebak-gambar</a></li>
-    <li><a href="tic-tac-toe.html" data-file="tic-tac-toe.html">tic-tac-toe</a></li>
-  </ul>
-  <hr>
 
-  <!-- Audio dan Popup -->
+  <div class="list-wrapper">
+    <ul>
+      <li><a href="dashboard.html">dashboard</a></li>
+      <li><a href="dadu.html">dadu</a></li>
+      <li><a href="enkripsi.html">enkripsi</a></li>
+      <li><a href="info.html">informasi</a></li>
+      <li><a href="labirin.html">labirin</a></li>
+      <li><a href="Maze-Solver.html">Maze-solver</a></li>
+      <li><a href="Spotify.html">musik download</a></li>
+      <li><a href="portofolio.html">portofolio</a></li>
+      <li><a href="portofolio2.html">portofolio2</a></li>
+      <li><a href="portofolio3.html">portofolio3</a></li>
+      <li><a href="qr.html">QR Code Generator & Scanner</a></li>
+      <li><a href="reflection.html">reflection</a></li>
+      <li><a href="tebak-gambar.html">tebak-gambar</a></li>
+      <li><a href="tic-tac-toe.html">tic-tac-toe</a></li>
+    </ul>
+  </div>
+
+  <hr>
   <audio id="music" src="https://files.catbox.moe/nzsd8m.mp3"></audio>
   <div id="popup">ladyfingers - Herb Alpert & The Tijuana Brass</div>
 
   <script>
     const links = document.querySelectorAll('a');
     const blackout = document.getElementById('blackout');
+    const listWrapper = document.querySelector('.list-wrapper');
 
     links.forEach(link => {
       if (!link.href.includes('wa.me')) {
         link.addEventListener('click', function(e) {
           e.preventDefault();
           const href = this.getAttribute('href');
+
+          // Simpan posisi scroll
+          localStorage.setItem('scrollPosition', listWrapper.scrollTop);
+
           blackout.classList.add('show', 'flash');
 
           setTimeout(() => {
             window.location.href = href;
           }, 3000);
         });
+      }
+    });
+
+    // Pulihkan posisi scroll
+    window.addEventListener('load', () => {
+      const savedPosition = localStorage.getItem('scrollPosition');
+      if (savedPosition !== null) {
+        listWrapper.scrollTop = savedPosition;
+        localStorage.removeItem('scrollPosition');
       }
     });
 
