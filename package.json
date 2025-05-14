@@ -1,0 +1,10 @@
+{
+  "name": "netlify-upload-app",
+  "version": "1.0.0",
+  "description": "Netlify function to upload files to GitHub",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "node-fetch": "^2.6.11"
+  }
+}
