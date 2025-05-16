@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Get output api</title>
+  
+  <!-- Font Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exile&family=Great+Vibes&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f0f0f0;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    img {
+      margin-top: 20px;
+      width: 100%;
+      border-radius: 10px;
+      display: none;
+    }
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    h2 {
+      background: linear-gradient(to right, rgb(163,222,255), rgb(38,177,255));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-family: Exile;
+    }
+
+    /* Animasi loading */
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>API OUTPUT</h2>
+
+    <input type="text" id="customApiInput" placeholder="Masukkan URL API" oninput="generateDynamicInputs()" />
+
+    <div id="dynamicInputs"></div>
+
+    <button id="submitBtn" onclick="getImage()">
+      <span id="btnIcon" class="material-symbols-outlined">check_box_outline_blank</span>
+    </button>
+
+    <img id="aiImage" alt="Gambar AI" />
+    <pre id="responseBox" style="display:none;"></pre>
+  </div>
+
+  <script>
+    function generateDynamicInputs() {
+      const url = document.getElementById('customApiInput').value;
+      const matches = [...url.matchAll(/{(.*?)}/g)];
+      const dynamicInputArea = document.getElementById('dynamicInputs');
+      dynamicInputArea.innerHTML = '';
+
+      const usedNames = new Set();
+
+      matches.forEach(match => {
+        const param = match[1];
+        if (!usedNames.has(param)) {
+          usedNames.add(param);
+          const label = document.createElement('label');
+          label.textContent = `Masukkan nilai untuk "${param}":`;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = param;
+          input.id = `param_${param}`;
+          dynamicInputArea.appendChild(label);
+          dynamicInputArea.appendChild(input);
+        }
+      });
+    }
+
+    async function getImage() {
+      const imgElement = document.getElementById('aiImage');
+      const responseBox = document.getElementById('responseBox');
+      const btnIcon = document.getElementById('btnIcon');
+
+      // Tampilkan loading
+      btnIcon.textContent = 'autorenew';
+      btnIcon.classList.add('spin');
+
+      let urlTemplate = document.getElementById('customApiInput').value;
+      const matches = [...urlTemplate.matchAll(/{(.*?)}/g)];
+
+      matches.forEach(match => {
+        const param = match[1];
+        const inputEl = document.getElementById(`param_${param}`);
+        const value = inputEl?.value || '';
+        urlTemplate = urlTemplate.replace(`{${param}}`, encodeURIComponent(value));
+      });
+
+      try {
+        const response = await fetch(urlTemplate);
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("image")) {
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          imgElement.src = imageUrl;
+          imgElement.style.display = 'block';
+          responseBox.style.display = 'none';
+        } else {
+          const json = await response.json();
+          responseBox.textContent = JSON.stringify(json, null, 2);
+          responseBox.style.display = 'block';
+          imgElement.style.display = 'none';
+        }
+      } catch (error) {
+        responseBox.textContent = "Terjadi kesalahan: " + error.message;
+        responseBox.style.display = 'block';
+        imgElement.style.display = 'none';
+      } finally {
+        // Kembalikan ikon
+        btnIcon.textContent = 'check_box_outline_blank';
+        btnIcon.classList.remove('spin');
+      }
+    }
+  </script>
+</body>
+</html>
