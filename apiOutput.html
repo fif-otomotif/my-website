@@ -25,12 +25,20 @@
       max-width: 600px;  
       margin: auto;  
     }  
-    input, button {  
+    textarea, button {  
       width: 100%;  
       padding: 10px;  
       margin-bottom: 15px;  
       border: 1px solid #ccc;  
       border-radius: 8px;  
+      font-family: inherit;
+      font-size: 16px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      resize: vertical;
+      min-height: 40px;
+      max-height: 120px;
+      overflow-y: auto;
     }  
     button {  
       background-color: #007bff;  
@@ -41,6 +49,13 @@
       justify-content: center;  
       align-items: center;  
     }  
+    .url {
+      font-size: 10px;
+      background-color: rgba(255,255,0,0.86); /* kuning */
+      color: #000000; /* hitam */
+      padding: 2px 4px;
+      border-radius: 5px;
+    }
     h2 {  
       background: linear-gradient(to right, rgb(163,222,255), rgb(38,177,255));  
       -webkit-background-clip: text;  
@@ -69,12 +84,57 @@
       white-space: pre-wrap;  
       word-wrap: break-word;  
     }  
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    textarea {
+      width: 90%;
+      min-height: 60px;
+      max-height: 180px;
+      resize: vertical;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      font-size: 16px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-y: auto;
+      background: linear-gradient(to right, rgb(163, 222, 255), rgba(38,177,255,0.684));
+      color: #000;
+      transition: 
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        background 0.5s ease;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #0078d7;
+      box-shadow: 3px 6px 10px rgba(0, 120, 215, 0.5);
+      background: linear-gradient(to right, rgb(140, 215, 255), rgba(20,160,255,0.8));
+    }
+    pre {
+      position: relative;
+    }
+    pre:after {
+      content: "";
+      display: block;
+      height: 1px;
+      background: #ddd;
+      margin: 10px 0;
+    }
+    .param-empty {
+      color: #ff4444;
+      font-weight: bold;
+    }
   </style>  
 </head>  
 <body>  
   <div class="container">  
     <h2>API OUTPUT</h2>  
-    <input type="text" id="customApiInput" placeholder="Masukkan URL API" oninput="generateDynamicInputs()" />  
+    <textarea id="customApiInput" placeholder="Masukkan URL API" oninput="generateDynamicInputs()"></textarea>  
     <div id="dynamicInputs"></div>  
     <button id="submitBtn" onclick="getMedia()">  
       <span id="btnIcon" class="material-symbols-outlined">check_box_outline_blank</span>  
@@ -97,93 +157,260 @@
           usedNames.add(param);  
           const label = document.createElement('label');  
           label.textContent = `Masukkan nilai untuk "${param}":`;  
-          const input = document.createElement('input');  
-          input.type = 'text';  
+          const input = document.createElement('textarea');  
           input.placeholder = param;  
           input.id = `param_${param}`;  
+          input.style.minHeight = '40px';
+          input.style.maxHeight = '100px';
           dynamicInputArea.appendChild(label);  
           dynamicInputArea.appendChild(input);  
         }  
       });  
     }  
   
-    async function getMedia() {  
-      const btnIcon = document.getElementById('btnIcon');  
-      const mediaContainer = document.getElementById('mediaContainer');  
-      const responseBox = document.getElementById('responseBox');  
+    async function getMedia() {
+  const btnIcon = document.getElementById('btnIcon');
+  const mediaContainer = document.getElementById('mediaContainer');
+  const responseBox = document.getElementById('responseBox');
+
+  btnIcon.textContent = 'autorenew';
+  btnIcon.classList.add('spin');
+  mediaContainer.innerHTML = '';
+  responseBox.style.display = 'none';
+
+  let urlTemplate = document.getElementById('customApiInput').value;
+  const matches = [...urlTemplate.matchAll(/{(.*?)}/g)];
   
-      btnIcon.textContent = 'autorenew';  
-      btnIcon.classList.add('spin');  
-      mediaContainer.innerHTML = '';  
-      responseBox.style.display = 'none';  
+  const params = {};
+  matches.forEach(match => {
+    const param = match[1];
+    const inputEl = document.getElementById(`param_${param}`);
+    const value = inputEl?.value || '';
+    params[param] = value;
+    urlTemplate = urlTemplate.replace(`{${param}}`, encodeURIComponent(value));
+  });
+
+  // Dapatkan waktu request dalam WIB
+  const now = new Date();
+  const wibTime = now.toLocaleString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }).replace(/\//g, '-');
+
+  try {
+    new URL(urlTemplate);
+  } catch (e) {
+    responseBox.textContent = "URL tidak valid. Harap masukkan URL yang benar.";
+    responseBox.style.display = 'block';
+    btnIcon.textContent = 'check_box_outline_blank';
+    btnIcon.classList.remove('spin');
+    return;
+  }
+
+  try {
+    const response = await fetch(urlTemplate);
+    const contentType = response.headers.get("content-type") || "";
+
+    let responseContent = '';
+    let jsonContent = '';
+    
+    if (contentType.includes("image")) {
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      const img = document.createElement("img");
+      img.src = imageUrl;
+      mediaContainer.appendChild(img);
+    } 
+    else if (contentType.includes("video")) {
+      const blob = await response.blob();
+      const videoUrl = URL.createObjectURL(blob);
+      const video = document.createElement("video");
+      video.controls = true;
+      video.src = videoUrl;
+      mediaContainer.appendChild(video);
+    } 
+    else if (contentType.includes("audio")) {
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.src = audioUrl;
+      mediaContainer.appendChild(audio);
+    } 
+    else {
+      const text = await response.text();
+      
+      try {
+        const jsonData = JSON.parse(text);
+        jsonContent = formatJsonForDisplay(jsonData);
+        responseContent = JSON.stringify(jsonData, null, 2);
+      } catch {
+        responseContent = text;
+        jsonContent = text;
+      }
+    }
+
+    // Format parameter
+    let paramsOutput = "\n\n---\nParameter yang dikirim:\n";
+    for (const [key, value] of Object.entries(params)) {
+      paramsOutput += `{${key}}: ${value || '(kosong)'}\n`;
+    }
+
+    // Gabungkan semua informasi
+    const fullOutput = `${responseContent}\n\n---\nStatus: ${response.status} ${response.statusText}\nURL: ${urlTemplate}\nRequest time: ${wibTime} WIB${paramsOutput}\n\nIsi:\n${jsonContent}`;
+    
+    responseBox.textContent = fullOutput;
+    responseBox.style.display = 'block';
+
+  } catch (err) {
+    responseBox.textContent = `Terjadi kesalahan koneksi: ${err.message}\n\nURL: ${urlTemplate}\nRequest time: ${wibTime} WIB\n\nParameter:\n${
+      Object.entries(params).map(([k, v]) => `${k}: ${v || '(kosong)'}`).join('\n')
+    }`;
+    responseBox.style.display = 'block';
+  } finally {
+    btnIcon.textContent = 'check_box_outline_blank';
+    btnIcon.classList.remove('spin');
+  }
+}
+
+// Fungsi untuk memformat tampilan JSON
+function formatJsonForDisplay(data) {
+  if (typeof data === 'string') {
+    return data;
+  }
   
-      let urlTemplate = document.getElementById('customApiInput').value;  
-      const matches = [...urlTemplate.matchAll(/{(.*?)}/g)];  
-      matches.forEach(match => {  
-        const param = match[1];  
-        const inputEl = document.getElementById(`param_${param}`);  
-        const value = inputEl?.value || '';  
-        urlTemplate = urlTemplate.replace(`{${param}}`, encodeURIComponent(value));  
-      });  
+  let result = '';
   
-      // Validasi URL  
-      try {  
-        new URL(urlTemplate);  
-      } catch (e) {  
-        responseBox.textContent = "URL tidak valid. Harap masukkan URL yang benar.";  
-        responseBox.style.display = 'block';  
-        btnIcon.textContent = 'check_box_outline_blank';  
-        btnIcon.classList.remove('spin');  
-        return;  
-      }  
+  if (Array.isArray(data)) {
+    result = '[\n';
+    data.forEach((item, index) => {
+      result += `  ${index + 1}. ${JSON.stringify(item, null, 2)}\n`;
+    });
+    result += ']';
+  } 
+  else if (typeof data === 'object' && data !== null) {
+    for (const [key, value] of Object.entries(data)) {
+      if (Array.isArray(value)) {
+        result += `${key}: [\n`;
+        value.forEach((item, index) => {
+          result += `  ${index + 1}. ${JSON.stringify(item, null, 2)}\n`;
+        });
+        result += `]\n`;
+      } 
+      else if (typeof value === 'object' && value !== null) {
+        result += `${key}: {\n`;
+        for (const [subKey, subValue] of Object.entries(value)) {
+          result += `  ${subKey}: ${JSON.stringify(subValue, null, 2)}\n`;
+        }
+        result += `}\n`;
+      } 
+      else {
+        result += `${key}: ${JSON.stringify(value, null, 2)}\n`;
+      }
+    }
+  } 
+  else {
+    result = JSON.stringify(data, null, 2);
+  }
   
-      try {  
-        const response = await fetch(urlTemplate);  
-        const contentType = response.headers.get("content-type") || "";  
-  
-        if (!response.ok) throw new Error("Gagal memuat konten dari server.");  
-  
-        if (contentType.includes("text/html")) {  
-          throw new Error("URL tidak valid atau bukan konten yang didukung (HTML terdeteksi).");  
-        }  
-  
-        if (contentType.includes("image")) {  
-          const blob = await response.blob();  
-          const imageUrl = URL.createObjectURL(blob);  
-          const img = document.createElement("img");  
-          img.src = imageUrl;  
-          mediaContainer.appendChild(img);  
-        } else if (contentType.includes("video")) {  
-          const blob = await response.blob();  
-          const videoUrl = URL.createObjectURL(blob);  
-          const video = document.createElement("video");  
-          video.controls = true;  
-          video.src = videoUrl;  
-          mediaContainer.appendChild(video);  
-        } else if (contentType.includes("audio")) {  
-          const blob = await response.blob();  
-          const audioUrl = URL.createObjectURL(blob);  
-          const audio = document.createElement("audio");  
-          audio.controls = true;  
-          audio.src = audioUrl;  
-          mediaContainer.appendChild(audio);  
-        } else if (contentType.includes("application/json")) {  
-          const data = await response.json();  
-          responseBox.textContent = JSON.stringify(data, null, 2);  
-          responseBox.style.display = 'block';  
-        } else {  
-          const text = await response.text();  
-          responseBox.textContent = text;  
-          responseBox.style.display = 'block';  
-        }  
-      } catch (err) {  
-        responseBox.textContent = "Terjadi kesalahan: " + err.message;  
-        responseBox.style.display = 'block';  
-      } finally {  
-        btnIcon.textContent = 'check_box_outline_blank';  
-        btnIcon.classList.remove('spin');  
-      }  
-    }  
+  return result;
+}
   </script>  
+  
+<script>
+  // Credit info
+  const showCredit = () => {
+    document.getElementById('dynamicInputs').innerHTML = 
+      `<div style="background:#e8f5e9; padding:20px 25px; border-radius:10px; margin:15px 0; border-left:6px solid #4CAF50; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <h3 style="margin-top:0; color:#2E7D32; font-weight: 700; letter-spacing: 1px;">✨ Credit</h3>
+  
+  <div style="margin:10px 0; line-height:1.6; display: flex; align-items: center;">
+    <img src="https://c.termai.cc/i67/MM磒" alt="CUKURUKUK Team Profile" style="width:60px; height:60px; border-radius:50%; margin-right:15px; object-fit: cover; border: 2px solid #4CAF50;">
+    <div>
+      <strong style="color:#33691E;">Dikembangkan oleh:</strong><br>
+      <span style="color:#1B5E20; font-weight: 600;">• CUKURUKUK Team</span><br>
+      <small style="color:#558B2F;">Tim pengembang yang terdiri dari profesional berpengalaman di bidang pengembangan web dan teknologi informasi, bertanggung jawab penuh atas perancangan dan implementasi aplikasi ini.</small>
+    </div>
+  </div>
+  
+  <div style="margin:10px 0; line-height:1.6;">
+    <strong style="color:#33691E;">Versi:</strong> <span style="font-weight: 600;">3.0</span><br>
+    <small style="color:#558B2F;">Versi terkini yang mencakup peningkatan performa, fitur tambahan, dan perbaikan bug dari versi sebelumnya.</small>
+  </div>
+  
+  <div style="margin:10px 0; line-height:1.6;">
+    <strong style="color:#33691E;">Teknologi yang digunakan:</strong><br>
+    <span style="font-weight: 600;">HTML5, CSS3, JavaScript</span><br>
+    <small style="color:#558B2F;">Teknologi standar web modern yang memungkinkan tampilan responsif, interaktif, dan performa optimal pada berbagai perangkat.</small>
+  </div>
+  
+  <div style="margin:10px 0; line-height:1.6;">
+    <strong style="color:#33691E;">Lisensi:</strong><br>
+    <span style="font-weight: 600;">MIT License</span><br>
+    <small style="color:#558B2F;">Lisensi ini memungkinkan penggunaan, modifikasi, dan distribusi bebas selama mencantumkan kredit kepada pengembang asli.</small>
+  </div>
+  
+  <div style="margin:10px 0; line-height:1.6;">
+    <strong style="color:#33691E;">Kontak dan Dukungan:</strong><br>
+    <small style="color:#558B2F;">Untuk pertanyaan, saran, dan dukungan teknis, silakan hubungi kami melalui email atau kunjungi website resmi.</small><br>
+    <span style="font-weight: 600; color:#1B5E20;">Email:</span> cxzx75517@gmail.com<br>
+    <span style="font-weight: 600; color:#1B5E20;">Website:</span> https://nulisa.netlify.app<br>
+  </div>
+  
+  <div style="margin:20px 0 0 0; font-size:0.85em; color:#689F38; font-style: italic;">
+    &copy; ${new Date().getFullYear()} CUKURUKUK Team - All rights reserved.
+  </div>
+</div>`;
+  };
+
+  // Help system
+  document.getElementById('customApiInput').addEventListener('input', function(e) {
+    const value = e.target.value.trim().toLowerCase();
+    
+    const helpTriggers = ['help', 'bantuan', '?', 'tolong'];
+    const creditTriggers = ['credit', 'thanks', 'terimakasih'];
+    
+    // Trigger credit
+    if (creditTriggers.includes(value)) {
+      e.target.value = '';
+      showCredit();
+      return;
+    }
+    
+    // Trigger help
+    if (helpTriggers.includes(value)) {
+      e.target.value = '';
+      document.getElementById('dynamicInputs').innerHTML = 
+        `<div style="background:#e3f2fd; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #2196F3;">
+          <h3 style="margin-top:0; color:#0d47a1;">📚 Bantuan API Tool</h3>
+          
+          <div style="margin:10px 0;">
+            <strong>Format URL:</strong><br>
+            <mark class="url">https://contoh.com/api/{parameter}</mark>
+          </div>
+          
+          <div style="margin:10px 0;">
+            <strong>Perintah:</strong><br>
+            • <mark style="background:#bbdefb; padding:2px 5px;">help</mark> : Tampilkan bantuan<br>
+            • <mark style="background:#bbdefb; padding:2px 5px;">credit</mark> : Info developer<br>
+            • <mark style="background:#bbdefb; padding:2px 5px;">contoh</mark> : Contoh URL
+          </div>
+        </div>`;
+      return;
+    }
+    
+    if (value === 'contoh') {
+      e.target.value = 'https://api.siputzx.my.id/api/tools/ttsgoogle?text={text}';
+    }
+    
+    generateDynamicInputs();
+  });
+</script>
 </body>  
 </html>
