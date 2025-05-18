@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terminal with Star Background</title>
+  <style>
+    :root {
+      --green: rgba(0,145,255,0.748);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: monospace;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0);
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    #terminal {
+      position: relative;
+      background-color: rgba(0, 0, 0, 0);
+      border: 2px solid var(--green);
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      height: 300px;
+      margin: 60px auto;
+      color: var(--green);
+      box-shadow: 0 0 5px var(--green);
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="space"></canvas>
+
+  <div id="terminal">
+  </div>
+
+  <script>
+    const canvas = document.getElementById("space");
+    const ctx = canvas.getContext("2d");
+
+    let stars = [];
+    const numStars = 300;
+    let width, height, centerX, centerY;
+
+    function initStars() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+      stars = [];
+
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: (Math.random() - 0.5) * width,
+          y: (Math.random() - 0.5) * height,
+          z: Math.random() * width,
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = "white";
+      for (let star of stars) {
+        let sx = centerX + (star.x / star.z) * width;
+        let sy = centerY + (star.y / star.z) * height;
+        let radius = (1 - star.z / width) * 2;
+        if (radius < 0) radius = 0;
+
+        ctx.beginPath();
+        ctx.arc(sx, sy, radius, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+
+    function animateStars() {
+      for (let star of stars) {
+        star.z -= 2;
+        if (star.z <= 1) {
+          star.x = (Math.random() - 0.5) * width;
+          star.y = (Math.random() - 0.5) * height;
+          star.z = width;
+        }
+      }
+      drawStars();
+      requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener("resize", initStars);
+    window.addEventListener("load", () => {
+      initStars();
+      animateStars();
+    });
+  </script>
+</body>
+</html>
