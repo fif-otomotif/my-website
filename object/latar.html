@@ -50,15 +50,12 @@
 <body>
   <canvas id="space"></canvas>
 
-  <div id="terminal">
-  </div>
-
   <script>
     const canvas = document.getElementById("space");
     const ctx = canvas.getContext("2d");
 
     let stars = [];
-    const numStars = 300;
+    const numStars = 3000;
     let width, height, centerX, centerY;
 
     function initStars() {
