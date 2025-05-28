@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kalkulator Dunia Nyata</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #283e51, #485563);
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .calculator {
+    background-color: #1e212d;
+    border-radius: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+    width: 320px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .display {
+    background: #2a2d3d;
+    border-radius: 18px;
+    color: #e0e1e6;
+    font-size: 2.4rem;
+    font-weight: 700;
+    padding: 20px 24px;
+    text-align: right;
+    box-shadow: inset 0 -4px 6px rgba(0,0,0,0.7);
+    user-select: none;
+    min-height: 64px;
+    overflow-wrap: break-word;
+  }
+  .buttons {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  button {
+    background: #3a3d52;
+    border: none;
+    border-radius: 16px;
+    color: #e0e1e6;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 18px 0;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: background-color 0.3s ease, transform 0.12s ease;
+    user-select: none;
+  }
+  button:active {
+    transform: scale(0.95);
+  }
+  /* Special button colors */
+  button.operator {
+    background: #ff9500;
+    color: white;
+    box-shadow: 0 4px 10px rgba(255,149,0,0.7);
+  }
+  button.operator:active {
+    background: #e08500;
+  }
+  button.clear {
+    background: #ff3b30;
+    box-shadow: 0 4px 10px rgba(255,59,48,0.7);
+  }
+  button.clear:active {
+    background: #e03027;
+  }
+  button.zero {
+    grid-column: span 2;
+  }
+  button.equals {
+    background: #00c853;
+    box-shadow: 0 4px 10px rgba(0,200,83,0.7);
+    color: white;
+  }
+  button.equals:active {
+    background: #009933;
+  }
+  /* Responsive font for small screens */
+  @media (max-width: 360px) {
+    .display {
+      font-size: 2rem;
+      padding: 16px 20px;
+      min-height: 56px;
+    }
+    button {
+      font-size: 1.3rem;
+      padding: 14px 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="calculator" role="application" aria-label="Kalkulator Dunia Nyata">
+    <div class="display" id="display" aria-live="polite" aria-atomic="true">0</div>
+    <div class="buttons">
+      <button class="clear" id="clear" aria-label="Clear">C</button>
+      <button class="operator" id="delete" aria-label="Delete">⌫</button>
+      <button class="operator" data-operator="%" aria-label="Modulus">%</button>
+      <button class="operator" data-operator="÷" aria-label="Bagi">÷</button>
+
+      <button data-number="7" aria-label="Tujuh">7</button>
+      <button data-number="8" aria-label="Delapan">8</button>
+      <button data-number="9" aria-label="Sembilan">9</button>
+      <button class="operator" data-operator="×" aria-label="Kali">×</button>
+
+      <button data-number="4" aria-label="Empat">4</button>
+      <button data-number="5" aria-label="Lima">5</button>
+      <button data-number="6" aria-label="Enam">6</button>
+      <button class="operator" data-operator="-" aria-label="Kurang">-</button>
+
+      <button data-number="1" aria-label="Satu">1</button>
+      <button data-number="2" aria-label="Dua">2</button>
+      <button data-number="3" aria-label="Tiga">3</button>
+      <button class="operator" data-operator="+" aria-label="Tambah">+</button>
+
+      <button class="zero" data-number="0" aria-label="Nol">0</button>
+      <button data-decimal="." aria-label="Desimal">.</button>
+      <button class="equals" id="equals" aria-label="Sama dengan">=</button>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      const display = document.getElementById('display');
+      const buttons = document.querySelectorAll('button');
+      let currentInput = '0';
+      let operator = null;
+      let previousInput = null;
+      let resetNext = false;
+
+      // Update the display with formatted string
+      function updateDisplay() {
+        display.textContent = currentInput;
+      }
+
+      // Append digit to current input
+      function appendNumber(number) {
+        if (resetNext) {
+          currentInput = number;
+          resetNext = false;
+        } else {
+          if (currentInput === '0' && number !== '.') {
+            currentInput = number;
+          } else {
+            // Prevent multiple decimals
+            if (number === '.' && currentInput.includes('.')) return;
+            currentInput += number;
+          }
+        }
+      }
+
+      // Choose operator
+      function chooseOperator(op) {
+        if (operator !== null && resetNext === false) {
+          // Chain calculation
+          calculate();
+        }
+        previousInput = currentInput;
+        operator = op;
+        resetNext = true;
+      }
+
+      // Calculate based on operator and inputs
+      function calculate() {
+        let result;
+        const prev = parseFloat(previousInput);
+        const current = parseFloat(currentInput);
+        if (isNaN(prev) || isNaN(current)) return;
+
+        switch(operator) {
+          case '+':
+            result = prev + current;
+            break;
+          case '-':
+            result = prev - current;
+            break;
+          case '×':
+            result = prev * current;
+            break;
+          case '÷':
+            if (current === 0) {
+              alert('Error: Tidak bisa membagi dengan nol.');
+              return;
+            }
+            result = prev / current;
+            break;
+          case '%':
+            result = prev % current;
+            break;
+          default:
+            return;
+        }
+        currentInput = result.toString();
+        operator = null;
+        previousInput = null;
+        resetNext = true;
+      }
+
+      // Clear all inputs
+      function clearAll() {
+        currentInput = '0';
+        operator = null;
+        previousInput = null;
+        resetNext = false;
+      }
+
+      // Delete last digit
+      function deleteLast() {
+        if (resetNext) return; // If just calculated, disable delete
+        if (currentInput.length === 1) {
+          currentInput = '0';
+        } else {
+          currentInput = currentInput.slice(0, -1);
+        }
+      }
+
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          if (button.hasAttribute('data-number')) {
+            appendNumber(button.getAttribute('data-number'));
+            updateDisplay();
+          } else if (button.hasAttribute('data-operator')) {
+            chooseOperator(button.getAttribute('data-operator'));
+            updateDisplay();
+          } else if (button.hasAttribute('data-decimal')) {
+            appendNumber('.');
+            updateDisplay();
+          } else if (button.id === 'equals') {
+            calculate();
+            updateDisplay();
+          } else if (button.id === 'clear') {
+            clearAll();
+            updateDisplay();
+          } else if (button.id === 'delete') {
+            deleteLast();
+            updateDisplay();
+          }
+        });
+      });
+
+      // Keyboard support
+      window.addEventListener('keydown', (e) => {
+        if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
+          appendNumber(e.key);
+          updateDisplay();
+        } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+          let opMap = {'*': '×', '/': '÷'};
+          chooseOperator(opMap[e.key] || e.key);
+          updateDisplay();
+        } else if (e.key === 'Enter' || e.key === '=') {
+          e.preventDefault();
+          calculate();
+          updateDisplay();
+        } else if (e.key === 'Backspace') {
+          deleteLast();
+          updateDisplay();
+        } else if (e.key.toLowerCase() === 'c') {
+          clearAll();
+          updateDisplay();
+        }
+      });
+
+      updateDisplay();
+    })();
+  </script>
+</body>
+</html>
