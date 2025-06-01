@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenzzap Downloader</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+        .thumbnail {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .link-item {
+            padding: 10px;
+            border: 1px solid #eee;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .loading {
+            text-align: center;
+            display: none;
+        }
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Zenzzap Downloader</h1>
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Masukkan URL video (TikTok, dll)">
+            <button onclick="fetchData()">Cari</button>
+        </div>
+        <div id="error" class="error"></div>
+        
+        <div id="loading" class="loading">
+            <p>Memproses...</p>
+        </div>
+        
+        <div id="result" class="result">
+            <h2 id="resultTitle"></h2>
+            <img id="thumbnail" class="thumbnail" src="" alt="Thumbnail">
+            <div id="linksContainer"></div>
+            <p>Creator: <span id="creator"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function fetchData() {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const errorElement = document.getElementById('error');
+            const loadingElement = document.getElementById('loading');
+            const resultElement = document.getElementById('result');
+            
+            // Reset state
+            errorElement.textContent = '';
+            resultElement.style.display = 'none';
+            
+            if (!urlInput) {
+                errorElement.textContent = 'Silakan masukkan URL terlebih dahulu';
+                return;
+            }
+            
+            loadingElement.style.display = 'block';
+            
+            // Encode URL untuk memastikan format yang benar
+            const encodedUrl = encodeURIComponent(urlInput);
+            const apiUrl = `https://zenzzapiofficial.vercel.app/downloader/all?url=${encodedUrl}`;
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil data dari API');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadingElement.style.display = 'none';
+                    
+                    if (!data.status) {
+                        throw new Error('API mengembalikan status false');
+                    }
+                    
+                    // Tampilkan hasil
+                    document.getElementById('resultTitle').textContent = data.result.title;
+                    document.getElementById('thumbnail').src = data.result.thumbnail;
+                    document.getElementById('creator').textContent = data.creator;
+                    
+                    // Tampilkan link download
+                    const linksContainer = document.getElementById('linksContainer');
+                    linksContainer.innerHTML = '';
+                    
+                    if (data.result.links && data.result.links.length > 0) {
+                        data.result.links.forEach(link => {
+                            const linkItem = document.createElement('div');
+                            linkItem.className = 'link-item';
+                            linkItem.innerHTML = `
+                                <p><strong>Tipe:</strong> ${link.type}</p>
+                                <p><strong>Ukuran:</strong> ${link.size}</p>
+                                <p><strong>Kualitas:</strong> ${link.quality}</p>
+                                <p><strong>Mute:</strong> ${link.mute === 'yes' ? 'Ya' : 'Tidak'}</p>
+                                <a href="${link.url}" target="_blank" style="display: inline-block; margin-top: 8px; padding: 8px 12px; background-color: #2ecc71; color: white; text-decoration: none; border-radius: 4px;">Download</a>
+                            `;
+                            linksContainer.appendChild(linkItem);
+                        });
+                    } else {
+                        linksContainer.innerHTML = '<p>Tidak ada link download yang tersedia</p>';
+                    }
+                    
+                    resultElement.style.display = 'block';
+                })
+                .catch(error => {
+                    loadingElement.style.display = 'none';
+                    errorElement.textContent = 'Error: ' + error.message;
+                    console.error('Error:', error);
+                });
+        }
+        
+        // Tambahkan event listener untuk tombol enter
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchData();
+            }
+        });
+    </script>
+</body>
+</html>
