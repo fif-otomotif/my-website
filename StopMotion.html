@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Stop Motion Pixel Animator</title>
+  <style>
+    /* General Body Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  background: linear-gradient(to bottom right, #e0eafc, #cfdef3);
+  color: #333;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Heading */
+h2 {
+  color: #2c3e50;
+  margin-bottom: 25px;
+  font-size: 2em;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Controls Section */
+#controls {
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap; /* Ini adalah kunci! Memungkinkan item untuk wrap */
+  justify-content: center;
+  gap: 8px; /* Jarak antar tombol yang sedikit lebih kecil */
+  max-width: 900px; /* Batas lebar agar tidak terlalu melebar di layar besar */
+}
+
+/* Buttons */
+button {
+  flex-grow: 1; /* Memungkinkan tombol untuk tumbuh mengisi ruang yang tersedia */
+  flex-shrink: 0; /* Mencegah tombol menyusut terlalu banyak */
+  min-width: 120px; /* Lebar minimum untuk setiap tombol */
+  max-width: 180px; /* Lebar maksimum untuk setiap tombol */
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 0.95em; /* Sedikit lebih kecil agar lebih banyak muat */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box; /* Memastikan padding dan border tidak menambah ukuran */
+}
+
+button:hover {
+  background-color: #357ABD;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(0);
+  background-color: #285a8c;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Pixel Canvas */
+#pixelCanvas {
+  display: grid;
+  margin: 0 auto 20px;
+  border: 2px solid #a0a0a0;
+  background-color: #f0f0f0;
+  aspect-ratio: 1 / 1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  max-width: 90vmin;
+  width: 100%;
+}
+
+.pixel {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  box-sizing: border-box;
+  transition: background-color 0.1s ease;
+}
+
+.pixel.active {
+  background-color: #2ecc71;
+}
+
+.pixel.hint {
+  background-color: rgba(46, 204, 113, 0.3);
+}
+
+/* Frame Info */
+#frameInfo {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #555;
+  margin-top: 10px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.8em;
+  }
+
+  #controls {
+    padding: 10px;
+    gap: 6px; /* Mengurangi gap di layar kecil */
+  }
+
+  button {
+    min-width: 100px; /* Mengurangi min-width tombol */
+    max-width: none; /* Hapus max-width untuk flex-grow bekerja lebih baik */
+    flex-basis: calc(50% - 6px); /* Mencoba 2 kolom jika memungkinkan */
+    font-size: 0.9em;
+    padding: 9px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.5em;
+  }
+
+  button {
+    flex-basis: calc(100% - 6px); /* Satu tombol per baris jika terlalu sempit */
+    font-size: 0.85em;
+    padding: 8px 10px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <h2>Stop Motion Pixel Animator</h2>
+
+  <div id="controls">
+    <button onclick="decreaseGrid()">🔽 Kurangi Grid</button>
+    <button onclick="increaseGrid()">🔼 Tambah Grid</button>
+    <button onclick="prevFrame()">◀ Frame Sebelumnya</button>
+    <button onclick="nextFrame()">▶ Frame Selanjutnya</button>
+    <button onclick="addFrame()">➕ Tambah Frame</button>
+    <button onclick="removeFrame()">➖ Hapus Frame</button>
+    <button id="playBtn" onclick="togglePlay()">▶️ Putar</button>
+  </div>
+
+  <div id="pixelCanvas"></div>
+  <p id="frameInfo"></p>
+
+  <script>
+    let gridSize = 16;
+    const minGridSize = 8;
+    const maxGridSize = 128;
+    let frames = [];
+    let currentFrameIndex = 0;
+    let isPlaying = false;
+    let playInterval = null;
+
+    const pixelCanvas = document.getElementById("pixelCanvas");
+    const frameInfo = document.getElementById("frameInfo");
+    const playBtn = document.getElementById("playBtn");
+
+    function generateGrid() {
+      pixelCanvas.innerHTML = "";
+      pixelCanvas.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
+      const totalPixels = gridSize * gridSize;
+
+      for (let i = 0; i < totalPixels; i++) {
+        const div = document.createElement("div");
+        div.classList.add("pixel");
+        div.dataset.index = i;
+        div.addEventListener("click", onPixelClick);
+        pixelCanvas.appendChild(div);
+      }
+
+      const newFrame = Array(totalPixels).fill(0);
+      frames = [newFrame];
+      currentFrameIndex = 0;
+
+      setFrameData(newFrame, true);
+      updateFrameInfo();
+      resizeCanvasToFitScreen();
+    }
+
+    function onPixelClick(event) {
+      const index = parseInt(event.target.dataset.index);
+      const pixels = pixelCanvas.querySelectorAll(".pixel");
+
+      const currentData = getCurrentFrameData();
+
+      const pixel = pixels[index];
+      const wasActive = pixel.classList.contains("active");
+
+      if (wasActive) {
+        pixel.classList.remove("active");
+        if (currentFrameIndex > 0 && frames[currentFrameIndex - 1][index] === 1) {
+          pixel.classList.add("hint");
+        }
+      } else {
+        pixel.classList.add("active");
+        pixel.classList.remove("hint");
+      }
+
+      frames[currentFrameIndex] = getCurrentFrameData();
+    }
+
+    function getCurrentFrameData() {
+      const pixels = pixelCanvas.querySelectorAll(".pixel");
+      return Array.from(pixels).map(p => p.classList.contains("active") ? 1 : 0);
+    }
+
+    function setFrameData(data, showOnion = true) {
+      const pixels = pixelCanvas.querySelectorAll(".pixel");
+      pixels.forEach((p, i) => {
+        p.classList.remove("active", "hint");
+        if (data[i] === 1) {
+          p.classList.add("active");
+        } else if (showOnion && currentFrameIndex > 0 && frames[currentFrameIndex - 1][i] === 1) {
+          p.classList.add("hint");
+        }
+      });
+    }
+
+    function saveCurrentFrame() {
+      frames[currentFrameIndex] = getCurrentFrameData();
+    }
+
+    function addFrame() {
+      saveCurrentFrame();
+      const newFrame = Array(gridSize * gridSize).fill(0);
+      frames.splice(currentFrameIndex + 1, 0, newFrame);
+      currentFrameIndex++;
+      setFrameData(newFrame, true);
+      updateFrameInfo();
+    }
+
+    function removeFrame() {
+      if (frames.length <= 1) {
+        alert("Tidak dapat menghapus satu-satunya frame.");
+        return;
+      }
+      frames.splice(currentFrameIndex, 1);
+      currentFrameIndex = Math.max(0, currentFrameIndex - 1);
+      setFrameData(frames[currentFrameIndex], true);
+      updateFrameInfo();
+    }
+
+    function nextFrame() {
+      if (currentFrameIndex < frames.length - 1) {
+        saveCurrentFrame();
+        currentFrameIndex++;
+        setFrameData(frames[currentFrameIndex], true);
+        updateFrameInfo();
+      }
+    }
+
+    function prevFrame() {
+      if (currentFrameIndex > 0) {
+        saveCurrentFrame();
+        currentFrameIndex--;
+        setFrameData(frames[currentFrameIndex], true);
+        updateFrameInfo();
+      }
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        stopAnimation();
+      } else {
+        startAnimation();
+      }
+    }
+
+    function startAnimation() {
+      saveCurrentFrame();
+      isPlaying = true;
+      playBtn.textContent = "⏹ Stop";
+      let i = 0;
+
+      playInterval = setInterval(() => {
+        setFrameData(frames[i], false);
+        frameInfo.textContent = `Memutar Frame: ${i + 1} / ${frames.length}`;
+        i++;
+        if (i >= frames.length) i = 0; // Looping
+      }, 300);
+    }
+
+    function stopAnimation() {
+      clearInterval(playInterval);
+      isPlaying = false;
+      playBtn.textContent = "▶️ Putar";
+      setFrameData(frames[currentFrameIndex], true);
+      updateFrameInfo();
+    }
+
+    function updateFrameInfo() {
+      frameInfo.textContent = `Frame: ${currentFrameIndex + 1} / ${frames.length} | Grid: ${gridSize}×${gridSize}`;
+    }
+
+    function increaseGrid() {
+      if (gridSize < maxGridSize) {
+        gridSize *= 2;
+        generateGrid();
+      } else {
+        alert("Ukuran grid maksimum adalah " + maxGridSize + "×" + maxGridSize);
+      }
+    }
+
+    function decreaseGrid() {
+      if (gridSize > minGridSize) {
+        gridSize = Math.floor(gridSize / 2);
+        generateGrid();
+      } else {
+        alert("Ukuran grid minimum adalah " + minGridSize + "×" + minGridSize);
+      }
+    }
+
+    function resizeCanvasToFitScreen() {
+      const screenSize = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+      pixelCanvas.style.width = `${screenSize}px`;
+      pixelCanvas.style.height = `${screenSize}px`;
+
+      const pixelSize = screenSize / gridSize;
+      const pixels = pixelCanvas.querySelectorAll(".pixel");
+      pixels.forEach(p => {
+        p.style.width = `${pixelSize}px`;
+        p.style.height = `${pixelSize}px`;
+      });
+    }
+
+    window.addEventListener("resize", resizeCanvasToFitScreen);
+
+    generateGrid();
+  </script>
+</body>
+</html>
