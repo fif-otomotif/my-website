@@ -299,7 +299,7 @@
                     event.target.textContent = 'Downloading...';
                     event.target.disabled = true;
                     
-                    const response = await fetch(`https://fastrestapis.fasturl.cloud/downup/spotifydown?url=${encodeURIComponent(trackUrl)}`);
+                    const response = await fetch(`https://fastrestapis.fasturl.link/downup/spotifydown?url=${encodeURIComponent(trackUrl)}`);
                     const data = await response.json();
                     
                     if (data.status === 200 && data.result.success) {
