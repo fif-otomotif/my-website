@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Info Gempa BMKG</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Panzoom CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@9.4.0/dist/panzoom.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f4f6;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 30px 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 25px;
+      color: #2f3c4d;
+      animation: floatTitle 3s ease-in-out infinite;
+    }
+
+    @keyframes floatTitle {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0); }
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeSlide 0.8s ease forwards;
+    }
+
+    .info p {
+      margin: 0;
+      background: #f8f9fb;
+      border-radius: 10px;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .info p:hover {
+      background-color: #e8f0ff;
+      transform: scale(1.02);
+    }
+
+    @keyframes fadeSlide {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .update-time {
+      margin-top: 15px;
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      animation: fadeSlide 1s ease forwards;
+    }
+
+    img.shakemap {
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 12px;
+      cursor: zoom-in;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    img.shakemap:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.92);
+    }
+
+    .modal-content-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      cursor: grab;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Informasi Gempa Terkini</h2>
+  <div class="info" id="info-gempa">
+    <p>Memuat informasi gempa terbaru...</p>
+  </div>
+  <div class="update-time" id="update-time"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+  <div class="modal-content-wrapper">
+    <img class="modal-content" id="modal-img" alt="Shakemap Fullscreen">
+  </div>
+</div>
+
+<script>
+  let lastDataHash = '';
+  let panzoomInstance = null;
+
+  function hashGempaData(data) {
+    return `${data.Tanggal}|${data.Jam}|${data.Magnitude}|${data.Coordinates}|${data.Shakemap}`;
+  }
+
+  function tampilkanData(gempa) {
+    const container = document.getElementById('info-gempa');
+    const shakemapUrl = `https://data.bmkg.go.id/DataMKG/TEWS/${gempa.Shakemap}`;
+
+    container.innerHTML = `
+      <p><strong>Tanggal:</strong> ${gempa.Tanggal}</p>
+      <p><strong>Jam:</strong> ${gempa.Jam}</p>
+      <p><strong>Magnitudo:</strong> ${gempa.Magnitude}</p>
+      <p><strong>Kedalaman:</strong> ${gempa.Kedalaman}</p>
+      <p><strong>Wilayah:</strong> ${gempa.Wilayah}</p>
+      <p><strong>Koordinat:</strong> ${gempa.Coordinates}</p>
+      <p><strong>Lintang & Bujur:</strong> ${gempa.Lintang}, ${gempa.Bujur}</p>
+      <p><strong>Potensi:</strong> ${gempa.Potensi}</p>
+      <img src="${shakemapUrl}" alt="Shakemap" class="shakemap" id="shakemap-img">
+    `;
+
+    document.getElementById('update-time').textContent = `Terakhir diperbarui: ${new Date().toLocaleTimeString()}`;
+
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modal-img");
+    const shakemapImg = document.getElementById("shakemap-img");
+
+    shakemapImg.onclick = function () {
+      modal.style.display = "block";
+      modalImg.src = shakemapUrl;
+
+      if (panzoomInstance) panzoomInstance.destroy();
+
+      panzoomInstance = Panzoom(modalImg, {
+        maxScale: 5,
+        minScale: 1,
+        contain: 'outside'
+      });
+
+      modalImg.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
+    };
+
+    modal.onclick = function (e) {
+      if (e.target === modal || e.target === modalImg) {
+        modal.style.display = "none";
+        if (panzoomInstance) {
+          panzoomInstance.destroy();
+          panzoomInstance = null;
+        }
+      }
+    }
+  }
+
+  function ambilDataGempa() {
+    axios.get('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json')
+      .then(response => {
+        const gempa = response.data.Infogempa.gempa;
+        const currentHash = hashGempaData(gempa);
+
+        if (currentHash !== lastDataHash) {
+          tampilkanData(gempa);
+          lastDataHash = currentHash;
+        }
+      })
+      .catch(error => {
+        console.error('Gagal mengambil data:', error);
+      });
+  }
+
+  ambilDataGempa();
+  setInterval(ambilDataGempa, 300000); // 5 menit
+</script>
+
+</body>
+</html>
