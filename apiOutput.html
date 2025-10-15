@@ -387,21 +387,80 @@ function formatJsonForDisplay(data) {
     if (helpTriggers.includes(value)) {
       e.target.value = '';
       document.getElementById('dynamicInputs').innerHTML = 
-        `<div style="background:#e3f2fd; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #2196F3;">
-          <h3 style="margin-top:0; color:#0d47a1;">📚 Bantuan API Tool</h3>
-          
-          <div style="margin:10px 0;">
-            <strong>Format URL:</strong><br>
-            <mark class="url">https://contoh.com/api/{parameter}</mark>
-          </div>
-          
-          <div style="margin:10px 0;">
-            <strong>Perintah:</strong><br>
-            • <mark style="background:#bbdefb; padding:2px 5px;">help</mark> : Tampilkan bantuan<br>
-            • <mark style="background:#bbdefb; padding:2px 5px;">credit</mark> : Info developer<br>
-            • <mark style="background:#bbdefb; padding:2px 5px;">contoh</mark> : Contoh URL
-          </div>
-        </div>`;
+        `<div style="background:#e3f2fd; padding:20px; border-radius:10px; margin-bottom:20px; border-left:4px solid #2196F3;">
+  <h3 style="margin-top:0; color:#0d47a1; display:flex; align-items:center; gap:10px;">
+    <span class="material-symbols-outlined">help</span>
+    📚 Bantuan API Output Tool
+  </h3>
+  
+  <div style="margin:15px 0;">
+    <h4 style="color:#1565c0; margin-bottom:8px;">🎯 Cara Menggunakan</h4>
+    <ol style="margin:0; padding-left:20px; line-height:1.6;">
+      <li>Masukkan URL API dengan format parameter <mark class="url">{parameter}</mark></li>
+      <li>Tool akan otomatis membuat field input untuk setiap parameter</li>
+      <li>Isi nilai untuk setiap parameter yang diminta</li>
+      <li>Klik tombol <strong>"Test API"</strong> untuk menjalankan request</li>
+      <li>Lihat hasil response di bagian bawah</li>
+    </ol>
+  </div>
+  
+  <div style="margin:15px 0;">
+    <h4 style="color:#1565c0; margin-bottom:8px;">🔧 Format URL</h4>
+    <div style="background:#fff; padding:12px; border-radius:6px; border:1px solid #90caf9;">
+      <code style="color:#d32f2f; font-size:14px;">
+        https://api.contoh.com/data/{user_id}/category/{category_id}?search={query}
+      </code>
+    </div>
+    <small style="color:#546e7a;">Gunakan kurung kurawal <strong>{}</strong> untuk parameter dinamis</small>
+  </div>
+  
+  <div style="margin:15px 0;">
+    <h4 style="color:#1565c0; margin-bottom:8px;">📋 Contoh URL</h4>
+    <div style="background:#f5f5f5; padding:10px; border-radius:5px; font-size:13px;">
+      <div><strong>• TTS Google:</strong> <code>https://api.siputzx.my.id/api/tools/ttsgoogle?text={text}</code></div>
+      <div><strong>• User Data:</strong> <code>https://api.contoh.com/users/{user_id}/profile</code></div>
+      <div><strong>• Search API:</strong> <code>https://api.contoh.com/search?q={query}&limit={limit}</code></div>
+    </div>
+  </div>
+  
+  <div style="margin:15px 0;">
+    <h4 style="color:#1565c0; margin-bottom:8px;">⚡ Perintah Cepat</h4>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px;">
+      <div style="background:#bbdefb; padding:8px; border-radius:5px;">
+        <strong>help</strong><br>
+        <small>Tampilkan bantuan ini</small>
+      </div>
+      <div style="background:#c8e6c9; padding:8px; border-radius:5px;">
+        <strong>credit</strong><br>
+        <small>Info developer</small>
+      </div>
+      <div style="background:#ffecb3; padding:8px; border-radius:5px;">
+        <strong>contoh</strong><br>
+        <small>Load contoh URL</small>
+      </div>
+      <div style="background:#e1bee7; padding:8px; border-radius:5px;">
+        <strong>reset</strong><br>
+        <small>Clear semua field</small>
+      </div>
+    </div>
+  </div>
+  
+  <div style="margin:15px 0;">
+    <h4 style="color:#1565c0; margin-bottom:8px;">🔄 Fitur yang Didukung</h4>
+    <ul style="margin:0; padding-left:18px; line-height:1.5; font-size:14px;">
+      <li><strong>Content Types:</strong> JSON, Image, Video, Audio</li>
+      <li><strong>Response Info:</strong> Status code, Waktu request, Parameter</li>
+      <li><strong>Format JSON:</strong> Tampilan terstruktur dan mudah dibaca</li>
+      <li><strong>Error Handling:</strong> Informasi error yang jelas</li>
+    </ul>
+  </div>
+  
+  <div style="margin-top:20px; padding-top:15px; border-top:1px solid #90caf9; text-align:center;">
+    <small style="color:#546e7a;">
+      🚀 <strong>API Output Tool v3.0</strong> - Developed by CUKURUKUK Team
+    </small>
+  </div>
+</div>`;
       return;
     }
     
