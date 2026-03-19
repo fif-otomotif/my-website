@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Memory Gallery</title>
+<title>Kenangan — Memory Gallery</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-he
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;opacity:.55;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");}
 
-/* ═══ HEADER ═══ */
+/* ═══ HEADER & TOOLBAR ═══ */
 header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .hd{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;}
 .logo{display:flex;flex-direction:column;gap:.18rem;line-height:1;user-select:none;}
@@ -30,7 +30,6 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .stats{display:flex;gap:1.8rem;font-size:.77rem;color:var(--t3);letter-spacing:.05em;}
 .stats b{color:var(--t2);font-weight:500;}
 
-/* ═══ TOOLBAR ═══ */
 .toolbar{max-width:1400px;margin:0 auto;padding:1.15rem 2.5rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
 .fgrp{display:flex;gap:.35rem;}
 .fbtn{background:transparent;border:1px solid var(--bd);color:var(--t3);font-family:'DM Sans',sans-serif;font-size:.73rem;letter-spacing:.08em;text-transform:uppercase;padding:.38rem .85rem;border-radius:100px;cursor:pointer;transition:all .18s;}
@@ -41,121 +40,54 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .sw input:focus{border-color:var(--bdh);width:260px;}
 .si{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);opacity:.35;pointer-events:none;font-size:.9rem;}
 
-/* ═══ GRID ═══ */
+/* ═══ GRID & CARDS ═══ */
 .gw{max-width:1400px;margin:0 auto;padding:.5rem 2.5rem 4rem;}
 .grid{columns:4 280px;column-gap:14px;}
 @media(max-width:900px){.grid{columns:2 200px;}}
 @media(max-width:500px){.grid{columns:1;}}
 
-/* ═══ CARD ═══ */
 .card{break-inside:avoid;margin-bottom:14px;border-radius:10px;overflow:hidden;background:var(--card);border:1px solid var(--bd);cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;animation:fu .46s ease both;}
 @keyframes fu{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .card:hover{transform:translateY(-3px);border-color:var(--bdh);box-shadow:0 14px 44px rgba(0,0,0,.55);}
 .card.aud-card{cursor:default;}
 
-.mw{position:relative;overflow:hidden;background:#0a0908;}
-.mw img{display:block;width:100%;object-fit:cover;transition:transform .4s;}
-.card:hover .mw img{transform:scale(1.04);}
+.mw{position:relative;overflow:hidden;background:#0a0908;line-height:0;}
 
+/* Hover Animasi Keren untuk Gambar & Video Preview */
+.mw img, .mw video {display:block;width:100%;object-fit:cover;transition:transform .6s ease, filter .6s ease;}
+.card:hover .mw img {transform:scale(1.08) rotate(1deg); filter: contrast(1.1) brightness(1.05);}
+.card:hover .mw video {transform:scale(1.04);}
+
+/* Badges */
 .tbadge{position:absolute;top:.5rem;right:.5rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border-radius:100px;font-weight:500;z-index:2;pointer-events:none;}
+.dur-badge{position:absolute;bottom:.5rem;left:.5rem;font-size:.65rem;font-variant-numeric:tabular-nums;background:rgba(0,0,0,.75);color:#fff;padding:.15rem .45rem;border-radius:6px;font-weight:500;letter-spacing:.05em;z-index:2;pointer-events:none;backdrop-filter:blur(4px);}
 .bi{background:var(--Ad);color:var(--A);border:1px solid var(--Ab);}
 .bv{background:var(--Bd);color:var(--B);border:1px solid var(--Bb);}
 .ba{background:var(--Gd);color:var(--G);border:1px solid var(--Gb);}
 
-.ci{padding:.78rem 1rem .95rem;border-top:1px solid var(--bd);}
+/* Card Info Info */
+.ci{padding:.78rem 1rem .95rem;border-top:1px solid var(--bd);line-height:1.4;}
 .ct{font-family:'Lora',serif;font-size:.88rem;font-weight:600;color:var(--t);line-height:1.3;margin-bottom:.28rem;}
 .cc{font-size:.74rem;color:var(--t3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.52rem;}
 .cm{display:flex;align-items:center;justify-content:space-between;gap:.4rem;}
 .cd{font-size:.68rem;color:var(--t3);}
 .tags{display:flex;gap:.22rem;flex-wrap:wrap;justify-content:flex-end;}
 .tag{font-size:.6rem;letter-spacing:.04em;color:var(--t3);background:var(--bg3);border:1px solid var(--bd);padding:.1rem .42rem;border-radius:100px;}
-
 .empty{text-align:center;padding:5rem 2rem;color:var(--t3);font-family:'Lora',serif;font-style:italic;font-size:1.05rem;}
 
 /* ═══════════════════════════════════════════
-   CUSTOM VIDEO PLAYER
-═══════════════════════════════════════════ */
-.vp{position:relative;background:#000;overflow:hidden;line-height:0;}
-.vp video{display:block;width:100%;object-fit:cover;}
-
-/* thumb overlay — initial state */
-.vp-overlay{
-  position:absolute;inset:0;z-index:3;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.22);
-  transition:background .2s;
-  cursor:pointer;
-}
-.vp-overlay:hover{background:rgba(0,0,0,.34);}
-.vp-ring{
-  width:52px;height:52px;border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.5);
-  background:rgba(255,255,255,.07);
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .18s,background .18s;
-}
-.vp-overlay:hover .vp-ring{transform:scale(1.1);background:rgba(255,255,255,.13);}
-.vp-tri{width:0;height:0;border:solid transparent;border-width:9px 0 9px 16px;border-left-color:#fff;margin-left:3px;}
-
-/* controls */
-.vp-ctrl{
-  position:absolute;bottom:0;left:0;right:0;z-index:4;
-  padding:.55rem .7rem .6rem;
-  background:linear-gradient(to top,rgba(8,7,6,.96) 0%,rgba(8,7,6,.45) 65%,transparent 100%);
-  display:flex;flex-direction:column;gap:.4rem;
-  opacity:0;transform:translateY(3px);
-  transition:opacity .22s,transform .22s;
-  pointer-events:none;
-}
-.vp.active .vp-ctrl,.vp.active:hover .vp-ctrl{opacity:1;transform:translateY(0);pointer-events:all;}
-
-/* scrub */
-.scrub{position:relative;height:3px;cursor:pointer;border-radius:2px;background:rgba(255,255,255,.1);}
-.scrub-buf{position:absolute;inset-block:0;left:0;border-radius:2px;background:rgba(255,255,255,.14);pointer-events:none;}
-.scrub-fill{position:absolute;inset-block:0;left:0;border-radius:2px;background:var(--A);pointer-events:none;width:0%;}
-.scrub-thumb{
-  position:absolute;top:50%;transform:translate(-50%,-50%);
-  width:11px;height:11px;border-radius:50%;background:var(--A);
-  box-shadow:0 0 0 2px rgba(196,149,106,.3);
-  pointer-events:none;opacity:0;transition:opacity .12s;
-  left:0%;
-}
-.scrub:hover .scrub-thumb{opacity:1;}
-
-/* bottom row */
-.vp-row{display:flex;align-items:center;gap:.5rem;}
-.vc{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;padding:.05rem;transition:color .12s;flex-shrink:0;line-height:1;}
-.vc:hover{color:#fff;}
-.vc svg{width:15px;height:15px;fill:currentColor;display:block;}
-.vtime{font-size:.66rem;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap;}
-.vol-g{display:flex;align-items:center;gap:.35rem;margin-left:auto;}
-.vol-bar{width:48px;height:3px;background:rgba(255,255,255,.14);border-radius:2px;cursor:pointer;position:relative;flex-shrink:0;}
-.vol-fill{height:100%;border-radius:2px;background:rgba(255,255,255,.45);pointer-events:none;width:100%;}
-
-/* ═══════════════════════════════════════════
-   CUSTOM AUDIO PLAYER
+   CUSTOM AUDIO PLAYER (GRID)
 ═══════════════════════════════════════════ */
 .ap{
   aspect-ratio:1/1;
-  /* Hapus bg warna flat abu-abu lama */
-  /* background:var(--bg3); */ 
-  
-  /* Gunakan background-size cover agar gambar canvas ph('audio') penuhi kotak */
   background-size:cover; 
   background-position:center;
-  
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:1.4rem 1.25rem 1rem;gap:0;
   position:relative;overflow:hidden;
 }
-/* Tambahkan overlay gelap sedikit di atas gambar agar waves/disc kontras */
-.ap::after{
-  content:'';position:absolute;inset:0;
-  background:rgba(8,7,6,.6);
-  z-index:0;
-}
+.ap::after{content:'';position:absolute;inset:0;background:rgba(8,7,6,.6);z-index:0;pointer-events:none;}
 
-/* waveform bg */
 .ap-waves{
   position:absolute;bottom:0;left:0;right:0;height:45%;
   display:flex;align-items:flex-end;gap:2px;padding:0 6px;
@@ -174,43 +106,52 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .ap-waves span:nth-child(7n){animation-delay:.52s;}
 @keyframes wv{0%,100%{transform:scaleY(.28);}50%{transform:scaleY(1);}}
 
-/* vinyl disc */
+/* Piringan Hitam Audio */
 .ap-disc{
-  width:66px;height:66px;border-radius:50%;
+  width:80px;height:80px;border-radius:50%;
   background:conic-gradient(from 0deg,#1c2a20,#253322,#1c2a20,#1f2e23,#1c2a20);
   border:1.5px solid rgba(143,184,154,.22);
   display:flex;align-items:center;justify-content:center;
-  position:relative;z-index:2;margin-bottom:.9rem;
-  flex-shrink:0;
+  position:relative;z-index:2;margin-bottom:.5rem;
+  flex-shrink:0; cursor:pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.ap.playing .ap-disc{animation:spin 7s linear infinite;}
+.ap-disc:hover{box-shadow: 0 0 15px rgba(143,184,154,.3); transform:scale(1.05);}
+.ap-disc::after{content:'';width:15px;height:15px;border-radius:50%;background:var(--bg3);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid rgba(143,184,154,.18);}
+.ap-disc svg{width:24px;height:24px;fill:rgba(143,184,154,.65);}
+
+/* Animasi Putar Disc saat Audio Main ATAU Card di-Hover */
+.card.aud-card:hover .ap-disc, .ap.playing .ap-disc {animation:spin 5s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.ap-disc::after{content:'';width:13px;height:13px;border-radius:50%;background:var(--bg3);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid rgba(143,184,154,.18);}
-.ap-disc svg{width:20px;height:20px;fill:rgba(143,184,154,.65);}
 
-/* mini scrub */
-.ap-scrub{width:100%;height:2.5px;background:rgba(255,255,255,.08);border-radius:2px;cursor:pointer;position:relative;z-index:2;margin-bottom:.75rem;flex-shrink:0;}
-.ap-sf{height:100%;border-radius:2px;background:var(--G);pointer-events:none;width:0%;}
-.ap-st{width:8px;height:8px;border-radius:50%;background:var(--G);position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .13s;box-shadow:0 0 0 2px rgba(143,184,154,.28);left:0%;}
-.ap-scrub:hover .ap-st{opacity:1;}
-
-/* row */
-.ap-row{display:flex;align-items:center;gap:.5rem;z-index:2;width:100%;}
-.ap-play{
-  width:38px;height:38px;border-radius:50%;
-  background:rgba(143,184,154,.1);border:1px solid var(--Gb);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:background .18s,transform .14s;
-  color:var(--G);flex-shrink:0;
+/* ═══════════════════════════════════════════
+   VIDEO PLAYER CONTROLS (HANYA UNTUK LIGHTBOX)
+═══════════════════════════════════════════ */
+.vp{position:relative;background:#000;overflow:hidden;line-height:0;width:100%;}
+.vp video{display:block;width:100%;max-height:64vh;object-fit:contain;}
+.vp-ctrl{
+  position:absolute;bottom:0;left:0;right:0;z-index:4;
+  padding:.55rem .7rem .6rem;
+  background:linear-gradient(to top,rgba(8,7,6,.96) 0%,rgba(8,7,6,.45) 65%,transparent 100%);
+  display:flex;flex-direction:column;gap:.4rem;
+  opacity:0;transform:translateY(3px);transition:opacity .22s,transform .22s;
 }
-.ap-play:hover{background:rgba(143,184,154,.2);transform:scale(1.06);}
-.ap-play svg{width:14px;height:14px;fill:currentColor;}
-.ac-btn{background:none;border:none;cursor:pointer;color:var(--t2);display:flex;align-items:center;justify-content:center;padding:.05rem;transition:color .13s;}
-.ac-btn:hover{color:var(--t);}
-.ac-btn svg{width:14px;height:14px;fill:currentColor;display:block;}
-.ap-time{font-size:.63rem;color:var(--t3);font-variant-numeric:tabular-nums;margin-left:auto;}
+.vp.active .vp-ctrl,.vp.active:hover .vp-ctrl{opacity:1;transform:translateY(0);}
 
-.ap-badge{position:absolute;top:.5rem;right:.5rem;background:var(--Gd);color:var(--G);border:1px solid var(--Gb);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.18rem .5rem;border-radius:100px;font-weight:500;z-index:2;pointer-events:none;}
+.scrub{position:relative;height:3px;cursor:pointer;border-radius:2px;background:rgba(255,255,255,.1);}
+.scrub-buf{position:absolute;inset-block:0;left:0;border-radius:2px;background:rgba(255,255,255,.14);pointer-events:none;}
+.scrub-fill{position:absolute;inset-block:0;left:0;border-radius:2px;background:var(--A);pointer-events:none;width:0%;}
+.scrub-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:var(--A);pointer-events:none;opacity:0;transition:opacity .12s;left:0%;}
+.scrub:hover .scrub-thumb{opacity:1;}
+
+.vp-row{display:flex;align-items:center;gap:.5rem;}
+.vc{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;padding:.05rem;transition:color .12s;flex-shrink:0;line-height:1;}
+.vc:hover{color:#fff;}
+.vc svg{width:15px;height:15px;fill:currentColor;display:block;}
+.vtime{font-size:.66rem;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap;}
+.vol-g{display:flex;align-items:center;gap:.35rem;margin-left:auto;}
+.vol-bar{width:48px;height:3px;background:rgba(255,255,255,.14);border-radius:2px;cursor:pointer;position:relative;flex-shrink:0;}
+.vol-fill{height:100%;border-radius:2px;background:rgba(255,255,255,.45);pointer-events:none;width:100%;}
 
 /* ═══ LIGHTBOX ═══ */
 .lb{display:none;position:fixed;inset:0;background:rgba(7,6,5,.95);z-index:999;align-items:center;justify-content:center;padding:2rem;backdrop-filter:blur(10px);}
@@ -220,8 +161,6 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .lb-x:hover{border-color:var(--bdh);color:var(--t);}
 .lb-med{border-radius:8px;overflow:hidden;display:flex;justify-content:center;background:#0a0908;}
 .lb-med img{max-width:100%;max-height:64vh;object-fit:contain;display:block;}
-.lb-med .vp{width:100%;}
-.lb-med .vp video{max-height:64vh;object-fit:contain;}
 .lb-h{font-family:'Lora',serif;font-size:1.3rem;font-weight:600;margin-bottom:.35rem;}
 .lb-c{font-size:.86rem;color:var(--t2);line-height:1.6;}
 .lb-m{display:flex;align-items:center;gap:1rem;margin-top:.65rem;}
@@ -242,8 +181,8 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
       <div class="logo-line2">a personal archive</div>
     </div>
     <div class="stats">
-      <span><b id="sT">0</b> archive</span>
-      <span><b id="sI">0</b> picture</span>
+      <span><b id="sT">0</b> kenangan</span>
+      <span><b id="sI">0</b> foto</span>
       <span><b id="sV">0</b> video</span>
       <span><b id="sA">0</b> audio</span>
     </div>
@@ -252,20 +191,20 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 
 <div class="toolbar">
   <div class="fgrp" id="fg">
-    <button class="fbtn on" data-f="all">all</button>
-    <button class="fbtn" data-f="image">picture</button>
-    <button class="fbtn" data-f="video">video</button>
-    <button class="fbtn" data-f="audio">audio</button>
+    <button class="fbtn on" data-f="all">Semua</button>
+    <button class="fbtn" data-f="image">Foto</button>
+    <button class="fbtn" data-f="video">Video</button>
+    <button class="fbtn" data-f="audio">Audio</button>
   </div>
   <div class="sw">
     <span class="si">⌕</span>
-    <input type="text" id="si" placeholder="search archive…">
+    <input type="text" id="si" placeholder="Cari kenangan…">
   </div>
 </div>
 
 <div class="gw">
   <div class="grid" id="grid"></div>
-  <div class="empty" id="emp" style="display:none">There are no archives here yet…</div>
+  <div class="empty" id="emp" style="display:none">Belum ada kenangan di sini…</div>
 </div>
 
 <div class="lb" id="lb">
@@ -291,22 +230,19 @@ const IC = {
   note:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z"/></svg>`,
 };
 
-// ── STATE ──
 let memories=[], F='all', Q='';
 
-// ── DATA ──
+// ── DATA FETCH ──
 async function load(){
   try {
     const response = await fetch('tmp/memories.json');
-    if (!response.ok) throw new Error('Gagal mengambil data dari GitHub');
-    
+    if (!response.ok) throw new Error('Gagal ambil data');
     const data = await response.json();
     memories = data.memories || []; 
     render();
   } catch (err) {
-    console.error(err);
     document.getElementById('emp').style.display = 'block';
-    document.getElementById('emp').textContent = 'Gagal memuat data kenangan dari repository...';
+    document.getElementById('emp').textContent = 'Gagal memuat data kenangan...';
   }
 }
 
@@ -314,206 +250,146 @@ async function load(){
 function fd(s){ if(!s)return''; return new Date(s).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); }
 function ft(s){ if(isNaN(s)||!s)return'0:00'; const m=Math.floor(s/60),sec=Math.floor(s%60); return m+':'+(sec<10?'0':'')+sec; }
 
-// ==========================================
-// 🔥 UPGRADE: FUNGSI GENERATE PLACEHOLDER (ph)
-// ==========================================
 function ph(type, idSeed=''){
-  const c=document.createElement('canvas');
-  const x=c.getContext('2d');
-  
-  // Ukuran kanvas
+  const c=document.createElement('canvas'); const x=c.getContext('2d');
   c.width=400; 
-  if(type === 'video') c.height = 240;
-  else if(type === 'audio') c.height = 400; // Persegi (1:1) untuk audio
-  else c.height = [300,360,260][0|Math.random()*3]; // Foto random height
+  if(type==='video') c.height=240;
+  else if(type==='audio') c.height=400;
+  else c.height=[300,360,260][0|Math.random()*3]; 
 
-  // Tentukan Tema Warna (Berhenti pakai abu-abu!)
-  const col = {
-    image: ['#251908','#c4956a'], // Coklat Emas (--A)
-    video: ['#0d1921','#7a9db8'], // Biru Gelap (--B)
-    audio: ['#1c2a20','#8fb89a']  // Hijau Gelap Teall (--G) 🔥
-  };
-  const[bg,fg] = col[type] || col.image;
-
-  // 1. Gambar Background Dasar
+  const col={image:['#251908','#c4956a'],video:['#0d1921','#7a9db8'],audio:['#1c2a20','#8fb89a']};
+  const[bg,fg]=col[type]||col.image;
   x.fillStyle=bg; x.fillRect(0,0,c.width,c.height);
 
-  // 2. Gambar Elemen Abstrak Latar Belakang
-  if(type === 'audio'){
-    // --- KHUSUS AUDIO: Waveform & Disc Abstrak ---
-    // Gunakan idSeed sedikit untuk membedakan pola antar kartu
+  if(type==='audio'){
     const seed = idSeed.length ? idSeed.charCodeAt(idSeed.length-1) : 0;
-    
-    x.globalAlpha = 0.05;
-    x.fillStyle = fg;
-    
-    // Gambar lingkaran gelombang suara memancar
+    x.globalAlpha = 0.05; x.fillStyle = fg;
     for(let i=0; i<8; i++){
-      x.beginPath();
-      x.arc(c.width/2, c.height/2, (20 + i*35 + (seed % 10)) , 0, Math.PI*2);
-      x.lineWidth = 2;
-      x.strokeStyle = fg;
-      x.stroke();
+      x.beginPath(); x.arc(c.width/2, c.height/2, (20 + i*35 + (seed % 10)) , 0, Math.PI*2);
+      x.lineWidth = 2; x.strokeStyle = fg; x.stroke();
     }
-    x.globalAlpha = 1;
-
   } else {
-    // --- FOTO / VIDEO: Bulatan Random ---
     for(let i=0;i<5;i++){
-      x.beginPath();
-      x.arc(Math.random()*c.width,Math.random()*c.height,20+Math.random()*80,0,Math.PI*2);
-      x.fillStyle='rgba(255,255,255,.022)';
-      x.fill();
+      x.beginPath(); x.arc(Math.random()*c.width,Math.random()*c.height,20+Math.random()*80,0,Math.PI*2);
+      x.fillStyle='rgba(255,255,255,.022)'; x.fill();
     }
   }
 
-  // 3. Gambar Ikon Tengah Besar
-  x.globalAlpha=0.08;
-  x.fillStyle=fg;
+  x.globalAlpha=0.08; x.fillStyle=fg;
+  x.font=`bold ${Math.min(c.width,c.height)*.3}px serif`; x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(type==='video'?'▶':(type==='audio'?'💿':'◆'), c.width/2, c.height/2);
   
-  let icon = '◆';
-  if(type === 'video') icon = '▶';
-  if(type === 'audio') icon = '💿'; // Gunakan ikon vinyl atau note yang lebih keren
-
-  x.font=`bold ${Math.min(c.width,c.height)*.3}px serif`;
-  x.textAlign='center';
-  x.textBaseline='middle';
-  x.fillText(icon, c.width/2, c.height/2);
-  
-  x.globalAlpha=1; 
-  return c.toDataURL();
+  x.globalAlpha=1; return c.toDataURL();
 }
 
 // ══════════════════════════════════════════
-//  BUILD VIDEO PLAYER
+//  VIDEO: GRID PREVIEW VS LIGHTBOX FULL
 // ══════════════════════════════════════════
 function mkVid(src, lb=false){
-  const wrap=document.createElement('div'); wrap.className='vp';
-  if(lb) wrap.classList.add('active');
+  // JIKA GRID: Mode Cuplikan YouTube (Mute, Loop on Hover)
+  if(!lb) {
+    const wrap = document.createElement('div'); wrap.className = 'mw';
+    
+    const vid = document.createElement('video');
+    vid.preload = 'metadata'; vid.muted = true; vid.loop = true; vid.playsInline = true;
+    if(src) vid.src = src;
 
-  const vid=document.createElement('video');
-  vid.preload='metadata'; vid.playsInline=true;
-  if(src) vid.src=src;
-  else {
-    const pi=document.createElement('img');
-    pi.src=ph('video'); pi.style.cssText='display:block;width:100%;max-height:280px;object-fit:cover;';
-    wrap.appendChild(pi);
-    buildVCtrl(wrap, null, lb);
+    const dur = document.createElement('span'); dur.className = 'dur-badge';
+    if(vid.readyState >= 1) dur.textContent = ft(vid.duration);
+    vid.addEventListener('loadedmetadata', () => dur.textContent = ft(vid.duration));
+
+    const bdg = document.createElement('span'); bdg.className = 'tbadge bv'; bdg.textContent = 'Video';
+
+    // Hover mutar video
+    wrap.addEventListener('mouseenter', () => vid.play().catch(()=>{}));
+    wrap.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+
+    wrap.append(vid, dur, bdg);
     return wrap;
   }
+
+  // JIKA LIGHTBOX: Full Player dengan UI
+  const wrap = document.createElement('div'); wrap.className = 'vp active';
+  const vid = document.createElement('video');
+  vid.preload = 'metadata'; vid.playsInline = true; if(src) vid.src = src;
   wrap.appendChild(vid);
-  buildVCtrl(wrap, vid, lb);
-  return wrap;
-}
 
-function buildVCtrl(wrap, vid, lb){
-  const ov=document.createElement('div'); ov.className='vp-overlay';
-  ov.innerHTML='<div class="vp-ring"><div class="vp-tri"></div></div>';
-  if(lb) ov.style.display='none';
-  wrap.appendChild(ov);
-
-  const ctrl=document.createElement('div'); ctrl.className='vp-ctrl';
-
-  const sw=document.createElement('div'); sw.className='scrub';
-  const sbuf=document.createElement('div'); sbuf.className='scrub-buf';
-  const sf=document.createElement('div'); sf.className='scrub-fill';
-  const st=document.createElement('div'); st.className='scrub-thumb';
+  const ctrl = document.createElement('div'); ctrl.className = 'vp-ctrl';
+  const sw = document.createElement('div'); sw.className = 'scrub';
+  const sbuf = document.createElement('div'); sbuf.className = 'scrub-buf';
+  const sf = document.createElement('div'); sf.className = 'scrub-fill';
+  const st = document.createElement('div'); st.className = 'scrub-thumb';
   sw.append(sbuf,sf,st); ctrl.appendChild(sw);
 
-  const row=document.createElement('div'); row.className='vp-row';
-  const bPlay=document.createElement('button'); bPlay.className='vc'; bPlay.innerHTML=IC.play;
-  const tEl=document.createElement('span'); tEl.className='vtime'; tEl.textContent='0:00 / 0:00';
-  const vg=document.createElement('div'); vg.className='vol-g';
-  const bVol=document.createElement('button'); bVol.className='vc'; bVol.innerHTML=IC.vol;
-  const vb=document.createElement('div'); vb.className='vol-bar';
-  const vf=document.createElement('div'); vf.className='vol-fill';
+  const row = document.createElement('div'); row.className = 'vp-row';
+  const bPlay = document.createElement('button'); bPlay.className = 'vc'; bPlay.innerHTML = IC.pause;
+  const tEl = document.createElement('span'); tEl.className = 'vtime'; tEl.textContent = '0:00 / 0:00';
+  const vg = document.createElement('div'); vg.className = 'vol-g';
+  const bVol = document.createElement('button'); bVol.className = 'vc'; bVol.innerHTML = IC.vol;
+  const vb = document.createElement('div'); vb.className = 'vol-bar';
+  const vf = document.createElement('div'); vf.className = 'vol-fill'; vf.style.width='100%';
   vb.appendChild(vf); vg.append(bVol,vb);
-  const bFs=document.createElement('button'); bFs.className='vc'; bFs.innerHTML=IC.fs;
+  const bFs = document.createElement('button'); bFs.className = 'vc'; bFs.innerHTML = IC.fs;
   row.append(bPlay,tEl,vg,bFs); ctrl.appendChild(row);
   wrap.appendChild(ctrl);
 
-  if(!vid) return; 
-
-  let muted=false;
-
+  let muted = false;
   function togglePlay(){
-    if(vid.paused){ vid.play(); wrap.classList.add('active'); ov.style.display='none'; bPlay.innerHTML=IC.pause; }
-    else{ vid.pause(); bPlay.innerHTML=IC.play; }
+    if(vid.paused){ vid.play(); bPlay.innerHTML = IC.pause; }
+    else{ vid.pause(); bPlay.innerHTML = IC.play; }
   }
-  ov.addEventListener('click',togglePlay);
-  bPlay.addEventListener('click',togglePlay);
+  bPlay.addEventListener('click', togglePlay);
+  wrap.addEventListener('click', (e) => { if(!e.target.closest('.vp-ctrl')) togglePlay(); });
 
   vid.addEventListener('timeupdate',()=>{
     if(!vid.duration) return;
-    const p=vid.currentTime/vid.duration*100;
-    sf.style.width=p+'%'; st.style.left=p+'%';
-    tEl.textContent=ft(vid.currentTime)+' / '+ft(vid.duration);
-    sbuf.style.width=vid.buffered.length?(vid.buffered.end(vid.buffered.length-1)/vid.duration*100)+'%':'0%';
+    const p = vid.currentTime/vid.duration*100;
+    sf.style.width = p+'%'; st.style.left = p+'%';
+    tEl.textContent = ft(vid.currentTime)+' / '+ft(vid.duration);
+    sbuf.style.width = vid.buffered.length?(vid.buffered.end(vid.buffered.length-1)/vid.duration*100)+'%':'0%';
   });
-  vid.addEventListener('ended',()=>{ bPlay.innerHTML=IC.play; sf.style.width='0%'; st.style.left='0%'; if(!lb){ov.style.display='flex';wrap.classList.remove('active');} });
-
+  vid.addEventListener('ended',()=>{ bPlay.innerHTML=IC.play; sf.style.width='0%'; st.style.left='0%'; });
   sw.addEventListener('click',e=>{ const r=sw.getBoundingClientRect(); const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); if(vid.duration)vid.currentTime=p*vid.duration; });
   bVol.addEventListener('click',()=>{ muted=!muted;vid.muted=muted; bVol.innerHTML=muted?IC.mute:IC.vol; vf.style.width=muted?'0%':(vid.volume*100)+'%'; });
   vb.addEventListener('click',e=>{ const r=vb.getBoundingClientRect(); const v=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); vid.volume=v;vf.style.width=(v*100)+'%'; muted=v===0;vid.muted=muted; bVol.innerHTML=muted?IC.mute:IC.vol; });
-  bFs.addEventListener('click',()=>{ if(vid.requestFullscreen)vid.requestFullscreen(); else if(vid.webkitRequestFullscreen)vid.webkitRequestFullscreen(); });
+  bFs.addEventListener('click',()=>{ if(wrap.requestFullscreen)wrap.requestFullscreen(); });
 
-  if(lb){
-    let ht; wrap.addEventListener('mousemove',()=>{
-      ctrl.style.opacity='1';ctrl.style.transform='translateY(0)';ctrl.style.pointerEvents='all';
-      clearTimeout(ht); ht=setTimeout(()=>{ if(!vid.paused){ctrl.style.opacity='0';ctrl.style.pointerEvents='none';} },2800);
-    });
-    setTimeout(()=>{ if(vid.src) vid.play().catch(()=>{}); bPlay.innerHTML=IC.pause; },80);
-  }
+  setTimeout(()=> vid.play().catch(()=>{ bPlay.innerHTML=IC.play; }), 100);
+  return wrap;
 }
 
 // ══════════════════════════════════════════
-//  BUILD AUDIO PLAYER
+//  BUILD AUDIO PLAYER (CLEAN GRID)
 // ══════════════════════════════════════════
 function mkAud(src, idSeed=''){
-  const wrap=document.createElement('div'); wrap.className='ap';
-  
-  // 🔥 UPGRADE: Pasang gambar cover procedural sebagai background
-  // Gunakan ID memori untuk buat corak gelombang sedikit berbeda
+  const wrap = document.createElement('div'); wrap.className = 'ap';
   wrap.style.backgroundImage = 'url(' + ph('audio', idSeed) + ')';
 
-  const waves=document.createElement('div'); waves.className='ap-waves';
+  const waves = document.createElement('div'); waves.className = 'ap-waves';
   [18,42,68,30,85,50,25,72,40,90,55,22,78,38,60,32,82,48,28,65].forEach(h=>{
     const s=document.createElement('span'); s.style.height=h+'%'; waves.appendChild(s);
   });
 
-  // Disc piringan hitam di tengah (tetap ada)
-  const disc=document.createElement('div'); disc.className='ap-disc'; disc.innerHTML=IC.note;
+  // Tombol play dihapus, diganti piringan hitam yang bisa diklik
+  const disc = document.createElement('div'); disc.className = 'ap-disc'; disc.innerHTML = IC.note;
+  const badge = document.createElement('span'); badge.className = 'tbadge ba'; badge.textContent = 'Audio';
+  const dur = document.createElement('span'); dur.className = 'dur-badge'; 
 
-  const asw=document.createElement('div'); asw.className='ap-scrub';
-  const asf=document.createElement('div'); asf.className='ap-sf';
-  const ast=document.createElement('div'); ast.className='ap-st';
-  asw.append(asf,ast);
+  const aud = document.createElement('audio'); aud.preload = 'metadata'; if(src) aud.src = src;
 
-  const row=document.createElement('div'); row.className='ap-row';
-  const bPlay=document.createElement('button'); bPlay.className='ap-play'; bPlay.innerHTML=IC.play;
-  const tEl=document.createElement('span'); tEl.className='ap-time'; tEl.textContent='0:00';
-  row.append(bPlay,tEl);
+  if(aud.readyState >= 1) dur.textContent = ft(aud.duration);
+  aud.addEventListener('loadedmetadata', () => dur.textContent = ft(aud.duration));
 
-  // Badge dipindah ke kanan atas lewat CSS
-  const badge=document.createElement('span'); badge.className='ap-badge'; badge.textContent='Audio';
+  wrap.append(waves, disc, badge, dur, aud);
 
-  const aud=document.createElement('audio'); aud.preload='none'; if(src)aud.src=src;
-
-  wrap.append(waves,disc,asw,row,badge,aud);
-
-  bPlay.addEventListener('click',()=>{
-    if(aud.paused){ aud.play(); wrap.classList.add('playing'); bPlay.innerHTML=IC.pause; }
-    else{ aud.pause(); wrap.classList.remove('playing'); bPlay.innerHTML=IC.play; }
+  // Klik piringan muter lagu
+  disc.addEventListener('click', (e)=>{
+    e.stopPropagation(); // Biar gak trigger event klik card (kalau ada)
+    if(aud.paused){ aud.play(); wrap.classList.add('playing'); }
+    else{ aud.pause(); wrap.classList.remove('playing'); }
   });
-  aud.addEventListener('timeupdate',()=>{
-    if(!aud.duration) return;
-    const p=aud.currentTime/aud.duration*100;
-    asf.style.width=p+'%'; ast.style.left=p+'%';
-    tEl.textContent=ft(aud.currentTime)+' / '+ft(aud.duration);
-  });
-  aud.addEventListener('ended',()=>{ bPlay.innerHTML=IC.play; wrap.classList.remove('playing'); asf.style.width='0%'; ast.style.left='0%'; tEl.textContent='0:00'; });
-  asw.addEventListener('click',e=>{ const r=asw.getBoundingClientRect(); const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); if(aud.duration)aud.currentTime=p*aud.duration; });
 
+  aud.addEventListener('ended',()=>{ wrap.classList.remove('playing'); });
   return wrap;
 }
 
@@ -529,25 +405,20 @@ function mkCard(m,i){
 
   if(m.type==='image'){
     const mw=document.createElement('div'); mw.className='mw';
-    // Gunakan m.id untuk ph jika gambar aslinya gagal load
     const img=document.createElement('img'); img.src=fileSource; img.alt=m.title; img.loading='lazy';
-    
-    // Ganti placeholder plain ke ph baru
     img.onerror = function() { this.src = ph('image', m.id); };
-    
     const bdg=document.createElement('span'); bdg.className='tbadge bi'; bdg.textContent='Foto';
     mw.append(img,bdg); card.appendChild(mw);
     card.addEventListener('click',()=>openLB(m));
 
   } else if(m.type==='video'){
-    const vp=mkVid(fileSource,false);
-    // Masukkan ID memori ke fungsi ph internal jika src gagal
-    const bdg=document.createElement('span'); bdg.className='tbadge bv'; bdg.style.cssText='position:absolute;top:.5rem;right:.5rem;';
-    vp.appendChild(bdg); card.appendChild(vp);
-    card.addEventListener('click',e=>{ if(!e.target.closest('.vp-ctrl')&&!e.target.closest('.vp-overlay')) openLB(m); });
+    // Gunakan mode preview (tanpa ui player)
+    const vp = mkVid(fileSource, false);
+    card.appendChild(vp);
+    // Klik area card membuka lightbox
+    card.addEventListener('click',()=>openLB(m));
 
   } else if(m.type==='audio'){
-    // Kirim ID untuk buat background unique
     card.appendChild(mkAud(fileSource, m.id));
   }
 
@@ -559,16 +430,12 @@ function mkCard(m,i){
 }
 
 // ── RENDER ──
-function getF(){
-  return memories.filter(m=>{
-    const mf=F==='all'||m.type===F;
-    const q=Q.toLowerCase();
-    const ms=!q||m.title.toLowerCase().includes(q)||m.caption.toLowerCase().includes(q)||(m.tags||[]).some(t=>t.toLowerCase().includes(q));
-    return mf&&ms;
-  });
-}
 function render(){
-  const g=document.getElementById('grid'),e=document.getElementById('emp'),l=getF();
+  const g=document.getElementById('grid'),e=document.getElementById('emp');
+  const l = memories.filter(m=>{
+    const mf=F==='all'||m.type===F; const q=Q.toLowerCase();
+    return mf && (!q||m.title.toLowerCase().includes(q)||m.caption.toLowerCase().includes(q)||(m.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  });
   g.innerHTML=''; e.style.display=l.length?'none':'block';
   l.forEach((m,i)=>g.appendChild(mkCard(m,i)));
   document.getElementById('sT').textContent=memories.length;
@@ -595,7 +462,8 @@ function openLB(m){
     img.onerror = function() { this.src = ph('image', m.id); };
   }
   else if(m.type==='video'){ 
-    const vp=mkVid(fileSource,true); vp.style.width='100%'; med.appendChild(vp); 
+    const vp=mkVid(fileSource, true); // True = panggil Full Player UI
+    med.appendChild(vp); 
   }
   
   document.getElementById('lbH').textContent=m.title;
