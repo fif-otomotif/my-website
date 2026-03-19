@@ -1,1 +1,17 @@
-{}
+{
+  "memories": [
+    {
+      "id": "fav_001",
+      "filename": "cute.mp3",
+      "type": "audio",
+      "title": "suara manis orang yang paling aku suka",
+      "date": "2026-03-19",
+      "caption": "suara paling manis dan lucu yang pernah aku dengar dari orang paling aku suka",
+      "tags": [
+        "fav",
+        "cute",
+        "zrh"
+      ]
+    }
+  ]
+}
