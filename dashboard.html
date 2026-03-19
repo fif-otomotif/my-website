@@ -31,6 +31,15 @@
       color: var(--text);
       padding: 1rem;
       transition: background 0.3s, color 0.3s;
+      
+      /* Sembunyikan scrollbar tapi tetap bisa scroll */
+      scrollbar-width: none; 
+      -ms-overflow-style: none; 
+    }
+
+    /* Khusus Chrome/Webkit */
+    body::-webkit-scrollbar {
+      display: none;
     }
 
     h1 {
@@ -50,6 +59,7 @@
       background: transparent;
       cursor: pointer;
       padding: 0;
+      z-index: 100;
     }
 
     .theme-toggle img {
