@@ -16,13 +16,20 @@
       background: url('https://files.catbox.moe/3kw7gi.jpg') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Share Tech Mono', monospace;
-      color: #fuchsia;
+      color: fuchsia;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       position: relative;
+      /* Sembunyikan scrollbar body juga jika ada */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    body::-webkit-scrollbar {
+      display: none;
     }
 
     body::before {
@@ -106,6 +113,15 @@
       border-radius: 10px;
       backdrop-filter: blur(4px);
       z-index: 1;
+      
+      /* SEMBUNYIKAN SCROLLBAR TAPI TETAP BISA SCROLL */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    /* Khusus Chrome, Safari, dan Opera */
+    .list-wrapper::-webkit-scrollbar {
+      display: none;
     }
 
     ul {
@@ -153,12 +169,8 @@
     }
     
     @keyframes shimmer {
-      0% {
-        background-position: 0% center;
-      }
-      100% {
-        background-position: 200% center;
-      }
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
     }
 
     .blackout {
@@ -180,18 +192,10 @@
     }
 
     @keyframes flashSequence {
-      0%, 10%, 20% {
-        opacity: 1;
-      }
-      5%, 15%, 25% {
-        opacity: 0;
-      }
-      30% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 1;
-      }
+      0%, 10%, 20% { opacity: 1; }
+      5%, 15%, 25% { opacity: 0; }
+      30% { opacity: 1; }
+      100% { opacity: 1; }
     }
 
     #popup {
@@ -264,12 +268,8 @@
         link.addEventListener('click', function(e) {
           e.preventDefault();
           const href = this.getAttribute('href');
-
-          // Simpan posisi scroll
           localStorage.setItem('scrollPosition', listWrapper.scrollTop);
-
           blackout.classList.add('show', 'flash');
-
           setTimeout(() => {
             window.location.href = href;
           }, 3000);
@@ -277,7 +277,6 @@
       }
     });
 
-    // Pulihkan posisi scroll
     window.addEventListener('load', () => {
       const savedPosition = localStorage.getItem('scrollPosition');
       if (savedPosition !== null) {
