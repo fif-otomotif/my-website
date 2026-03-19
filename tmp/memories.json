@@ -24,6 +24,18 @@
         "test",
         "uji"
       ]
+    },
+    {
+      "id": "test_002",
+      "filename": "testImg.webp",
+      "type": "image",
+      "title": "testImg",
+      "date": "2026-03-19",
+      "caption": "test aja",
+      "tags": [
+        "test",
+        "uji"
+      ]
     }
   ]
 }
