@@ -41,7 +41,6 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .sw input:focus{border-color:var(--bdh);width:260px;}
 .si{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);opacity:.35;pointer-events:none;font-size:.9rem;}
 
-
 /* ═══ GRID ═══ */
 .gw{max-width:1400px;margin:0 auto;padding:.5rem 2.5rem 4rem;}
 .grid{columns:4 280px;column-gap:14px;}
@@ -215,8 +214,6 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
 .lb-m{display:flex;align-items:center;gap:1rem;margin-top:.65rem;}
 .lb-d{font-size:.74rem;color:var(--t3);}
 
-
-
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--bdh);border-radius:3px;}
@@ -253,13 +250,11 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
   </div>
 </div>
 
-
 <div class="gw">
   <div class="grid" id="grid"></div>
   <div class="empty" id="emp" style="display:none">Belum ada kenangan di sini…</div>
 </div>
 
-<!-- Lightbox -->
 <div class="lb" id="lb">
   <div class="lb-in">
     <button class="lb-x" id="lbX">✕</button>
@@ -271,8 +266,6 @@ header{padding:2.6rem 2.5rem 1.8rem;border-bottom:1px solid var(--bd);}
     </div>
   </div>
 </div>
-
-
 
 <script>
 // ── ICONS ──
@@ -289,24 +282,20 @@ const IC = {
 let memories=[], F='all', Q='';
 
 // ── DATA ──
-function load(){
-  const s=localStorage.getItem('kng3');
-  if(s){ memories=JSON.parse(s); }
-  else {
-    memories=[
-      {id:'1',filename:'sunset_pantai.jpg',type:'image',title:'Sunset di Pantai Anyer',date:'2024-07-15',caption:'Momen sore yang tenang bareng keluarga, langit oranye keemasan yang gak terlupakan.',tags:['keluarga','pantai','sunset'],dataUrl:null},
-      {id:'2',filename:'wisuda_2024.jpg',type:'image',title:'Wisuda SMP',date:'2024-06-20',caption:'Akhirnya lulus! Perjuangan tiga tahun terbayar lunas di hari ini.',tags:['milestone','sekolah'],dataUrl:null},
-      {id:'3',filename:'birthday.mp4',type:'video',title:'Ulang Tahun ke-17',date:'2024-03-08',caption:'Surprise party dari temen-temen. Gak nyangka sama sekali, haru banget!',tags:['ulang tahun','teman'],dataUrl:null},
-      {id:'4',filename:'gitar.mp3',type:'audio',title:'Rekaman Gitar Pertama',date:'2024-01-10',caption:'Pertama kalinya berhasil main lagu favorit dari awal sampai akhir tanpa salah.',tags:['musik','pencapaian'],dataUrl:null},
-      {id:'5',filename:'bestie.jpg',type:'image',title:'Road Trip Bandung',date:'2024-08-03',caption:'Empat jam di jalan tapi worth it banget. Bestie forever!',tags:['teman','traveling'],dataUrl:null},
-      {id:'6',filename:'hujan.mp3',type:'audio',title:'Hujan Pertama Musim Ini',date:'2024-10-01',caption:'Merekam suara hujan sambil ngopi, salah satu sore paling damai.',tags:['damai','alam'],dataUrl:null},
-      {id:'7',filename:'lebaran.mp4',type:'video',title:'Lebaran 2024',date:'2024-04-10',caption:'Kumpul keluarga besar, satu momen yang selalu dirindukan tiap tahun.',tags:['keluarga','lebaran'],dataUrl:null},
-      {id:'8',filename:'langit.jpg',type:'image',title:'Langit Pagi dari Balkon',date:'2024-09-22',caption:'Bangun pagi iseng liat langit, eh malah dapet view cantik banget.',tags:['alam','pagi'],dataUrl:null},
-    ];
+async function load(){
+  try {
+    const response = await fetch('tmp/memories.json');
+    if (!response.ok) throw new Error('Gagal mengambil data dari GitHub');
+    
+    const data = await response.json();
+    memories = data.memories || []; 
+    render();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('emp').style.display = 'block';
+    document.getElementById('emp').textContent = 'Gagal memuat data kenangan dari repository...';
   }
-  render();
 }
-function sv(){ localStorage.setItem('kng3',JSON.stringify(memories)); }
 
 // ── UTILS ──
 function fd(s){ if(!s)return''; return new Date(s).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); }
@@ -332,16 +321,13 @@ function mkVid(src, lb=false){
   const wrap=document.createElement('div'); wrap.className='vp';
   if(lb) wrap.classList.add('active');
 
-  // video element
   const vid=document.createElement('video');
   vid.preload='metadata'; vid.playsInline=true;
   if(src) vid.src=src;
   else {
-    // no real src: show placeholder image
     const pi=document.createElement('img');
     pi.src=ph('video'); pi.style.cssText='display:block;width:100%;max-height:280px;object-fit:cover;';
     wrap.appendChild(pi);
-    // still build controls shell (non-functional) for visual consistency
     buildVCtrl(wrap, null, lb);
     return wrap;
   }
@@ -351,23 +337,19 @@ function mkVid(src, lb=false){
 }
 
 function buildVCtrl(wrap, vid, lb){
-  // overlay
   const ov=document.createElement('div'); ov.className='vp-overlay';
   ov.innerHTML='<div class="vp-ring"><div class="vp-tri"></div></div>';
   if(lb) ov.style.display='none';
   wrap.appendChild(ov);
 
-  // ctrl panel
   const ctrl=document.createElement('div'); ctrl.className='vp-ctrl';
 
-  // scrubber
   const sw=document.createElement('div'); sw.className='scrub';
   const sbuf=document.createElement('div'); sbuf.className='scrub-buf';
   const sf=document.createElement('div'); sf.className='scrub-fill';
   const st=document.createElement('div'); st.className='scrub-thumb';
   sw.append(sbuf,sf,st); ctrl.appendChild(sw);
 
-  // row
   const row=document.createElement('div'); row.className='vp-row';
   const bPlay=document.createElement('button'); bPlay.className='vc'; bPlay.innerHTML=IC.play;
   const tEl=document.createElement('span'); tEl.className='vtime'; tEl.textContent='0:00 / 0:00';
@@ -380,7 +362,7 @@ function buildVCtrl(wrap, vid, lb){
   row.append(bPlay,tEl,vg,bFs); ctrl.appendChild(row);
   wrap.appendChild(ctrl);
 
-  if(!vid) return; // placeholder mode — no logic
+  if(!vid) return; 
 
   let muted=false;
 
@@ -410,7 +392,6 @@ function buildVCtrl(wrap, vid, lb){
       ctrl.style.opacity='1';ctrl.style.transform='translateY(0)';ctrl.style.pointerEvents='all';
       clearTimeout(ht); ht=setTimeout(()=>{ if(!vid.paused){ctrl.style.opacity='0';ctrl.style.pointerEvents='none';} },2800);
     });
-    // start playing
     setTimeout(()=>{ if(vid.src) vid.play().catch(()=>{}); bPlay.innerHTML=IC.pause; },80);
   }
 }
@@ -421,31 +402,25 @@ function buildVCtrl(wrap, vid, lb){
 function mkAud(src){
   const wrap=document.createElement('div'); wrap.className='ap';
 
-  // waveform
   const waves=document.createElement('div'); waves.className='ap-waves';
   [18,42,68,30,85,50,25,72,40,90,55,22,78,38,60,32,82,48,28,65].forEach(h=>{
     const s=document.createElement('span'); s.style.height=h+'%'; waves.appendChild(s);
   });
 
-  // disc
   const disc=document.createElement('div'); disc.className='ap-disc'; disc.innerHTML=IC.note;
 
-  // scrub
   const asw=document.createElement('div'); asw.className='ap-scrub';
   const asf=document.createElement('div'); asf.className='ap-sf';
   const ast=document.createElement('div'); ast.className='ap-st';
   asw.append(asf,ast);
 
-  // row
   const row=document.createElement('div'); row.className='ap-row';
   const bPlay=document.createElement('button'); bPlay.className='ap-play'; bPlay.innerHTML=IC.play;
   const tEl=document.createElement('span'); tEl.className='ap-time'; tEl.textContent='0:00';
   row.append(bPlay,tEl);
 
-  // badge
   const badge=document.createElement('span'); badge.className='ap-badge'; badge.textContent='Audio';
 
-  // audio el
   const aud=document.createElement('audio'); aud.preload='none'; if(src)aud.src=src;
 
   wrap.append(waves,disc,asw,row,badge,aud);
@@ -474,22 +449,23 @@ function mkCard(m,i){
   card.className='card'+(m.type==='audio'?' aud-card':'');
   card.style.animationDelay=(i*.055)+'s';
 
+  const fileSource = 'tmp/' + m.filename;
+
   if(m.type==='image'){
     const mw=document.createElement('div'); mw.className='mw';
-    const img=document.createElement('img'); img.src=m.dataUrl||ph('image'); img.alt=m.title; img.loading='lazy';
+    const img=document.createElement('img'); img.src=fileSource; img.alt=m.title; img.loading='lazy';
     const bdg=document.createElement('span'); bdg.className='tbadge bi'; bdg.textContent='Foto';
     mw.append(img,bdg); card.appendChild(mw);
     card.addEventListener('click',()=>openLB(m));
 
   } else if(m.type==='video'){
-    const vp=mkVid(m.dataUrl,false);
+    const vp=mkVid(fileSource,false);
     const bdg=document.createElement('span'); bdg.className='tbadge bv'; bdg.style.cssText='position:absolute;top:.5rem;right:.5rem;';
     vp.appendChild(bdg); card.appendChild(vp);
-    // click outside controls = lightbox
     card.addEventListener('click',e=>{ if(!e.target.closest('.vp-ctrl')&&!e.target.closest('.vp-overlay')) openLB(m); });
 
   } else if(m.type==='audio'){
-    card.appendChild(mkAud(m.dataUrl));
+    card.appendChild(mkAud(fileSource));
   }
 
   const info=document.createElement('div'); info.className='ci';
@@ -529,8 +505,15 @@ document.getElementById('si').addEventListener('input',e=>{Q=e.target.value;rend
 // ── LIGHTBOX ──
 function openLB(m){
   const med=document.getElementById('lbMed'); med.innerHTML='';
-  if(m.type==='image'){ const img=document.createElement('img'); img.src=m.dataUrl||ph('image'); img.alt=m.title; med.appendChild(img); }
-  else if(m.type==='video'){ const vp=mkVid(m.dataUrl,true); vp.style.width='100%'; med.appendChild(vp); }
+  const fileSource = 'tmp/' + m.filename;
+
+  if(m.type==='image'){ 
+    const img=document.createElement('img'); img.src=fileSource; img.alt=m.title; med.appendChild(img); 
+  }
+  else if(m.type==='video'){ 
+    const vp=mkVid(fileSource,true); vp.style.width='100%'; med.appendChild(vp); 
+  }
+  
   document.getElementById('lbH').textContent=m.title;
   document.getElementById('lbC').textContent=m.caption;
   document.getElementById('lbD').textContent=fd(m.date);
@@ -543,6 +526,7 @@ function closeLB(){ const lb=document.getElementById('lb'); lb.classList.remove(
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();});
 
+// MULAI
 load();
 </script>
 </body>
