@@ -12,6 +12,18 @@
         "cute",
         "zrh"
       ]
+    },
+    {
+      "id": "mem_kbs",
+      "filename": "kbs",
+      "type": "video",
+      "title": "jalan jalan di kbs",
+      "date": "2026-04-03",
+      "caption": "kbs, jalan",
+      "tags": [
+        "kbs",
+        "jalan"
+      ]
     }
   ]
 }
