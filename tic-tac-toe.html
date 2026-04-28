@@ -5,390 +5,629 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tic Tac Toe</title>
   <meta property="og:title" content="Tic-Tac-Toe">
-  <meta property="og:image" content="https://files.catbox.moe/3h030f.jpg">
   <meta property="og:type" content="website">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   rgba(255,255,255,0.07);
+      --x-color:  #58a6ff;
+      --o-color:  #f78166;
+      --win-glow: #ffd700;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --radius:   18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
+      padding: 28px 16px 80px;
+      background-image:
+        radial-gradient(ellipse at 15% 15%, rgba(88,166,255,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 85%, rgba(247,129,102,0.06) 0%, transparent 55%);
     }
 
-    #judul {
-      margin-top: 30px;
-      color: #333;
-      font-size: 2em;
-      font-family: "Noto Serif", serif;
+    /* ── Title ── */
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(32px, 8vw, 52px);
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--x-color), var(--o-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
     }
 
+    /* ── Scoreboard ── */
+    .scoreboard {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .score-card {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 8px;
+      text-align: center;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+
+    .score-card.active-turn { transform: translateY(-3px); }
+    .score-card.x-card.active-turn { border-color: var(--x-color); box-shadow: 0 0 20px rgba(88,166,255,0.25); }
+    .score-card.o-card.active-turn { border-color: var(--o-color); box-shadow: 0 0 20px rgba(247,129,102,0.25); }
+
+    .score-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .x-card .score-label { color: var(--x-color); }
+    .o-card .score-label { color: var(--o-color); }
+
+    .score-num {
+      font-family: 'Fredoka One', cursive;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .score-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .score-sym {
+      font-family: 'Fredoka One', cursive;
+      font-size: 11px;
+      opacity: 0.35;
+      margin-top: 2px;
+    }
+
+    .draw-card {
+      flex: 0.6;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .draw-card .score-label { color: var(--muted); }
+
+    /* ── Difficulty ── */
+    .diff-bar {
+      display: flex;
+      gap: 6px;
+      background: var(--surface);
+      padding: 5px;
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .diff-btn {
+      padding: 5px 14px;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .diff-btn.active { color: var(--bg); }
+    .diff-btn[data-d="easy"].active   { background: #3fb950; }
+    .diff-btn[data-d="medium"].active { background: #d29922; }
+    .diff-btn[data-d="hard"].active   { background: var(--o-color); }
+    .diff-btn[data-d="extreme"].active{ background: var(--x-color); }
+
+    /* ── Status ── */
+    #status {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 18px;
+      min-height: 22px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Board ── */
     .board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
       gap: 10px;
-      margin: 30px auto;
+      margin-bottom: 22px;
     }
 
     .cell {
       width: 100px;
       height: 100px;
-      background-color: #ffffffdd;
-      font-size: 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 48px;
       cursor: pointer;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: background 0.2s, transform 0.1s;
+      user-select: none;
+      transition: background 0.2s, transform 0.15s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .cell:hover {
-      background-color: #f1f1f1;
+    .cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .cell:not(.taken):hover {
+      background: #1c2128;
       transform: scale(1.05);
+      border-color: rgba(255,255,255,0.15);
     }
 
-    #status {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #333;
-    }
+    .cell.x { color: var(--x-color); }
+    .cell.o { color: var(--o-color); }
 
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 8px;
+    /* pop in animation */
+    @keyframes popIn {
+      0%   { transform: scale(0.4); opacity: 0; }
+      70%  { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .cell.pop { animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+    /* winning cell */
+    .cell.winner {
+      background: rgba(255, 215, 0, 0.12);
+      border-color: var(--win-glow);
+      box-shadow: 0 0 20px rgba(255,215,0,0.35), inset 0 0 12px rgba(255,215,0,0.1);
+    }
+    @keyframes winnerPulse {
+      0%,100% { box-shadow: 0 0 20px rgba(255,215,0,0.35), inset 0 0 12px rgba(255,215,0,0.1); }
+      50%      { box-shadow: 0 0 36px rgba(255,215,0,0.6),  inset 0 0 20px rgba(255,215,0,0.2); }
+    }
+    .cell.winner { animation: winnerPulse 1s ease infinite; }
+
+    /* ── Buttons ── */
+    .btn-reset {
+      padding: 10px 28px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: var(--surface);
+      color: var(--text);
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      transition: background 0.3s ease;
+      transition: background 0.2s, transform 0.2s;
     }
+    .btn-reset:hover { background: #1c2128; transform: translateY(-1px); }
 
-    button:hover {
-      background-color: #357ab7;
-    }
-
+    /* ── Overlay ── */
     .overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
+      inset: 0;
+      background: rgba(0,0,0,0.75);
       display: none;
-      justify-content: center;
       align-items: center;
-      z-index: 10;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.show { display: flex; }
+
+    @keyframes overlaySlideIn {
+      from { transform: translateY(30px) scale(0.95); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    .overlay-content {
-      position: relative;
-      background: white;
-      padding: 30px 40px;
-      border-radius: 16px;
+    .overlay-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 44px;
       text-align: center;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      max-width: 340px;
+      width: 90%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      animation: overlaySlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+      position: relative;
     }
 
-    .overlay-content h2 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: #333;
+    .overlay-emoji {
+      font-size: 64px;
+      margin-bottom: 12px;
+      display: block;
+      animation: popIn 0.5s 0.1s cubic-bezier(0.34,1.56,0.64,1) both;
     }
 
-    .overlay-media {
-      width: 200px;
-      aspect-ratio: 1 / 1;
-      margin: 0 auto 20px;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    .overlay-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 28px;
+      margin-bottom: 6px;
     }
+
+    .overlay-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .btn-play-again {
+      padding: 12px 32px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--x-color), var(--o-color));
+      color: #0d1117;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(88,166,255,0.3);
+    }
+    .btn-play-again:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(88,166,255,0.45); }
 
     .close-btn {
       position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #555;
+      top: 14px; right: 18px;
+      font-size: 20px;
+      color: var(--muted);
       cursor: pointer;
-      transition: color 0.3s;
+      background: none;
+      border: none;
+      line-height: 1;
+      transition: color 0.2s;
+      font-family: 'Nunito', sans-serif;
     }
+    .close-btn:hover { color: var(--text); }
 
-    .close-btn:hover {
-      color: #d00;
+    /* ── Description ── */
+    #deksripsi {
+      max-width: 680px;
+      margin-top: 64px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px 34px;
+      font-size: 15px;
+      color: #8b949e;
+      line-height: 1.8;
     }
-
-    #difficulty {
-      margin-top: 15px;
-      font-size: 16px;
-      padding: 6px 12px;
-      border-radius: 8px;
-    }
+    #deksripsi h2 { font-family: 'Fredoka One', cursive; color: var(--text); font-size: 22px; text-align: center; margin-bottom: 14px; }
+    #deksripsi h3 { color: var(--x-color); font-size: 15px; margin-top: 18px; margin-bottom: 6px; }
+    #deksripsi strong { color: var(--text); }
+    #deksripsi ol, #deksripsi ul { margin-left: 20px; }
+    #deksripsi li { margin-bottom: 3px; }
+    #deksripsi footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1 id="judul">Tic Tac Toe</h1>
 
-  <select id="difficulty">
-    <option value="easy">Easy</option>
-    <option value="medium">Medium</option>
-    <option value="hard">Hard</option>
-    <option value="extreme">Extreme</option>
-  </select>
+  <h1>Tic Tac Toe</h1>
 
-  <div class="board" id="board">
-    <div class="cell" data-index="0"></div>
-    <div class="cell" data-index="1"></div>
-    <div class="cell" data-index="2"></div>
-    <div class="cell" data-index="3"></div>
-    <div class="cell" data-index="4"></div>
-    <div class="cell" data-index="5"></div>
-    <div class="cell" data-index="6"></div>
-    <div class="cell" data-index="7"></div>
-    <div class="cell" data-index="8"></div>
-  </div>
-
-  <p id="status">Menentukan giliran...</p>
-  <button onclick="resetGame()">Reset Permainan</button>
-
-  <div class="overlay" id="overlay">
-    <div class="overlay-content">
-      <div class="close-btn" onclick="closeOverlay()">&times;</div>
-      <h2 id="overlay-message"></h2>
-      <div id="overlay-media-container"></div>
-      <button onclick="resetGame()" id="play-again-btn">Main Lagi</button>
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <div class="score-card x-card" id="scoreX">
+      <div class="score-label" id="labelX">–</div>
+      <div class="score-num" id="scoreXNum">0</div>
+      <div class="score-sym">X</div>
+    </div>
+    <div class="draw-card">
+      <div class="score-label">Seri</div>
+      <div class="score-num" id="scoreDraw">0</div>
+    </div>
+    <div class="score-card o-card" id="scoreO">
+      <div class="score-label" id="labelO">–</div>
+      <div class="score-num" id="scoreONum">0</div>
+      <div class="score-sym">O</div>
     </div>
   </div>
-  
-<div id="deksripsi" style="max-width: 700px; margin-top: 50px; font-size: 16px; color: #2f2f2f; text-align: justify; line-height: 1.8; font-family: 'Segoe UI', sans-serif;">
-  <h2 style="font-family: 'Noto Serif', serif; color: #2c3e50; text-align: center;">Tentang Web Ini</h2>
-  <p>
-    Halo dan selamat datang di permainan <strong>Tic Tac Toe</strong> versi modern yang dibuat simpel tapi cerdas! Di web ini, kamu bisa bermain melawan bot yang sudah diprogram untuk berpikir—kadang santai, kadang serius, tergantung tingkat kesulitan yang kamu pilih.
-  </p>
-  
-  <h3 style="color: #34495e;">Cara Mainnya Gimana?</h3>
-  <p>
-    Permainannya masih sama seperti yang kamu kenal: kamu dan bot akan bergiliran mengisi kotak 3x3. Yang berhasil menyusun tiga simbol (X atau O) secara horizontal, vertikal, atau diagonal, menang. Tapi hati-hati, bot di sini nggak bisa diremehkan—terutama kalau kamu pilih level “Extreme”.
-  </p>
-  <p>
-    Berikut langkah-langkahnya:
+
+  <!-- Difficulty -->
+  <div class="diff-bar">
+    <button class="diff-btn" data-d="easy"    onclick="setDiff('easy')">😴 Easy</button>
+    <button class="diff-btn" data-d="medium"  onclick="setDiff('medium')">🤔 Medium</button>
+    <button class="diff-btn active" data-d="hard" onclick="setDiff('hard')">🔥 Hard</button>
+    <button class="diff-btn" data-d="extreme" onclick="setDiff('extreme')">💀 Extreme</button>
+  </div>
+
+  <p id="status">Memulai...</p>
+
+  <div class="board" id="board">
+    <!-- cells generated by JS -->
+  </div>
+
+  <button class="btn-reset" onclick="resetGame()">↺ Reset Permainan</button>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="overlay-box">
+      <button class="close-btn" onclick="closeOverlay()">✕</button>
+      <span class="overlay-emoji" id="overlayEmoji">🎉</span>
+      <div class="overlay-title" id="overlayTitle">Selamat!</div>
+      <div class="overlay-sub"  id="overlaySub">Kamu menang!</div>
+      <button class="btn-play-again" onclick="resetGame()">Main Lagi</button>
+    </div>
+  </div>
+
+  <div id="deksripsi">
+    <h2>Tentang Web Ini</h2>
+    <p>Tic Tac Toe klasik melawan bot yang bisa diatur tingkat kesulitannya — dari yang sengaja bodoh sampai yang hampir mustahil dikalahkan.</p>
+
+    <h3>Cara Main</h3>
     <ol>
-      <li>Pilih tingkat kesulitan di bagian atas (Easy, Medium, Hard, atau Extreme).</li>
-      <li>Tunggu giliran—kadang kamu duluan, kadang bot.</li>
+      <li>Pilih tingkat kesulitan bot.</li>
+      <li>Giliran ditentukan acak — kadang kamu duluan, kadang bot.</li>
       <li>Klik kotak kosong untuk menaruh simbolmu.</li>
-      <li>Lihat siapa yang lebih cepat menyusun tiga simbol sebaris!</li>
-      <li>Kalau game selesai, akan muncul notifikasi seru hehehe :v</li>
-      <li>Klik tombol <strong>“Main Lagi”</strong> untuk mengulang permainan.</li>
+      <li>Susun tiga simbol sebaris (horizontal, vertikal, diagonal) untuk menang.</li>
     </ol>
-  </p>
 
-  <h3 style="color: #34495e;">Web Ini Kerja Gimana Sih?</h3>
-  <p>
-    Nah, dari balik layar, web ini bekerja sepenuhnya dengan <strong>HTML, CSS, dan JavaScript</strong>. Jadi tidak pakai server atau database—semua berjalan langsung di browser kamu. Berikut alur sederhananya:
-  </p>
-  <ul>
-    <li>Setiap kali kamu klik kotak, JavaScript akan mencatat langkahmu di sebuah array papan permainan.</li>
-    <li>Setelah itu, giliran bot yang bergerak. Kalau kamu pilih level “Easy”, dia asal pilih. Tapi kalau “Hard” atau “Extreme”, dia pakai algoritma <strong>Minimax</strong> untuk cari langkah terbaik.</li>
-    <li>Program akan terus mengecek: ada yang menang belum? Atau seri?</li>
-    <li>Kalau sudah selesai, akan muncul tampilan akhir lewat <strong>overlay</strong> yang menampilkan pesan dan media—entah gambar kemenangan, atau video kekalahan dari bot.</li>
-  </ul>
+    <h3>Tingkat Kesulitan</h3>
+    <ul>
+      <li><strong>Easy</strong> — Bot asal pilih. Buat pemanasan.</li>
+      <li><strong>Medium</strong> — Bot kadang cerdas, kadang random.</li>
+      <li><strong>Hard</strong> — Minimax dengan kedalaman terbatas.</li>
+      <li><strong>Extreme</strong> — Minimax penuh. Bot tidak bisa kalah, hanya bisa seri.</li>
+    </ul>
 
-  <h3 style="color: #34495e;">Kenapa Web Ini Dibuat?</h3>
-  <p>
-    Web ini dibuat sebagai proyek kecil untuk latihan dan seru-seruan. Tujuannya adalah belajar lebih dalam tentang cara kerja game sederhana, mempercantik antarmuka dengan CSS, dan menguji logika serta kecerdasan buatan ringan lewat JavaScript.
-  </p>
-  <p>
-    Cocok buat kamu yang lagi santai, pengen main sebentar, atau pengen tahu cara kerja game kecil berbasis web.
-  </p>
-  <p style="text-align: center; font-weight: bold; font-size: 14px;">Selamat bermain, dan semoga kamu bisa ngalahin bot-nya!</p>
-  <p style="text-align: center; font-size: 12px; color: gray;">
-    -text di buat oleh chatgpt-
-  </p>
-   <footer style="text-align: center; font-size: 12px; color: gray;">
-    &copy; 2025 di buat oleh yanto kemakmuran
-  </footer>
-</div>
+    <h3>Yang Baru</h3>
+    <ul>
+      <li>Winning cells di-highlight biar jelas mana yang menang.</li>
+      <li>Skor persisten selama sesi tanpa perlu reload.</li>
+      <li>Indikator giliran (glow di kartu skor).</li>
+      <li>Animasi pop saat taruh simbol, slide-in overlay.</li>
+      <li>Tidak ada dependency ke media eksternal.</li>
+    </ul>
+
+    <footer>&copy; 2025 dibuat oleh Yanto Kemakmuran</footer>
+  </div>
 
   <script>
-    const cells = document.querySelectorAll('.cell');
-    const statusText = document.getElementById('status');
-    const overlay = document.getElementById('overlay');
-    const overlayMessage = document.getElementById('overlay-message');
-    const overlayMediaContainer = document.getElementById('overlay-media-container');
-    const playAgainBtn = document.getElementById('play-again-btn');
-    const difficultySelector = document.getElementById('difficulty');
-
-    let board = Array(9).fill("");
+    // ── State ─────────────────────────────────────────────────────────────────
+    let board = Array(9).fill('');
     let gameActive = true;
-    let userSymbol, botSymbol;
-    let currentPlayer;
-    let difficulty = "easy";
+    let userSymbol, botSymbol, currentPlayer;
+    let difficulty = 'hard';
 
-    difficultySelector.addEventListener('change', e => {
-      difficulty = e.target.value;
-      resetGame();
-    });
+    // Session scores — keyed by player (user/bot), bukan simbol
+    let scores = { user: 0, bot: 0, draw: 0 };
 
-    cells.forEach(cell => cell.addEventListener('click', handleClick));
+    const WIN_COMBOS = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
 
-    function startGame() {
-      board = Array(9).fill("");
-      gameActive = true;
-      cells.forEach(cell => cell.textContent = "");
-      overlay.style.display = "none";
+    // ── DOM ───────────────────────────────────────────────────────────────────
+    const boardEl  = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const overlay  = document.getElementById('overlay');
 
-      if (Math.random() < 0.5) {
-        userSymbol = "X";
-        botSymbol = "O";
-        currentPlayer = userSymbol;
-        statusText.textContent = `Giliran Kamu (${userSymbol})`;
-      } else {
-        userSymbol = "O";
-        botSymbol = "X";
-        currentPlayer = botSymbol;
-        statusText.textContent = `Bot memulai dulu...`;
-        showOverlay("Bot menjadi X!", "img", "https://files.catbox.moe/2azj3k.jpg", false);
-        setTimeout(() => {
-          closeOverlay();
-          makeMove(getBestMove(), botSymbol);
-          currentPlayer = userSymbol;
-          statusText.textContent = `Giliran Kamu (${userSymbol})`;
-        }, 4000);
+    // ── Build board cells ─────────────────────────────────────────────────────
+    let cells = [];
+    function buildBoard() {
+      boardEl.innerHTML = '';
+      cells = [];
+      for (let i = 0; i < 9; i++) {
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.dataset.i = i;
+        c.addEventListener('click', handleClick);
+        boardEl.appendChild(c);
+        cells.push(c);
       }
     }
 
-    function handleClick(e) {
-      const index = e.target.dataset.index;
-      if (board[index] !== "" || !gameActive || currentPlayer !== userSymbol) return;
+    // ── Difficulty ────────────────────────────────────────────────────────────
+    function setDiff(d) {
+      difficulty = d;
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.d === d));
+      resetGame();
+    }
 
-      makeMove(index, userSymbol);
-      if (checkGameOver(userSymbol)) return;
+    // ── Init ──────────────────────────────────────────────────────────────────
+    function startGame() {
+      board = Array(9).fill('');
+      gameActive = true;
+      buildBoard();
+      overlay.classList.remove('show');
 
-      currentPlayer = botSymbol;
-      statusText.textContent = "Giliran Bot...";
+      // Reset labels ke "?" dulu selama rolling
+      document.getElementById('labelX').textContent = '?';
+      document.getElementById('labelO').textContent = '?';
+      document.getElementById('scoreX').classList.remove('active-turn');
+      document.getElementById('scoreO').classList.remove('active-turn');
+      setStatus('Mengundi simbol...');
+
+      // Rolling animation untuk label
+      let tick = 0;
+      const rolling = setInterval(() => {
+        // acak-acak label biar keliatan rolling
+        const flip = tick % 2 === 0;
+        document.getElementById('labelX').textContent = flip ? 'KAMU' : 'BOT';
+        document.getElementById('labelO').textContent = flip ? 'BOT'  : 'KAMU';
+        tick++;
+      }, 180);
+
       setTimeout(() => {
-        makeMove(getBestMove(), botSymbol);
-        if (!checkGameOver(botSymbol)) {
-          currentPlayer = userSymbol;
-          statusText.textContent = `Giliran Kamu (${userSymbol})`;
+        clearInterval(rolling);
+
+        // Tentukan simbol
+        if (Math.random() < 0.5) {
+          userSymbol = 'X'; botSymbol = 'O';
+        } else {
+          userSymbol = 'O'; botSymbol = 'X';
         }
-      }, 500);
+
+        // Pasang label final — kartu kiri selalu X (biru), kanan selalu O (oranye)
+        document.getElementById('labelX').textContent = userSymbol === 'X' ? 'KAMU' : 'BOT';
+        document.getElementById('labelO').textContent = userSymbol === 'O' ? 'KAMU' : 'BOT';
+
+        // Re-render skor di posisi kartu yang bener untuk ronde ini
+        updateScoreUI();
+
+        // X selalu mulai duluan
+        currentPlayer = 'X';
+        setTurnCard('X');
+
+        if (currentPlayer === userSymbol) {
+          setStatus(`Kamu dapat ${userSymbol} — giliran kamu duluan!`);
+        } else {
+          setStatus(`Kamu dapat ${userSymbol} — Bot (${botSymbol}) mulai duluan...`);
+          setTimeout(doBotMove, 700);
+        }
+      }, 1800);
     }
 
-    function makeMove(index, player) {
-      board[index] = player;
-      cells[index].textContent = player;
+    function resetGame() { startGame(); }
+
+    // ── Turn indicator — selalu ngikutin SIMBOL (X=kiri, O=kanan) ─────────────
+    function setTurnCard(sym) {
+      document.getElementById('scoreX').classList.toggle('active-turn', sym === 'X');
+      document.getElementById('scoreO').classList.toggle('active-turn', sym === 'O');
     }
 
-    function checkGameOver(player) {
-      if (checkWin(player)) {
-        const msg = player === userSymbol ? "Selamat! Kamu menang!" : "Bot menang! Coba lagi ya.";
-        const type = player === userSymbol ? "img" : "video";
-        const src = player === userSymbol ? "https://files.catbox.moe/4gtvct.jpg" : "https://files.catbox.moe/jcayhr.mp4";
-        showOverlay(msg, type, src);
+    function setStatus(msg) { statusEl.textContent = msg; }
+
+    // ── Player click ──────────────────────────────────────────────────────────
+    function handleClick(e) {
+      const i = parseInt(e.currentTarget.dataset.i);
+      if (!gameActive || board[i] || currentPlayer !== userSymbol) return;
+      placeSymbol(i, userSymbol);
+      if (checkGameOver()) return;
+      currentPlayer = botSymbol;
+      setStatus('Giliran Bot...');
+      setTurnCard(botSymbol);
+      setTimeout(doBotMove, 450);
+    }
+
+    // ── Place symbol ──────────────────────────────────────────────────────────
+    function placeSymbol(i, sym) {
+      board[i] = sym;
+      const c = cells[i];
+      c.textContent = sym;
+      c.classList.add(sym.toLowerCase(), 'taken', 'pop');
+    }
+
+    // ── Check game over ───────────────────────────────────────────────────────
+    function checkGameOver() {
+      const winCombo = getWinCombo(board, userSymbol) || getWinCombo(board, botSymbol);
+      if (winCombo) {
+        const winner = board[winCombo[0]];
+        winCombo.forEach(i => cells[i].classList.add('winner'));
         gameActive = false;
+        const userWon = winner === userSymbol;
+        if (userWon) scores.user++; else scores.bot++;
+        updateScoreUI();
+        setTimeout(() => showOverlay(
+          userWon ? '🎉' : '🤖',
+          userWon ? 'Kamu Menang!' : 'Bot Menang!',
+          userWon ? 'Mantap! Bot kalah kali ini 💪' : 'Coba lagi, bisa kok! 😂'
+        ), 500);
         return true;
-      } else if (!board.includes("")) {
-        showOverlay("Permainan Seri!", "video", "https://files.catbox.moe/jcayhr.mp4");
+      }
+      if (!board.includes('')) {
         gameActive = false;
+        scores.draw++;
+        updateScoreUI();
+        setTimeout(() => showOverlay('🤝', 'Seri!', 'Sama kuat nih 😄'), 400);
         return true;
       }
       return false;
     }
 
-    function checkWin(player) {
-      const winCombos = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      return winCombos.some(combo => combo.every(i => board[i] === player));
+    function getWinCombo(b, sym) {
+      return WIN_COMBOS.find(c => c.every(i => b[i] === sym)) || null;
+    }
+
+    // ── Score UI — skor user/bot ditaruh di kartu sesuai simbol ronde ini ──────
+    function updateScoreUI() {
+      // userSymbol bisa X atau O tiap ronde — taruh skor user di kartu yang sesuai
+      const userIsX = userSymbol === 'X';
+      document.getElementById('scoreXNum').textContent = userIsX ? scores.user : scores.bot;
+      document.getElementById('scoreONum').textContent = userIsX ? scores.bot  : scores.user;
+      document.getElementById('scoreDraw').textContent = scores.draw;
+    }
+
+    // ── Bot move ──────────────────────────────────────────────────────────────
+    function doBotMove() {
+      if (!gameActive) return;
+      const move = getBestMove();
+      placeSymbol(move, botSymbol);
+      if (!checkGameOver()) {
+        currentPlayer = userSymbol;
+        setStatus(`Giliran kamu (${userSymbol})`);
+        setTurnCard(userSymbol);
+      }
     }
 
     function getBestMove() {
-      const available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
-      if (difficulty === "easy") {
-        return available[Math.floor(Math.random() * available.length)];
-      }
-      if (difficulty === "medium" && Math.random() < 0.5) {
-        return available[Math.floor(Math.random() * available.length)];
-      }
-      let bestScore = -Infinity, move;
-      for (let i of available) {
+      const avail = board.map((v,i) => v==='' ? i : null).filter(v=>v!==null);
+      if (difficulty === 'easy') return avail[Math.floor(Math.random() * avail.length)];
+      if (difficulty === 'medium' && Math.random() < 0.45) return avail[Math.floor(Math.random() * avail.length)];
+      const maxDepth = difficulty === 'hard' ? 3 : Infinity;
+      let best = -Infinity, move = avail[0];
+      for (const i of avail) {
         board[i] = botSymbol;
-        let score = minimax(board, 0, false, difficulty === "hard" ? 2 : Infinity);
-        board[i] = "";
-        if (score > bestScore) {
-          bestScore = score;
-          move = i;
-        }
+        const score = minimax(board, 0, false, maxDepth);
+        board[i] = '';
+        if (score > best) { best = score; move = i; }
       }
       return move;
     }
 
-    function minimax(boardState, depth, isMax, maxDepth = Infinity) {
-      if (checkWin(botSymbol)) return 10 - depth;
-      if (checkWin(userSymbol)) return depth - 10;
-      if (!boardState.includes("") || depth >= maxDepth) return 0;
-
+    function minimax(b, depth, isMax, maxDepth) {
+      if (getWinCombo(b, botSymbol))  return 10 - depth;
+      if (getWinCombo(b, userSymbol)) return depth - 10;
+      if (!b.includes('') || depth >= maxDepth) return 0;
       let best = isMax ? -Infinity : Infinity;
-      for (let i = 0; i < boardState.length; i++) {
-        if (boardState[i] === "") {
-          boardState[i] = isMax ? botSymbol : userSymbol;
-          let score = minimax(boardState, depth + 1, !isMax, maxDepth);
-          boardState[i] = "";
-          best = isMax ? Math.max(score, best) : Math.min(score, best);
-        }
+      for (let i = 0; i < 9; i++) {
+        if (b[i] !== '') continue;
+        b[i] = isMax ? botSymbol : userSymbol;
+        const s = minimax(b, depth+1, !isMax, maxDepth);
+        b[i] = '';
+        best = isMax ? Math.max(best, s) : Math.min(best, s);
       }
       return best;
     }
 
-    function showOverlay(message, mediaType = null, mediaSrc = "", showButton = true) {
-      overlayMessage.textContent = message;
-      overlayMediaContainer.innerHTML = "";
-
-      if (mediaType && mediaSrc) {
-        const media = document.createElement(mediaType);
-        media.className = "overlay-media";
-        media.src = mediaSrc;
-        if (mediaType === "video") {
-          media.autoplay = true;
-          media.loop = true;
-          media.muted = false;
-          media.playsInline = true;
-          media.controls = true;
-        }
-        overlayMediaContainer.appendChild(media);
-      }
-
-      playAgainBtn.style.display = showButton ? "inline-block" : "none";
-      overlay.style.display = "flex";
+    // ── Overlay ───────────────────────────────────────────────────────────────
+    function showOverlay(emoji, title, sub) {
+      document.getElementById('overlayEmoji').textContent = emoji;
+      document.getElementById('overlayTitle').textContent = title;
+      document.getElementById('overlaySub').textContent   = sub;
+      overlay.classList.add('show');
     }
 
-    function closeOverlay() {
-      overlay.style.display = "none";
-      const video = overlayMediaContainer.querySelector("video");
-      if (video) {
-        video.pause();
-        video.currentTime = 0;
-      }
-    }
+    function closeOverlay() { overlay.classList.remove('show'); }
 
-    function resetGame() {
-      closeOverlay();
-      startGame();
-    }
-
-    window.onload = startGame;
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    setDiff('hard');
   </script>
 </body>
 </html>
