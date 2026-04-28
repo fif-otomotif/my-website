@@ -36,9 +36,7 @@
     }
 
     @media (max-width: 768px) {
-      .notice {
-        display: block;
-      }
+      .notice { display: block; }
     }
 
     h1 {
@@ -67,11 +65,13 @@
       transition: background 0.2s ease;
     }
 
-    .wall { background: #455a64; }
-    .start { background: #67ff85; }
-    .end { background: #0288d1; }
-    .visited { background: #b3e5fc; }
-    .path { background: #ffeb3b; }
+    .wall     { background: #455a64; }
+    .start    { background: #67ff85; }
+    .end      { background: #0288d1; }
+    .visited  { background: #b3e5fc; }
+    .path     { background: #ffeb3b; }
+    /* open set highlight (cells being evaluated) */
+    .open     { background: #ffe082; }
 
     .toolbar, .controls {
       margin-top: 15px;
@@ -92,10 +92,39 @@
       transition: background 0.2s ease;
     }
 
-    button:hover {
-      background: #64b5f6;
+    button:hover { background: #64b5f6; }
+
+    /* algo selector */
+    .algo-selector {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      color: #0d47a1;
     }
-    
+
+    .algo-selector label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      background: #dceefb;
+      padding: 5px 12px;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .algo-selector input[type="radio"] { accent-color: #0288d1; }
+    .algo-selector label:has(input:checked) {
+      border-color: #0288d1;
+      background: #bbdefb;
+      font-weight: bold;
+    }
+
     .custom-notice {
       background: #ffcdd2;
       color: #b71c1c;
@@ -107,6 +136,14 @@
       display: none;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
+    }
+
+    #stats {
+      font-size: 13px;
+      color: #1565c0;
+      margin-top: 8px;
+      min-height: 18px;
+      text-align: center;
     }
   </style>
 </head>
@@ -123,63 +160,66 @@
     <button onclick="setMode('end')">Finish</button>
   </div>
 
+  <!-- Algorithm selector -->
+  <div class="algo-selector">
+    <span>Algoritma:</span>
+    <label><input type="radio" name="algo" value="astar" checked> A* (cerdas)</label>
+    <label><input type="radio" name="algo" value="bfs"> BFS (terpendek, lambat)</label>
+    <label><input type="radio" name="algo" value="dfs"> DFS (asli, muter-muter)</label>
+  </div>
+
   <div id="grid"></div>
+  <div id="stats"></div>
 
   <div class="controls">
     <button onclick="play()">Play</button>
     <button onclick="reply()">Reply</button>
     <button onclick="reset()">Restart</button>
   </div>
-  
-    <div id="custom-notice" class="custom-notice">Notifikasi akan tampil di sini.</div>
-  
-<div id="deksripsi" style="max-width: 800px; margin-top: 60px; padding: 25px 30px; background: #f5faff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 16px; color: #2f2f2f; text-align: justify; line-height: 1.8; font-family: 'Segoe UI', sans-serif;">
-  <h2 style="font-family: 'Noto Serif', serif; color: #0d47a1; text-align: center; font-size: 24px; margin-bottom: 20px;">Tentang Web Ini</h2>
 
-  <p>
-    Selamat datang di <strong>Maze Solver (Minimax)</strong>, sebuah aplikasi edukatif berbasis web yang memungkinkan kamu menyusun labirin dan menyaksikan bagaimana algoritma sederhana mencari jalan dari titik awal ke tujuan. Web ini dirancang dengan tampilan bersih dan antarmuka interaktif yang bisa digunakan langsung dari browser—tanpa perlu install apapun.
-  </p>
+  <div id="custom-notice" class="custom-notice">Notifikasi akan tampil di sini.</div>
 
-  <h3 style="color: #1565c0; margin-top: 25px;">Cara Menggunakannya</h3>
-  <p>
-    Kamu dapat menentukan sendiri struktur labirin dengan membuat tembok, memilih titik mulai (Start), dan titik akhir (Finish). Setelah semuanya ditentukan, kamu cukup tekan tombol <strong>Play</strong> untuk melihat jalur yang ditemukan oleh algoritma secara visual.
-  </p>
-  <ol style="margin-left: 20px; padding-left: 10px;">
-    <li>Klik tombol <strong>Tembok</strong>, lalu klik sel di grid untuk membuat dinding penghalang.</li>
-    <li>Klik tombol <strong>Start</strong> dan pilih posisi awal.</li>
-    <li>Klik tombol <strong>Finish</strong> dan pilih titik tujuan.</li>
-    <li>Tekan <strong>Play</strong> untuk menjalankan proses pencarian jalur.</li>
-    <li>Gunakan <strong>Reply</strong> untuk menghapus jalur tanpa menghapus struktur tembok.</li>
-    <li>Tekan <strong>Restart</strong> untuk mereset semuanya dan mulai dari awal.</li>
-  </ol>
+  <div id="deksripsi" style="max-width: 800px; margin-top: 60px; padding: 25px 30px; background: #f5faff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 16px; color: #2f2f2f; text-align: justify; line-height: 1.8; font-family: 'Segoe UI', sans-serif;">
+    <h2 style="font-family: 'Noto Serif', serif; color: #0d47a1; text-align: center; font-size: 24px; margin-bottom: 20px;">Tentang Web Ini</h2>
 
-  <h3 style="color: #1565c0; margin-top: 25px;">Bagaimana Web Ini Bekerja?</h3>
-  <p>
-    Web ini dibangun sepenuhnya dengan <strong>HTML, CSS, dan JavaScript</strong>. Grid disusun dalam bentuk array dua dimensi yang memuat informasi setiap sel—apakah kosong, tembok, titik awal, titik akhir, atau bagian dari jalur.
-  </p>
-  <ul style="margin-left: 20px; padding-left: 10px; list-style-type: disc;">
-    <li>Saat kamu mengklik sel, JavaScript mengubah tipenya dan memperbarui tampilannya.</li>
-    <li>Algoritma <em>depth-first search</em> sederhana digunakan untuk mencari jalur dari titik awal ke titik akhir.</li>
-    <li>Setiap langkah pencarian divisualisasikan dengan warna: biru muda untuk sel yang dikunjungi, dan kuning untuk jalur final.</li>
-    <li>Proses animasi dijalankan perlahan agar kamu bisa memahami alurnya dengan jelas.</li>
-  </ul>
+    <p>
+      Selamat datang di <strong>Maze Solver</strong>, sebuah aplikasi edukatif berbasis web yang memungkinkan kamu menyusun labirin dan menyaksikan bagaimana algoritma mencari jalan dari titik awal ke tujuan. Web ini kini mendukung tiga algoritma berbeda yang bisa kamu bandingkan langsung.
+    </p>
 
-  <h3 style="color: #1565c0; margin-top: 25px;">Tujuan dan Manfaat</h3>
-  <p>
-    Aplikasi ini dibuat sebagai proyek pembelajaran untuk memahami bagaimana algoritma pencarian bekerja. Dengan menyaksikan visualisasi langsung, pengguna dapat lebih mudah memahami konsep pemrograman seperti rekursi, manipulasi DOM, dan logika pencarian jalur.
-  </p>
-  <p>
-    Web ini cocok untuk pelajar, pengajar, atau siapa saja yang ingin mengenal dasar-dasar pemrograman logika dan algoritma visual.
-  </p>
+    <h3 style="color: #1565c0; margin-top: 25px;">Cara Menggunakannya</h3>
+    <p>
+      Kamu dapat menentukan sendiri struktur labirin dengan membuat tembok, memilih titik mulai (Start), dan titik akhir (Finish). Pilih algoritma yang ingin digunakan, lalu tekan <strong>Play</strong>.
+    </p>
+    <ol style="margin-left: 20px; padding-left: 10px;">
+      <li>Klik tombol <strong>Tembok</strong>, lalu klik sel di grid untuk membuat dinding penghalang.</li>
+      <li>Klik tombol <strong>Start</strong> dan pilih posisi awal.</li>
+      <li>Klik tombol <strong>Finish</strong> dan pilih titik tujuan.</li>
+      <li>Pilih <strong>algoritma</strong> yang ingin digunakan.</li>
+      <li>Tekan <strong>Play</strong> untuk menjalankan proses pencarian jalur.</li>
+      <li>Gunakan <strong>Reply</strong> untuk menghapus jalur tanpa menghapus struktur tembok.</li>
+      <li>Tekan <strong>Restart</strong> untuk mereset semuanya dan mulai dari awal.</li>
+    </ol>
 
-  <p style="text-align: center; font-weight: bold; font-size: 14px; margin-top: 40px;">
-    Selamat bereksperimen dan semoga kamu bisa menemukan jalur terbaik di labirin yang kamu buat!
-  </p>
+    <h3 style="color: #1565c0; margin-top: 25px;">Perbandingan Algoritma</h3>
+    <ul style="margin-left: 20px; padding-left: 10px; list-style-type: disc;">
+      <li><strong>A* (A-Star)</strong> — Paling cerdas. Menggunakan <em>heuristic</em> (estimasi jarak Manhattan ke finish) untuk selalu memprioritaskan arah yang paling menjanjikan. Hasilnya: jalur terpendek dengan sel yang dikunjungi paling sedikit.</li>
+      <li><strong>BFS (Breadth-First Search)</strong> — Selalu menemukan jalur terpendek, tapi mengeksplorasi ke semua arah secara merata seperti "gelombang". Lebih boros sel yang dikunjungi dibanding A*.</li>
+      <li><strong>DFS (Depth-First Search)</strong> — Algoritma aslinya. Mengeksplorasi satu arah sampai mentok dulu, baru backtrack. Jalurnya bisa sangat panjang dan muter-muter meski finish dekat.</li>
+    </ul>
 
-  <footer style="text-align: center; font-size: 12px; color: gray; margin-top: 20px;">
-    &copy; 2025 — Dibuat oleh Yanto Kemakmuran
-  </footer>
-</div>
+    <h3 style="color: #1565c0; margin-top: 25px;">Tujuan dan Manfaat</h3>
+    <p>
+      Aplikasi ini dibuat sebagai proyek pembelajaran untuk memahami bagaimana algoritma pencarian bekerja. Dengan menyaksikan visualisasi langsung dan membandingkan ketiga algoritma, pengguna dapat lebih mudah memahami konsep seperti heuristic, eksplorasi, dan efisiensi algoritma.
+    </p>
+
+    <p style="text-align: center; font-weight: bold; font-size: 14px; margin-top: 40px;">
+      Selamat bereksperimen dan semoga kamu bisa menemukan jalur terbaik di labirin yang kamu buat!
+    </p>
+
+    <footer style="text-align: center; font-size: 12px; color: gray; margin-top: 20px;">
+      &copy; 2025 — Dibuat oleh Yanto Kemakmuran
+    </footer>
+  </div>
 
   <script>
     const gridSize = 20;
@@ -190,14 +230,18 @@
     let animating = false;
 
     const gridEl = document.getElementById('grid');
+    const statsEl = document.getElementById('stats');
 
-    function setMode(newMode) {
-      mode = newMode;
+    function setMode(newMode) { mode = newMode; }
+
+    function getAlgo() {
+      return document.querySelector('input[name="algo"]:checked').value;
     }
 
     function createGrid() {
       gridEl.innerHTML = '';
       grid = [];
+      statsEl.textContent = '';
       for (let row = 0; row < gridSize; row++) {
         const rowArr = [];
         for (let col = 0; col < gridSize; col++) {
@@ -215,7 +259,6 @@
 
     function handleCellClick(cell) {
       if (animating) return;
-
       const row = parseInt(cell.dataset.row);
       const col = parseInt(cell.dataset.col);
       const current = grid[row][col];
@@ -224,20 +267,12 @@
         current.type = current.type === 'wall' ? 'empty' : 'wall';
         updateCellClass(row, col);
       } else if (mode === 'start') {
-        if (start) {
-          const [sr, sc] = start;
-          grid[sr][sc].type = 'empty';
-          updateCellClass(sr, sc);
-        }
+        if (start) { grid[start[0]][start[1]].type = 'empty'; updateCellClass(...start); }
         start = [row, col];
         current.type = 'start';
         updateCellClass(row, col);
       } else if (mode === 'end') {
-        if (end) {
-          const [er, ec] = end;
-          grid[er][ec].type = 'empty';
-          updateCellClass(er, ec);
-        }
+        if (end) { grid[end[0]][end[1]].type = 'empty'; updateCellClass(...end); }
         end = [row, col];
         current.type = 'end';
         updateCellClass(row, col);
@@ -246,104 +281,231 @@
 
     function updateCellClass(row, col) {
       const cell = grid[row][col];
-      const el = cell.el;
-      el.className = 'cell';
-      if (cell.type === 'wall') el.classList.add('wall');
-      if (cell.type === 'start') el.classList.add('start');
-      if (cell.type === 'end') el.classList.add('end');
-      if (cell.type === 'path') el.classList.add('path');
-      if (cell.type === 'visited') el.classList.add('visited');
+      cell.el.className = 'cell';
+      if (cell.type !== 'empty') cell.el.classList.add(cell.type);
     }
 
     function reset() {
       start = null;
       end = null;
+      animating = false;
       createGrid();
     }
 
     function reply() {
-      for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
-          const cell = grid[row][col];
-          if (cell.type === 'visited' || cell.type === 'path') {
+      for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+          const cell = grid[r][c];
+          if (cell.type === 'visited' || cell.type === 'path' || cell.type === 'open') {
             cell.type = 'empty';
-            updateCellClass(row, col);
+            updateCellClass(r, c);
           }
         }
       }
       if (start) updateCellClass(...start);
       if (end) updateCellClass(...end);
+      statsEl.textContent = '';
     }
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
     async function play() {
-  if (!start || !end) {
-    showNotice('Tentukan titik Start dan Finish terlebih dahulu.');
-    return;
-  }
-  animating = true;
-  const found = await minimax(start[0], start[1], []);
-  animating = false;
+      if (!start || !end) { showNotice('Tentukan titik Start dan Finish terlebih dahulu.'); return; }
+      if (animating) return;
+      reply();
+      animating = true;
+      statsEl.textContent = '';
 
-  if (!found) {
-    showNotice('minimax: gak bisa lewat, ada kondangan (⁠╥⁠﹏⁠╥⁠)');
-  }
-}
+      const algo = getAlgo();
+      let result;
 
-    async function minimax(r, c, path) {
-      if (r < 0 || c < 0 || r >= gridSize || c >= gridSize) return false;
+      if (algo === 'astar') result = await runAStar();
+      else if (algo === 'bfs') result = await runBFS();
+      else result = await runDFS();
+
+      animating = false;
+
+      if (!result) {
+        showNotice('Ga bisa lewat, ada kondangan 😭');
+      }
+    }
+
+    // ── Helper: reconstruct and animate path ──────────────────────────────────
+    async function animatePath(cameFrom, current) {
+      const path = [];
+      let node = `${current[0]},${current[1]}`;
+      while (cameFrom[node]) {
+        const [r, c] = node.split(',').map(Number);
+        if (grid[r][c].type !== 'start' && grid[r][c].type !== 'end') path.push([r, c]);
+        node = cameFrom[node];
+      }
+      path.reverse();
+      for (const [r, c] of path) {
+        grid[r][c].type = 'path';
+        updateCellClass(r, c);
+        await sleep(25);
+      }
+      return path.length;
+    }
+
+    // ── A* ────────────────────────────────────────────────────────────────────
+    function heuristic(r, c) {
+      return Math.abs(r - end[0]) + Math.abs(c - end[1]); // Manhattan distance
+    }
+
+    async function runAStar() {
+      const DIRS = [[0,1],[1,0],[0,-1],[-1,0]];
+      const key = (r, c) => `${r},${c}`;
+
+      const gScore = {};
+      const fScore = {};
+      const cameFrom = {};
+      const openSet = new Set();
+      const closedSet = new Set();
+
+      const sk = key(...start);
+      gScore[sk] = 0;
+      fScore[sk] = heuristic(...start);
+      openSet.add(sk);
+
+      let visited = 0;
+
+      while (openSet.size > 0) {
+        // pick node with lowest fScore
+        let current = null;
+        let lowest = Infinity;
+        for (const k of openSet) {
+          if ((fScore[k] ?? Infinity) < lowest) { lowest = fScore[k]; current = k; }
+        }
+
+        const [cr, cc] = current.split(',').map(Number);
+
+        if (cr === end[0] && cc === end[1]) {
+          const pathLen = await animatePath(cameFrom, [cr, cc]);
+          statsEl.textContent = `A* — Dikunjungi: ${visited} sel | Panjang jalur: ${pathLen} langkah`;
+          return true;
+        }
+
+        openSet.delete(current);
+        closedSet.add(current);
+
+        if (grid[cr][cc].type !== 'start' && grid[cr][cc].type !== 'end') {
+          grid[cr][cc].type = 'visited';
+          updateCellClass(cr, cc);
+          visited++;
+          await sleep(15);
+        }
+
+        for (const [dr, dc] of DIRS) {
+          const nr = cr + dr, nc = cc + dc;
+          if (nr < 0 || nc < 0 || nr >= gridSize || nc >= gridSize) continue;
+          const nk = key(nr, nc);
+          if (closedSet.has(nk)) continue;
+          if (grid[nr][nc].type === 'wall') continue;
+
+          const tentG = (gScore[current] ?? Infinity) + 1;
+          if (tentG < (gScore[nk] ?? Infinity)) {
+            cameFrom[nk] = current;
+            gScore[nk] = tentG;
+            fScore[nk] = tentG + heuristic(nr, nc);
+            openSet.add(nk);
+          }
+        }
+      }
+      return false;
+    }
+
+    // ── BFS ───────────────────────────────────────────────────────────────────
+    async function runBFS() {
+      const DIRS = [[0,1],[1,0],[0,-1],[-1,0]];
+      const key = (r, c) => `${r},${c}`;
+      const visited = new Set();
+      const cameFrom = {};
+      const queue = [[...start]];
+      visited.add(key(...start));
+      let visitedCount = 0;
+
+      while (queue.length > 0) {
+        const [cr, cc] = queue.shift();
+        if (cr === end[0] && cc === end[1]) {
+          const pathLen = await animatePath(cameFrom, [cr, cc]);
+          statsEl.textContent = `BFS — Dikunjungi: ${visitedCount} sel | Panjang jalur: ${pathLen} langkah`;
+          return true;
+        }
+
+        if (grid[cr][cc].type !== 'start' && grid[cr][cc].type !== 'end') {
+          grid[cr][cc].type = 'visited';
+          updateCellClass(cr, cc);
+          visitedCount++;
+          await sleep(15);
+        }
+
+        for (const [dr, dc] of DIRS) {
+          const nr = cr + dr, nc = cc + dc;
+          if (nr < 0 || nc < 0 || nr >= gridSize || nc >= gridSize) continue;
+          const nk = key(nr, nc);
+          if (visited.has(nk) || grid[nr][nc].type === 'wall') continue;
+          visited.add(nk);
+          cameFrom[nk] = key(cr, cc);
+          queue.push([nr, nc]);
+        }
+      }
+      return false;
+    }
+
+    // ── DFS (original, rekursif) ───────────────────────────────────────────────
+    async function runDFS() {
+      let visitedCount = 0;
+      const result = await dfsRecurse(start[0], start[1], [], visitedCount);
+      if (result.found) {
+        statsEl.textContent = `DFS — Dikunjungi: ${result.visited} sel | Panjang jalur: ${result.pathLen} langkah`;
+      }
+      return result.found;
+    }
+
+    async function dfsRecurse(r, c, path, visitedCount) {
+      if (r < 0 || c < 0 || r >= gridSize || c >= gridSize) return { found: false, visited: visitedCount };
       const cell = grid[r][c];
-      if (cell.type === 'wall' || cell.type === 'visited') return false;
+      if (cell.type === 'wall' || cell.type === 'visited') return { found: false, visited: visitedCount };
 
       if (cell.type !== 'start' && cell.type !== 'end') {
         cell.type = 'visited';
         updateCellClass(r, c);
-        await sleep(20);
+        visitedCount++;
+        await sleep(15);
       }
 
-      if (cell.type === 'end') {
-        for (let [pr, pc] of path) {
+      if (r === end[0] && c === end[1]) {
+        let pathLen = 0;
+        for (const [pr, pc] of path) {
           if (grid[pr][pc].type !== 'start' && grid[pr][pc].type !== 'end') {
             grid[pr][pc].type = 'path';
             updateCellClass(pr, pc);
-            await sleep(30);
+            pathLen++;
+            await sleep(25);
           }
         }
-        return true;
+        return { found: true, visited: visitedCount, pathLen };
       }
 
-      const directions = [[0,1],[1,0],[-1,0],[0,-1]];
-
-      for (let [dr, dc] of directions) {
-        if (await minimax(r+dr, c+dc, [...path, [r, c]])) {
-          return true;
-        }
+      for (const [dr, dc] of [[0,1],[1,0],[-1,0],[0,-1]]) {
+        const res = await dfsRecurse(r+dr, c+dc, [...path, [r,c]], visitedCount);
+        if (res.found) return res;
+        visitedCount = res.visited;
       }
-
-      return false;
+      return { found: false, visited: visitedCount };
     }
-    
+
     function showNotice(message) {
-  const noticeEl = document.getElementById('custom-notice');
-  noticeEl.textContent = message;
-  noticeEl.style.display = 'block';
-
-  // Efek fade-in
-  setTimeout(() => {
-    noticeEl.style.opacity = '1';
-  }, 10);
-
-  // Efek fade-out otomatis setelah 5 detik
-  setTimeout(() => {
-    noticeEl.style.opacity = '0';
-    setTimeout(() => {
-      noticeEl.style.display = 'none';
-    }, 500);
-  }, 5000);
-}
+      const noticeEl = document.getElementById('custom-notice');
+      noticeEl.textContent = message;
+      noticeEl.style.display = 'block';
+      setTimeout(() => { noticeEl.style.opacity = '1'; }, 10);
+      setTimeout(() => {
+        noticeEl.style.opacity = '0';
+        setTimeout(() => { noticeEl.style.display = 'none'; }, 500);
+      }, 5000);
+    }
 
     createGrid();
   </script>
