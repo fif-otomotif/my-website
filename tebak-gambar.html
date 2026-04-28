@@ -7,340 +7,700 @@
   <meta property="og:title" content="tebak-gambar">
   <meta property="og:image" content="https://cdn.xtermai.xyz/kMs1M.jpg">
   <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --card-back: #0f3460;
+      --card-front: #ffffff;
+      --accent: #e94560;
+      --accent2: #f5a623;
+      --player-color: #4ecca3;
+      --ai-color: #e94560;
+      --text: #eaeaea;
+      --muted: #8892b0;
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      background: linear-gradient(to right, #e0eafc, #cfdef3);
-      margin: 0;
-      padding: 0;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 60px;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(78, 204, 163, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(233, 69, 96, 0.07) 0%, transparent 60%);
     }
+
+    /* ── Header ── */
     h1 {
-      margin-top: 30px;
-      color: #333;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(28px, 6vw, 42px);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--player-color), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+
+    /* ── Difficulty selector ── */
+    .difficulty-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      background: var(--surface);
+      padding: 6px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .diff-btn {
+      padding: 6px 18px;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.25s;
+    }
+
+    .diff-btn.active {
+      color: #fff;
+    }
+
+    .diff-btn[data-d="easy"].active   { background: #4ecca3; color: #0f3460; }
+    .diff-btn[data-d="medium"].active { background: var(--accent2); color: #1a1a2e; }
+    .diff-btn[data-d="hard"].active   { background: var(--accent); color: #fff; }
+
+    /* ── Turn indicator ── */
+    .turn-wrap {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .player-card {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      border: 2px solid transparent;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .player-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .player-card.you::before  { background: radial-gradient(circle at top, rgba(78,204,163,0.15), transparent 70%); }
+    .player-card.ai::before   { background: radial-gradient(circle at top, rgba(233,69,96,0.15), transparent 70%); }
+
+    .player-card.active-turn  { transform: translateY(-4px); }
+    .player-card.you.active-turn  { border-color: var(--player-color); box-shadow: 0 4px 24px rgba(78,204,163,0.3); }
+    .player-card.ai.active-turn   { border-color: var(--ai-color); box-shadow: 0 4px 24px rgba(233,69,96,0.3); }
+    .player-card.you.active-turn::before,
+    .player-card.ai.active-turn::before { opacity: 1; }
+
+    .player-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .you .player-label  { color: var(--player-color); }
+    .ai  .player-label  { color: var(--ai-color); }
+
+    .player-score {
+      font-family: 'Fredoka One', cursive;
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .turn-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 50px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .you .turn-badge  { background: rgba(78,204,163,0.2); color: var(--player-color); }
+    .ai  .turn-badge  { background: rgba(233,69,96,0.2); color: var(--ai-color); }
+    .player-card.active-turn .turn-badge { opacity: 1; }
+
+    /* streak */
+    .streak {
+      font-size: 12px;
+      color: var(--accent2);
+      font-weight: 700;
+      min-height: 16px;
+    }
+
+    /* ── Result banner ── */
+    #resultText {
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px;
+      color: var(--accent2);
+      min-height: 28px;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+      transition: opacity 0.5s;
+    }
+
+    /* ── Board ── */
     .board {
       display: grid;
-      grid-template-columns: repeat(5, 100px); /* Menambahkan lebih banyak kolom */
+      grid-template-columns: repeat(5, 100px);
       gap: 10px;
       justify-content: center;
-      margin: 20px auto;
     }
-    .tile {
+
+    /* ── 3D Card Flip ── */
+    .tile-wrap {
       width: 100px;
       height: 100px;
-      background: rgb(244,244,244);
-      border-radius: 12px;
+      perspective: 600px;
+      cursor: pointer;
+    }
+
+    .tile-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: var(--radius);
+    }
+
+    .tile-wrap.flipped .tile-inner,
+    .tile-wrap.matched .tile-inner { transform: rotateY(180deg); }
+
+    .tile-face {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
-      cursor: pointer;
-      user-select: none;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: background-color 0.3s, transform 0.2s;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
-    .tile:hover {
-      transform: scale(1.10);
+
+    .tile-back {
+      background: var(--card-back);
+      border: 2px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      font-size: 28px;
+      color: rgba(255,255,255,0.15);
+      transition: background 0.2s;
     }
-    .matched {
-      background-color: #b1f7be;
+
+    .tile-wrap:not(.flipped):not(.matched):not(.disabled):hover .tile-back {
+      background: #164080;
+      border-color: rgba(78,204,163,0.4);
     }
-    .disabled {
-      pointer-events: none;
-      opacity: 0.6;
+
+    .tile-front {
+      background: var(--card-front);
+      transform: rotateY(180deg);
+      font-size: 42px;
+      box-shadow: var(--shadow);
     }
-    .scoreboard {
-      margin-top: 10px;
-      font-size: 18px;
-      color: #444;
+
+    .tile-wrap.matched .tile-front {
+      background: #d4fce8;
+      box-shadow: 0 0 20px rgba(78,204,163,0.5);
     }
-    .result {
-      margin-top: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #222;
-      transition: opacity 1s ease;
+
+    .tile-wrap.disabled { cursor: default; pointer-events: none; }
+
+    /* match pop animation */
+    @keyframes matchPop {
+      0%   { transform: rotateY(180deg) scale(1); }
+      40%  { transform: rotateY(180deg) scale(1.18); }
+      100% { transform: rotateY(180deg) scale(1); }
     }
-    .animating {
-      animation: shake 0s infinite;
+    .tile-wrap.matched.just-matched .tile-inner {
+      animation: matchPop 0.4s ease 0.45s both;
     }
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-3px); }
-      50% { transform: translateX(3px); }
-      75% { transform: translateX(-3px); }
-      100% { transform: translateX(0); }
+
+    /* wrong shake */
+    @keyframes wrongShake {
+      0%,100% { transform: rotateY(180deg) translateX(0); }
+      25%      { transform: rotateY(180deg) translateX(-6px); }
+      75%      { transform: rotateY(180deg) translateX(6px); }
     }
+    .tile-wrap.wrong .tile-inner {
+      animation: wrongShake 0.4s ease;
+    }
+    .tile-wrap.wrong .tile-front { background: #ffe0e0; }
+
+    /* ── Buttons ── */
     #playAgainBtn {
       display: none;
-      margin-top: 20px;
-      padding: 10px 24px;
-      font-size: 18px;
+      margin-top: 24px;
+      padding: 12px 32px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px;
       border: none;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      color: white;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--player-color), var(--accent2));
+      color: #1a1a2e;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 20px rgba(78,204,163,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    #playAgainBtn:hover {
-      background-color: #45a049;
-    }
-    
+    #playAgainBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(78,204,163,0.5); }
+
+    /* ── Description ── */
     #deksripsi {
       max-width: 700px;
-      margin: 50px auto 0 auto;
-      font-size: 16px;
-      color: #2f2f2f;
+      margin: 60px auto 0;
+      font-size: 15px;
+      color: #b0bec5;
       text-align: justify;
       line-height: 1.8;
-      font-family: 'Segoe UI', sans-serif;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 30px 34px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
+    #deksripsi h2 { font-family: 'Fredoka One', cursive; color: var(--text); font-size: 22px; text-align: center; margin-bottom: 16px; }
+    #deksripsi h3 { color: var(--player-color); margin-top: 20px; margin-bottom: 8px; font-size: 16px; }
+    #deksripsi strong { color: var(--text); }
+    #deksripsi ol, #deksripsi ul { margin-left: 20px; }
+    #deksripsi li { margin-bottom: 4px; }
+    #deksripsi footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; }
   </style>
 </head>
 <body>
+
   <h1>Tebak Gambar</h1>
-  <div class="scoreboard">
-    Skor Kamu: <span id="userScore">0</span> | Skor AI: <span id="aiScore">0</span>
+
+  <!-- Difficulty -->
+  <div class="difficulty-bar">
+    <button class="diff-btn" data-d="easy" onclick="setDiff('easy')">😴 Easy</button>
+    <button class="diff-btn active" data-d="medium" onclick="setDiff('medium')">🤔 Medium</button>
+    <button class="diff-btn" data-d="hard" onclick="setDiff('hard')">🔥 Hard</button>
   </div>
-  <div class="result" id="resultText"></div>
+
+  <!-- Turn indicator -->
+  <div class="turn-wrap">
+    <div class="player-card you" id="cardYou">
+      <div class="player-label">Kamu</div>
+      <div class="player-score" id="userScore">0</div>
+      <div class="turn-badge">Giliran kamu!</div>
+      <div class="streak" id="streakYou"></div>
+    </div>
+    <div class="player-card ai" id="cardAI">
+      <div class="player-label">AI</div>
+      <div class="player-score" id="aiScore">0</div>
+      <div class="turn-badge">Giliran AI...</div>
+      <div class="streak" id="streakAI"></div>
+    </div>
+  </div>
+
+  <div id="resultText"></div>
   <div class="board" id="board"></div>
-  <button id="playAgainBtn" onclick="initGame()">Main Lagi</button>
-<div id="deksripsi">
-  <h2 style="font-family: 'Noto Serif', serif; color: #2c3e50; text-align: center;">Tentang Web Ini</h2>
-  <p>
-    Selamat datang di permainan <strong>Tebak Gambar</strong>—sebuah game memori berbasis web yang dirancang untuk menguji daya ingat, kecepatan berpikir, dan strategi kamu saat menghadapi AI cerdas. Game ini menampilkan antarmuka bersih, animasi ringan, dan gameplay yang seru untuk semua kalangan.
-  </p>
-  
-  <h3 style="color: #34495e;">Cara Mainnya Gimana?</h3>
-  <p>
-    Di permainan ini, kamu dan AI akan bergiliran membuka dua kotak dari papan berisi gambar acak. Kalau keduanya cocok, poin akan diberikan, dan pemain yang cocok berhak melanjutkan giliran. Kalau nggak cocok, giliran berpindah. Siapa yang paling banyak mencocokkan gambar sampai akhir, dialah pemenangnya!
-  </p>
-  <p>
-    Berikut langkah-langkahnya:
+  <button id="playAgainBtn" onclick="initGame()">Main Lagi!</button>
+
+  <div id="deksripsi">
+    <h2>Tentang Web Ini</h2>
+    <p>Selamat datang di <strong>Tebak Gambar</strong>—game memori berbasis web yang menguji daya ingat dan strategi kamu saat menghadapi AI dengan tiga tingkat kesulitan berbeda.</p>
+
+    <h3>Cara Mainnya</h3>
+    <p>Kamu dan AI bergiliran membuka dua kartu. Kalau cocok, poin dapat dan giliran <em>tetap di kamu</em>. Kalau salah, giliran berpindah.</p>
     <ol>
-      <li>Game akan mulai secara otomatis dengan giliran acak antara kamu atau AI.</li>
-      <li>Klik dua kotak untuk membuka gambar dan lihat apakah mereka cocok.</li>
-      <li>Kalau cocok, kamu dapat poin dan lanjut bermain.</li>
-      <li>Kalau nggak cocok, giliran AI untuk mencoba!</li>
-      <li>Papan akan terus diisi hingga semua gambar ditemukan.</li>
-      <li>Setelah selesai, akan muncul siapa yang menang dan tombol <strong>“Main Lagi”</strong>.</li>
+      <li>Pilih tingkat kesulitan AI dulu.</li>
+      <li>Klik dua kartu untuk membuka gambar.</li>
+      <li>Kalau cocok, kamu lanjut main!</li>
+      <li>Kalau salah, giliran AI.</li>
+      <li>Siapa paling banyak pasangan, menang!</li>
     </ol>
-  </p>
 
-  <h3 style="color: #34495e;">Web Ini Kerja Gimana Sih?</h3>
-  <p>
-    Game ini sepenuhnya dibangun menggunakan <strong>HTML, CSS, dan JavaScript</strong>—tidak memerlukan server, akun, atau koneksi database. Semua logika berjalan langsung di browser kamu secara real-time.
-  </p>
-  <ul>
-    <li>Papan akan diisi gambar secara acak dan digandakan untuk menciptakan pasangan.</li>
-    <li>Setiap langkah pemain atau AI dicatat dan diperiksa apakah cocok.</li>
-    <li>AI menggunakan sistem memori untuk mengingat posisi gambar yang pernah dibuka dan membuat keputusan yang lebih cerdas dari waktu ke waktu.</li>
-    <li>Skor ditampilkan secara langsung, dan efek visual membantu menandai gambar yang sudah cocok.</li>
-    <li>Ketika seluruh pasangan telah ditemukan, sistem akan otomatis menilai siapa pemenangnya.</li>
-  </ul>
+    <h3>Tingkat Kesulitan AI</h3>
+    <ul>
+      <li><strong>Easy</strong> — AI sering "lupa" posisi kartu. Gampang dikalahkan.</li>
+      <li><strong>Medium</strong> — AI punya ingatan sebagian. Lumayan menantang.</li>
+      <li><strong>Hard</strong> — AI ingat semua kartu yang pernah dibuka. Sangat susah!</li>
+    </ul>
 
-  <h3 style="color: #34495e;">Kenapa Web Ini Dibuat?</h3>
-  <p>
-    Proyek ini dibuat sebagai latihan dalam pengembangan game sederhana berbasis web, dengan tujuan mengasah keterampilan logika pemrograman, manipulasi DOM, dan pengalaman interaktif menggunakan JavaScript. Selain itu, game ini juga menjadi contoh penerapan AI ringan berbasis memori tanpa algoritma kompleks.
-  </p>
-  <p>
-    Cocok buat kamu yang ingin bersantai, melatih otak, atau sekadar nostalgia dengan permainan klasik mencocokkan gambar!
-  </p>
-  <p style="text-align: center; font-weight: bold; font-size: 14px;">Selamat bermain dan kalahkan AI-nya ya!</p>
-  <p style="text-align: center; font-size: 12px; color: gray;">
-    -text dibuat oleh ChatGPT-
-  </p>
-  <footer style="text-align: center; font-size: 12px; color: gray;">
-    &copy; 2025 dibuat oleh Yanto Kemakmuran
-  </footer>
-</div>
+    <h3>Yang Baru</h3>
+    <ul>
+      <li>Animasi flip kartu 3D yang smooth.</li>
+      <li>Indikator giliran real-time dengan highlight.</li>
+      <li>Giliran tetap di player kalau berhasil cocok (bug fix).</li>
+      <li>AI tidak bisa "cheating" lihat kartu yang belum dibuka.</li>
+      <li>Streak counter untuk cocok berturut-turut.</li>
+    </ul>
+
+    <footer>&copy; 2025 dibuat oleh Yanto Kemakmuran</footer>
+  </div>
 
   <script>
-    const images = ['🍎','🍌','🍇','🍓','🍒','🍍','🥝','🍉','🍑','🍊']; /* Menambahkan lebih banyak gambar */
-    let board = [], matched = [], selected = [], memory = {};
-    let userTurn = true;
-    let userScore = 0, aiScore = 0;
+    // ── Config ────────────────────────────────────────────────────────────────
+    const EMOJIS = ['🍎','🍌','🍇','🍓','🍒','🍍','🥝','🍉','🍑','🍊'];
 
-    const boardDiv = document.getElementById("board");
-    const userScoreSpan = document.getElementById("userScore");
-    const aiScoreSpan = document.getElementById("aiScore");
-    const resultDiv = document.getElementById("resultText");
-    const playAgainBtn = document.getElementById("playAgainBtn");
+    // AI difficulty: chance that AI "remembers" a card it has seen
+    const DIFF_MEMORY = { easy: 0.3, medium: 0.65, hard: 1.0 };
+    let difficulty = 'medium';
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
+    function setDiff(d) {
+      difficulty = d;
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.d === d));
     }
 
+    // ── State ─────────────────────────────────────────────────────────────────
+    let board = [], matchedSet = new Set(), selected = [];
+    let aiMemory = {};   // index -> emoji, only cards AI has actually seen
+    let userTurn = true;
+    let userScore = 0, aiScore = 0;
+    let userStreak = 0, aiStreak = 0;
+    let busy = false;    // lock during animations
+
+    // ── DOM refs ──────────────────────────────────────────────────────────────
+    const boardDiv     = document.getElementById('board');
+    const resultDiv    = document.getElementById('resultText');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const cardYou      = document.getElementById('cardYou');
+    const cardAI       = document.getElementById('cardAI');
+    const userScoreEl  = document.getElementById('userScore');
+    const aiScoreEl    = document.getElementById('aiScore');
+    const streakYouEl  = document.getElementById('streakYou');
+    const streakAIEl   = document.getElementById('streakAI');
+
+    // ── Utils ─────────────────────────────────────────────────────────────────
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
     function initGame() {
-      playAgainBtn.style.display = "none";
-      const pairImages = shuffle([...images, ...images]); /* Menggandakan gambar untuk pasangan */
-      board = shuffle(pairImages);
-      matched = [];
+      playAgainBtn.style.display = 'none';
+      resultDiv.textContent = '';
+      board = shuffle([...EMOJIS, ...EMOJIS]);
+      matchedSet = new Set();
       selected = [];
-      memory = {};
-      userScore = 0;
-      aiScore = 0;
-      updateScore();
-      resultDiv.textContent = "Mengacak giliran...";
-      resultDiv.style.opacity = "1";
-      resultDiv.classList.add("animating");
+      aiMemory = {};
+      userScore = 0; aiScore = 0;
+      userStreak = 0; aiStreak = 0;
+      busy = false;
+      updateScores();
+      updateStreaks();
       drawBoard();
 
+      // random first turn with countdown
       let dots = 0;
-      const interval = setInterval(() => {
-        resultDiv.textContent = "Mengacak giliran" + ".".repeat(dots % 4);
-        dots++;
+      resultDiv.style.opacity = '1';
+      resultDiv.textContent = 'Mengacak giliran...';
+      const iv = setInterval(() => {
+        resultDiv.textContent = 'Mengacak giliran' + '.'.repeat(dots++ % 4);
       }, 400);
 
       setTimeout(() => {
-        clearInterval(interval);
+        clearInterval(iv);
         userTurn = Math.random() < 0.5;
-        resultDiv.classList.remove("animating");
-        resultDiv.textContent = userTurn ? "Kamu mulai duluan!" : "AI mulai duluan!";
-        setTimeout(() => {
-          resultDiv.style.opacity = "0";
-        }, 3000);
-
-        drawBoard();
-        if (!userTurn) setTimeout(aiTurn, 800);
+        resultDiv.textContent = userTurn ? '🙋 Kamu mulai duluan!' : '🤖 AI mulai duluan!';
+        setTimeout(() => { resultDiv.style.opacity = '0'; }, 2000);
+        updateTurnUI();
+        if (!userTurn) setTimeout(() => aiTurn(), 1000);
       }, 2000);
     }
 
-    function updateScore() {
-      userScoreSpan.textContent = userScore;
-      aiScoreSpan.textContent = aiScore;
-    }
-
+    // ── Board rendering ───────────────────────────────────────────────────────
     function drawBoard() {
       boardDiv.innerHTML = '';
-      board.forEach((img, i) => {
-        const tile = document.createElement("div");
-        tile.className = "tile";
-        if (matched.includes(i)) {
-          tile.classList.add("matched");
-          tile.textContent = img;
+      board.forEach((emoji, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'tile-wrap';
+        wrap.dataset.i = i;
+
+        const inner = document.createElement('div');
+        inner.className = 'tile-inner';
+
+        const back = document.createElement('div');
+        back.className = 'tile-face tile-back';
+        back.textContent = '✦';
+
+        const front = document.createElement('div');
+        front.className = 'tile-face tile-front';
+        front.textContent = emoji;
+
+        inner.append(back, front);
+        wrap.appendChild(inner);
+
+        if (matchedSet.has(i)) {
+          wrap.classList.add('flipped', 'matched');
         } else if (selected.includes(i)) {
-          tile.textContent = img;
+          wrap.classList.add('flipped');
         }
-        if (!userTurn || matched.includes(i) || selected.includes(i)) {
-          tile.classList.add("disabled");
+
+        const canClick = userTurn && !busy && !matchedSet.has(i) && !selected.includes(i);
+        if (canClick) {
+          wrap.addEventListener('click', () => playerSelect(i));
         } else {
-          tile.addEventListener("click", () => playerSelect(i));
+          wrap.classList.add('disabled');
         }
-        boardDiv.appendChild(tile);
+
+        boardDiv.appendChild(wrap);
       });
     }
 
-    function playerSelect(index) {
-      if (selected.includes(index)) return;
-      selected.push(index);
-      memory[index] = board[index];
-      drawBoard();
+    function getTileWrap(i) {
+      return boardDiv.querySelector(`.tile-wrap[data-i="${i}"]`);
+    }
+
+    // flip a tile with animation
+    function flipTile(i) {
+      const w = getTileWrap(i);
+      if (w) w.classList.add('flipped');
+    }
+
+    function unflipTile(i) {
+      const w = getTileWrap(i);
+      if (w) { w.classList.remove('flipped'); w.classList.remove('wrong'); }
+    }
+
+    function markMatched(i) {
+      const w = getTileWrap(i);
+      if (w) {
+        w.classList.add('matched', 'just-matched');
+        w.classList.remove('wrong');
+        w.classList.add('disabled');
+        setTimeout(() => w.classList.remove('just-matched'), 900);
+      }
+    }
+
+    function markWrong(i) {
+      const w = getTileWrap(i);
+      if (w) w.classList.add('wrong');
+    }
+
+    // ── UI helpers ────────────────────────────────────────────────────────────
+    function updateTurnUI() {
+      cardYou.classList.toggle('active-turn', userTurn);
+      cardAI.classList.toggle('active-turn', !userTurn);
+      // enable/disable tiles
+      boardDiv.querySelectorAll('.tile-wrap').forEach(w => {
+        const i = parseInt(w.dataset.i);
+        const isSelectable = userTurn && !busy && !matchedSet.has(i) && !selected.includes(i);
+        w.classList.toggle('disabled', !isSelectable);
+        if (isSelectable) {
+          w.onclick = () => playerSelect(i);
+        } else {
+          w.onclick = null;
+        }
+      });
+    }
+
+    function updateScores() {
+      userScoreEl.textContent = userScore;
+      aiScoreEl.textContent = aiScore;
+    }
+
+    function updateStreaks() {
+      streakYouEl.textContent = userStreak >= 2 ? `🔥 ${userStreak}x streak!` : '';
+      streakAIEl.textContent  = aiStreak  >= 2 ? `🔥 ${aiStreak}x streak!`  : '';
+    }
+
+    function showResult(msg, fade = true) {
+      resultDiv.style.opacity = '1';
+      resultDiv.textContent = msg;
+      if (fade) setTimeout(() => { resultDiv.style.opacity = '0'; }, 2500);
+    }
+
+    // ── AI Memory helpers ─────────────────────────────────────────────────────
+    // AI learns a card based on difficulty (probabilistic forgetting)
+    function aiLearn(i) {
+      if (Math.random() < DIFF_MEMORY[difficulty]) {
+        aiMemory[i] = board[i];
+      }
+    }
+
+    // find a known match pair in AI memory
+    function aiFindKnownPair() {
+      const byEmoji = {};
+      for (const [idx, emoji] of Object.entries(aiMemory)) {
+        const i = parseInt(idx);
+        if (matchedSet.has(i)) continue;
+        if (!byEmoji[emoji]) byEmoji[emoji] = [];
+        byEmoji[emoji].push(i);
+      }
+      for (const emoji in byEmoji) {
+        if (byEmoji[emoji].length >= 2) return [byEmoji[emoji][0], byEmoji[emoji][1]];
+      }
+      return null;
+    }
+
+    function availableTiles() {
+      return board.map((_,i) => i).filter(i => !matchedSet.has(i) && !selected.includes(i));
+    }
+
+    // ── Player logic ──────────────────────────────────────────────────────────
+    function playerSelect(i) {
+      if (busy || !userTurn || selected.includes(i) || matchedSet.has(i)) return;
+      selected.push(i);
+      flipTile(i);
+      updateTurnUI();
 
       if (selected.length === 2) {
+        busy = true;
+        const [a, b] = selected;
+        const isMatch = board[a] === board[b];
+
         setTimeout(() => {
-          const [a, b] = selected;
-          if (board[a] === board[b]) {
-            matched.push(a, b);
+          if (isMatch) {
+            matchedSet.add(a); matchedSet.add(b);
+            markMatched(a); markMatched(b);
             userScore++;
-            updateScore();
-          }
-          selected = [];
-          drawBoard();
-          if (matched.length === board.length) return endGame();
-          userTurn = false;
-          setTimeout(aiTurn, 800);
-        }, 800);
-      }
-    }
-
-    function aiTurn() {
-      let memoryByImage = {};
-      for (const [index, img] of Object.entries(memory)) {
-        const i = parseInt(index);
-        if (matched.includes(i)) continue;
-        if (!memoryByImage[img]) memoryByImage[img] = [];
-        memoryByImage[img].push(i);
-      }
-
-      for (const img in memoryByImage) {
-        const indices = memoryByImage[img];
-        if (indices.length >= 2) {
-          selected = [indices[0], indices[1]];
-          drawBoard();
-          setTimeout(() => {
-            matched.push(...selected);
-            aiScore++;
-            updateScore();
+            userStreak++;
+            aiStreak = 0;
+            updateScores(); updateStreaks();
             selected = [];
-            drawBoard();
-            if (matched.length === board.length) return endGame();
-            userTurn = true;
-            drawBoard();
-          }, 800);
-          return;
-        }
-      }
-
-      const available = board.map((_, i) => i).filter(i => !matched.includes(i) && !selected.includes(i));
-      const i1 = available[Math.floor(Math.random() * available.length)];
-      selected = [i1];
-      memory[i1] = board[i1];
-      drawBoard();
-
-      setTimeout(() => {
-        let i2 = null;
-        const match = Object.entries(memory).find(([idx, val]) =>
-          parseInt(idx) !== i1 && val === board[i1] && !matched.includes(parseInt(idx))
-        );
-        if (match) {
-          i2 = parseInt(match[0]);
-        } else {
-          const other = available.filter(i => i !== i1);
-          i2 = other[Math.floor(Math.random() * other.length)];
-        }
-
-        selected.push(i2);
-        memory[i2] = board[i2];
-        drawBoard();
-
-        setTimeout(() => {
-          const [a, b] = selected;
-          if (board[a] === board[b]) {
-            matched.push(a, b);
-            aiScore++;
+            busy = false;
+            if (matchedSet.size === board.length) return endGame();
+            // correct match → player keeps turn
+            updateTurnUI();
+          } else {
+            markWrong(a); markWrong(b);
+            userStreak = 0;
+            updateStreaks();
+            setTimeout(() => {
+              unflipTile(a); unflipTile(b);
+              selected = [];
+              busy = false;
+              userTurn = false;
+              updateTurnUI();
+              setTimeout(() => aiTurn(), 700);
+            }, 700);
           }
-          selected = [];
-          updateScore();
-          drawBoard();
-          if (matched.length === board.length) return endGame();
-          userTurn = true;
-          drawBoard();
-        }, 800);
-      }, 800);
-    }
-
-    function endGame() {
-      let message = '';
-      if (userScore > aiScore) {
-        message = 'Kamu menang!';
-      } else if (aiScore > userScore) {
-        message = 'AI menang!';
-      } else {
-        message = 'Seri!';
+        }, 600);
       }
-      resultDiv.textContent = message;
-      resultDiv.style.opacity = "1";
-      playAgainBtn.style.display = "inline-block";
     }
 
+    // ── AI logic ──────────────────────────────────────────────────────────────
+    async function aiTurn() {
+      if (userTurn || matchedSet.size === board.length) return;
+      busy = true;
+
+      // try to use known pair first
+      const knownPair = aiFindKnownPair();
+      let i1, i2;
+
+      if (knownPair) {
+        [i1, i2] = knownPair;
+      } else {
+        // pick first card randomly from unknowns
+        const avail = availableTiles().filter(i => !(i in aiMemory));
+        const pool  = avail.length > 0 ? avail : availableTiles();
+        i1 = pool[Math.floor(Math.random() * pool.length)];
+        aiLearn(i1);
+
+        // check if we now know a match for i1
+        const matchIdx = Object.entries(aiMemory).find(([idx, emoji]) =>
+          parseInt(idx) !== i1 && emoji === board[i1] && !matchedSet.has(parseInt(idx))
+        );
+
+        if (matchIdx) {
+          i2 = parseInt(matchIdx[0]);
+        } else {
+          // pick random second card (not i1, not already matched)
+          const pool2 = availableTiles().filter(i => i !== i1);
+          i2 = pool2[Math.floor(Math.random() * pool2.length)];
+          aiLearn(i2);
+        }
+      }
+
+      // animate: flip first
+      selected = [i1];
+      flipTile(i1);
+      updateTurnUI();
+      await sleep(650);
+
+      // flip second
+      selected = [i1, i2];
+      flipTile(i2);
+      updateTurnUI();
+      await sleep(750);
+
+      const isMatch = board[i1] === board[i2];
+
+      if (isMatch) {
+        matchedSet.add(i1); matchedSet.add(i2);
+        markMatched(i1); markMatched(i2);
+        // clean memory
+        delete aiMemory[i1]; delete aiMemory[i2];
+        aiScore++;
+        aiStreak++;
+        userStreak = 0;
+        updateScores(); updateStreaks();
+        selected = [];
+        busy = false;
+        if (matchedSet.size === board.length) return endGame();
+        // AI keeps turn on match
+        await sleep(600);
+        aiTurn();
+      } else {
+        markWrong(i1); markWrong(i2);
+        aiStreak = 0;
+        updateStreaks();
+        await sleep(750);
+        unflipTile(i1); unflipTile(i2);
+        selected = [];
+        busy = false;
+        userTurn = true;
+        updateTurnUI();
+      }
+    }
+
+    // ── End game ──────────────────────────────────────────────────────────────
+    function endGame() {
+      busy = true;
+      const msgs = {
+        win:  '🎉 Kamu menang! kamu > AI 🧠',
+        lose: '🤖 AI menang! Mending belajar lagi 😂',
+        draw: '🤝 Seri! Cukup berimbang.',
+      };
+      const msg = userScore > aiScore ? msgs.win : aiScore > userScore ? msgs.lose : msgs.draw;
+      resultDiv.style.opacity = '1';
+      resultDiv.textContent = msg;
+      playAgainBtn.style.display = 'inline-block';
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    setDiff('medium');
     initGame();
   </script>
 </body>
